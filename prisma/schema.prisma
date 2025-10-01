@@ -112,8 +112,16 @@ model NewsArticle {
   category    String
   image       String
   featured    Boolean  @default(false)
+  status      ArticleStatus @default(DRAFT)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 model ServiceProviderApplication {

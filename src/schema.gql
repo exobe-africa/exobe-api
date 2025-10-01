@@ -20,6 +20,20 @@ type ContactMessageResult {
   id: String!
 }
 
+input CreateNewsArticleInput {
+  author: String!
+  category: String!
+  content: String!
+  excerpt: String!
+  featured: Boolean
+  image: String!
+  isActive: Boolean
+  publishedAt: String!
+  readTime: Float!
+  status: String
+  title: String!
+}
+
 input CustomerRegisterInput {
   agreeToTerms: Boolean!
   confirmPassword: String!
@@ -46,12 +60,15 @@ type Mutation {
   applyServiceProvider(input: ServiceProviderApplicationInput!): SellerApplicationType!
   applyWholesaler(input: SellerApplicationInput!): SellerApplicationType!
   changePassword(input: ChangePasswordInput!): Boolean!
+  createNewsArticle(input: CreateNewsArticleInput!): NewsArticleType!
+  deleteNewsArticle(id: String!): Boolean!
   login(input: LoginInput!): UserType!
   logout: Boolean!
   refresh: Boolean!
   register(input: RegisterInput!): UserType!
   registerCustomer(input: CustomerRegisterInput!): UserType!
   sendContactMessage(input: ContactMessageInput!): ContactMessageResult!
+  updateNewsArticle(id: String!, input: UpdateNewsArticleInput!): NewsArticleType!
 }
 
 type NewsArticleType {
@@ -62,8 +79,10 @@ type NewsArticleType {
   featured: Boolean!
   id: ID!
   image: String!
+  isActive: Boolean!
   publishedAt: DateTime!
   readTime: Float!
+  status: String!
   title: String!
 }
 
@@ -171,6 +190,20 @@ input ServiceProviderApplicationInput {
   vatNumber: String
   vatRegistered: String
   workSamples: String
+}
+
+input UpdateNewsArticleInput {
+  author: String
+  category: String
+  content: String
+  excerpt: String
+  featured: Boolean
+  image: String
+  isActive: Boolean
+  publishedAt: String
+  readTime: Float
+  status: String
+  title: String
 }
 
 type UserType {

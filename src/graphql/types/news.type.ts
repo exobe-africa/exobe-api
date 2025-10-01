@@ -22,6 +22,10 @@ export class NewsArticleType {
   image: string;
   @Field()
   featured: boolean;
+  @Field()
+  status: string;
+  @Field()
+  isActive: boolean;
 }
 
 

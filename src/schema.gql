@@ -1,0 +1,186 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+}
+
+input ContactMessageInput {
+  department: String
+  email: String!
+  message: String!
+  name: String!
+  phone: String
+  subject: String!
+}
+
+type ContactMessageResult {
+  id: String!
+}
+
+input CustomerRegisterInput {
+  agreeToTerms: Boolean!
+  confirmPassword: String!
+  email: String!
+  firstName: String
+  lastName: String
+  password: String!
+  phone: String
+  subscribeNewsletter: Boolean!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  applyRetailer(input: SellerApplicationInput!): SellerApplicationType!
+  applyServiceProvider(input: ServiceProviderApplicationInput!): SellerApplicationType!
+  applyWholesaler(input: SellerApplicationInput!): SellerApplicationType!
+  changePassword(input: ChangePasswordInput!): Boolean!
+  login(input: LoginInput!): UserType!
+  logout: Boolean!
+  refresh: Boolean!
+  register(input: RegisterInput!): UserType!
+  registerCustomer(input: CustomerRegisterInput!): UserType!
+  sendContactMessage(input: ContactMessageInput!): ContactMessageResult!
+}
+
+type NewsArticleType {
+  author: String!
+  category: String!
+  content: String!
+  excerpt: String!
+  featured: Boolean!
+  id: ID!
+  image: String!
+  publishedAt: DateTime!
+  readTime: Float!
+  title: String!
+}
+
+type Query {
+  featuredNewsArticles: [NewsArticleType!]!
+  me: UserType!
+  newsArticle(id: String!): NewsArticleType
+  newsArticles(category: String): [NewsArticleType!]!
+  userByEmail(email: String!): UserType
+}
+
+input RegisterInput {
+  agreeToTerms: Boolean!
+  confirmPassword: String!
+  email: String!
+  firstName: String
+  lastName: String
+  password: String!
+  phone: String
+  subscribeNewsletter: Boolean!
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+  RETAILER
+  SERVICE_PROVIDER
+  WHOLESALER
+}
+
+input SellerApplicationInput {
+  address: String!
+  agreeToTerms: Boolean!
+  applicantType: String!
+  businessName: String!
+  businessRegistration: String
+  businessSummary: String!
+  businessType: String!
+  city: String!
+  email: String!
+  firstName: String!
+  howDidYouHear: String!
+  identificationType: String!
+  landline: String
+  lastName: String!
+  monthlyRevenue: String
+  numberOfStores: String
+  otherMarketplaces: String
+  ownedBrands: String
+  phone: String!
+  physicalStores: String
+  postalCode: String!
+  primaryCategory: String!
+  productDescription: String!
+  province: String!
+  resellerBrands: String
+  saIdNumber: String
+  socialMedia: String
+  stockType: String!
+  supplierToRetailers: String
+  uniqueProducts: String
+  vatNumber: String
+  vatRegistered: String!
+  website: String
+}
+
+type SellerApplicationType {
+  id: String!
+}
+
+input ServiceProviderApplicationInput {
+  address: String!
+  agreeToBackground: Boolean!
+  agreeToTerms: Boolean!
+  availability: String!
+  backgroundCheck: String
+  bankDetails: String
+  businessName: String
+  businessRegistration: String
+  certifications: String
+  city: String!
+  clientReferences: String
+  dateOfBirth: String
+  email: String!
+  emergencyContact: String
+  experience: String!
+  firstName: String!
+  goals: String
+  hourlyRate: String!
+  howDidYouHear: String!
+  idNumber: String!
+  identificationType: String!
+  insurance: String
+  lastName: String!
+  motivation: String!
+  phone: String!
+  portfolio: String
+  postalCode: String!
+  primaryService: String!
+  province: String!
+  qualifications: String
+  serviceCategories: [String!]!
+  serviceRadius: String!
+  transportMode: String!
+  vatNumber: String
+  vatRegistered: String
+  workSamples: String
+}
+
+type UserType {
+  agreeToTerms: Boolean!
+  email: String!
+  firstName: String
+  id: ID!
+  lastName: String
+  name: String
+  phone: String
+  role: Role!
+  subscribeNewsletter: Boolean!
+}

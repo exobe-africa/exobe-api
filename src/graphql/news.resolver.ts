@@ -1,6 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { NewsService } from '../news/news.service';
-import { NewsArticleType } from './news.type';
+import { NewsArticleType } from './types/news.type';
 
 @Resolver(() => NewsArticleType)
 export class NewsResolver {

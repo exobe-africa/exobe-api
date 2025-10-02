@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
 import { UsersResolver } from './users.resolver';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
@@ -19,7 +18,8 @@ import { CatalogResolver } from './catalog.resolver.js';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      // Generate schema in-memory to avoid writing to read-only filesystems (e.g., Vercel)
+      autoSchemaFile: true,
       sortSchema: true,
       playground: process.env.NODE_ENV !== 'production',
       csrfPrevention: true,

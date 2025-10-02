@@ -2,6 +2,46 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AddProductMediaInput {
+  position: Float
+  productId: String!
+  type: String
+  url: String!
+}
+
+input AddVariantMediaInput {
+  position: Float
+  type: String
+  url: String!
+  variantId: String!
+}
+
+input BulkCreateVariantsInput {
+  productId: String!
+  variants: [CreateVariantInput!]!
+}
+
+type CategoryTreeType {
+  children: [CategoryTreeType!]!
+  description: String
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  parentId: String
+  path: String!
+  slug: String!
+}
+
+type CategoryType {
+  description: String
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  parentId: String
+  path: String!
+  slug: String!
+}
+
 input ChangePasswordInput {
   currentPassword: String!
   newPassword: String!
@@ -20,6 +60,14 @@ type ContactMessageResult {
   id: String!
 }
 
+input CreateCategoryInput {
+  description: String
+  name: String!
+  parentId: String
+  path: String!
+  slug: String!
+}
+
 input CreateNewsArticleInput {
   author: String!
   category: String!
@@ -32,6 +80,36 @@ input CreateNewsArticleInput {
   readTime: Float!
   status: String
   title: String!
+}
+
+input CreateProductInput {
+  categoryId: String!
+  description: String
+  isActive: Boolean
+  slug: String!
+  status: String
+  title: String!
+  vendorId: String!
+}
+
+input CreateVariantInput {
+  allowBackorder: Boolean
+  attributes: [VariantAttributeInput!]!
+  barcode: String
+  compareAtPriceCents: Float
+  priceCents: Float!
+  productId: String!
+  sku: String!
+  stockQuantity: Float
+  title: String!
+  trackInventory: Boolean
+  weightGrams: Float
+}
+
+input CreateVendorInput {
+  description: String
+  name: String!
+  slug: String!
 }
 
 input CustomerRegisterInput {
@@ -50,25 +128,50 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input InventoryAdjustInput {
+  change: Float!
+  notes: String
+  reason: String!
+  variantId: ID!
+}
+
 input LoginInput {
   email: String!
   password: String!
 }
 
 type Mutation {
+  addProductMedia(input: AddProductMediaInput!): ProductMediaType!
+  addVariantMedia(input: AddVariantMediaInput!): ProductMediaType!
+  adjustInventory(input: InventoryAdjustInput!): String!
   applyRetailer(input: SellerApplicationInput!): SellerApplicationType!
   applyServiceProvider(input: ServiceProviderApplicationInput!): SellerApplicationType!
   applyWholesaler(input: SellerApplicationInput!): SellerApplicationType!
+  approveProduct(productId: String!): Boolean!
+  approveVendor(vendorId: String!): Boolean!
+  archiveProduct(productId: String!): Boolean!
+  bulkCreateVariants(input: BulkCreateVariantsInput!): [ProductVariantType!]!
   changePassword(input: ChangePasswordInput!): Boolean!
+  createCategory(input: CreateCategoryInput!): CategoryType!
   createNewsArticle(input: CreateNewsArticleInput!): NewsArticleType!
+  createProduct(input: CreateProductInput!): ProductType!
+  createVariant(input: CreateVariantInput!): ProductVariantType!
+  createVendor(input: CreateVendorInput!): VendorType!
   deleteNewsArticle(id: String!): Boolean!
+  deleteProduct(id: String!): Boolean!
+  deleteVariant(id: String!): Boolean!
   login(input: LoginInput!): UserType!
   logout: Boolean!
   refresh: Boolean!
   register(input: RegisterInput!): UserType!
   registerCustomer(input: CustomerRegisterInput!): UserType!
+  removeProductMedia(mediaId: String!): Boolean!
+  removeVariantMedia(mediaId: String!): Boolean!
   sendContactMessage(input: ContactMessageInput!): ContactMessageResult!
+  suspendVendor(vendorId: String!): Boolean!
   updateNewsArticle(id: String!, input: UpdateNewsArticleInput!): NewsArticleType!
+  updateProduct(id: String!, input: UpdateProductInput!): ProductType!
+  updateVariant(id: String!, input: UpdateVariantInput!): ProductVariantType!
 }
 
 type NewsArticleType {
@@ -86,11 +189,47 @@ type NewsArticleType {
   title: String!
 }
 
+type ProductMediaType {
+  id: ID!
+  position: Float!
+  type: String!
+  url: String!
+}
+
+type ProductType {
+  categoryId: String!
+  description: String
+  featured: Boolean!
+  id: ID!
+  isActive: Boolean!
+  slug: String!
+  status: String!
+  title: String!
+  vendorId: String!
+}
+
+type ProductVariantType {
+  attributes: String!
+  barcode: String
+  compareAtPriceCents: Float
+  id: ID!
+  media: [ProductMediaType!]
+  priceCents: Float!
+  sku: String!
+  stockQuantity: Float!
+  title: String!
+  weightGrams: Float
+}
+
 type Query {
+  categories: [CategoryType!]!
+  categoryTree: [CategoryTreeType!]!
   featuredNewsArticles: [NewsArticleType!]!
   me: UserType!
   newsArticle(id: String!): NewsArticleType
   newsArticles(category: String): [NewsArticleType!]!
+  productById(id: String!): ProductType
+  searchProducts(categoryId: String, cursor: String, isActive: Boolean, limit: Float, query: String, status: String, vendorId: String): String!
   userByEmail(email: String!): UserType
 }
 
@@ -206,6 +345,28 @@ input UpdateNewsArticleInput {
   title: String
 }
 
+input UpdateProductInput {
+  categoryId: String
+  description: String
+  isActive: Boolean
+  slug: String
+  status: String
+  title: String
+}
+
+input UpdateVariantInput {
+  allowBackorder: Boolean
+  attributes: [VariantAttributeInput!]
+  barcode: String
+  compareAtPriceCents: Float
+  priceCents: Float
+  sku: String
+  stockQuantity: Float
+  title: String
+  trackInventory: Boolean
+  weightGrams: Float
+}
+
 type UserType {
   agreeToTerms: Boolean!
   email: String!
@@ -216,4 +377,17 @@ type UserType {
   phone: String
   role: Role!
   subscribeNewsletter: Boolean!
+}
+
+input VariantAttributeInput {
+  name: String!
+  value: String!
+}
+
+type VendorType {
+  description: String
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  slug: String!
 }

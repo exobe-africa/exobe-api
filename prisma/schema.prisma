@@ -188,6 +188,7 @@ model Category {
   parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryChildren")
   path        String
+  root        RootCategory?
   isActive    Boolean    @default(true)
   products    CatalogProduct[]
   createdAt   DateTime   @default(now())
@@ -280,4 +281,34 @@ enum InventoryReason {
   RETURN
   RECEIVING
   TRANSFER
+}
+
+// Top-level product taxonomy categories
+enum RootCategory {
+  ANIMALS_PET_SUPPLIES
+  APPAREL_ACCESSORIES
+  ARTS_ENTERTAINMENT
+  BABY_TODDLER
+  BUSINESS_INDUSTRIAL
+  CAMERAS_OPTICS
+  ELECTRONICS
+  FOOD_BEVERAGES_TOBACCO
+  FURNITURE
+  HARDWARE
+  HEALTH_BEAUTY
+  HOME_GARDEN
+  LUGGAGE_BAGS
+  MATURE
+  MEDIA
+  OFFICE_SUPPLIES
+  RELIGIOUS_CEREMONIAL
+  SOFTWARE
+  SPORTING_GOODS
+  TOYS_GAMES
+  VEHICLES_PARTS
+  GIFT_CARDS
+  UNCATEGORIZED
+  SERVICES
+  PRODUCT_ADD_ONS
+  BUNDLES
 }

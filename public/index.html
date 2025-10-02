@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eXobe API - Powering Your Commerce Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --exobe-black: #000000;
+            --exobe-red: #C8102E;
+            --exobe-grey: #4A4A4A;
+            --exobe-white: #FFFFFF;
+            --exobe-sand: #F6E2E0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--exobe-black) 0%, #1a1a1a 100%);
+            color: var(--exobe-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--exobe-red);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .particle:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 60px; height: 60px; top: 60%; left: 80%; animation-delay: 2s; }
+        .particle:nth-child(3) { width: 100px; height: 100px; top: 80%; left: 20%; animation-delay: 4s; }
+        .particle:nth-child(4) { width: 40px; height: 40px; top: 30%; left: 70%; animation-delay: 1s; }
+        .particle:nth-child(5) { width: 70px; height: 70px; top: 50%; left: 50%; animation-delay: 3s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            33% { transform: translateY(-30px) translateX(30px); }
+            66% { transform: translateY(30px) translateX(-30px); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--exobe-red) 0%, #ff4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--exobe-sand);
+            font-weight: 300;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--exobe-grey);
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(200, 16, 46, 0.1);
+            border: 2px solid var(--exobe-red);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 3rem;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--exobe-red);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--exobe-red);
+            box-shadow: 0 10px 40px rgba(200, 16, 46, 0.3);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--exobe-white);
+        }
+        
+        .card p {
+            color: var(--exobe-sand);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: var(--exobe-red);
+            color: var(--exobe-white);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin: 1rem 0.5rem;
+        }
+        
+        .cta-button:hover {
+            background: #a00d25;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(200, 16, 46, 0.5);
+        }
+        
+        .cta-button.secondary {
+            background: transparent;
+            border: 2px solid var(--exobe-white);
+        }
+        
+        .cta-button.secondary:hover {
+            background: var(--exobe-white);
+            color: var(--exobe-black);
+        }
+        
+        .endpoints {
+            margin: 4rem 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+        
+        .endpoints h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .endpoint-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .endpoint {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--exobe-red);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .endpoint:hover {
+            background: rgba(200, 16, 46, 0.1);
+        }
+        
+        .endpoint-method {
+            background: var(--exobe-red);
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        
+        .endpoint-path {
+            font-family: monospace;
+            color: var(--exobe-sand);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 4rem;
+        }
+        
+        footer p {
+            color: var(--exobe-grey);
+            font-weight: 300;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--exobe-red);
+            display: block;
+        }
+        
+        .stat-label {
+            color: var(--exobe-grey);
+            font-weight: 300;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">eXobe API</div>
+            <p class="tagline">Powering seamless commerce across South Africa</p>
+        </header>
+
+        <section class="hero">
+            <h1>🚀 Fast. Secure. Scalable.</h1>
+            <p>Your complete GraphQL API for modern e-commerce</p>
+            
+            <div class="status">
+                <span class="status-dot"></span>
+                All Systems Operational
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number" id="requests">0</span>
+                    <span class="stat-label">Requests Today</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">99.9%</span>
+                    <span class="stat-label">Uptime</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">&lt;50ms</span>
+                    <span class="stat-label">Avg Response</span>
+                </div>
+            </div>
+
+            <div>
+                <a href="/graphql" class="cta-button">Explore GraphQL</a>
+                <a href="https://github.com/exobe-africa" class="cta-button secondary">View Docs</a>
+            </div>
+        </section>
+
+        <section class="cards">
+            <div class="card">
+                <div class="card-icon">🔐</div>
+                <h3>Secure Authentication</h3>
+                <p>JWT-based auth with httpOnly cookies, refresh tokens, and role-based access control for complete security.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🏪</div>
+                <h3>Multi-Vendor Catalog</h3>
+                <p>Comprehensive product management with variants, inventory tracking, and media support for diverse sellers.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h3>GraphQL Powered</h3>
+                <p>Flexible queries, real-time updates, and efficient data fetching for lightning-fast performance.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📦</div>
+                <h3>Complete Commerce</h3>
+                <p>From user registration to order processing, everything you need for a full e-commerce platform.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🌍</div>
+                <h3>Built for Africa</h3>
+                <p>Optimized for South African businesses with local payment methods and delivery support.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📱</div>
+                <h3>Mobile Ready</h3>
+                <p>RESTful endpoints and GraphQL subscriptions perfect for mobile apps and PWAs.</p>
+            </div>
+        </section>
+
+        <section class="endpoints">
+            <h2>🎯 Key Endpoints</h2>
+            <div class="endpoint-list">
+                <div class="endpoint">
+                    <span class="endpoint-path">POST /graphql</span>
+                    <span class="endpoint-method">GRAPHQL</span>
+                </div>
+                <div class="endpoint">
+                    <span class="endpoint-path">query { users { id email } }</span>
+                    <span class="endpoint-method">QUERY</span>
+                </div>
+                <div class="endpoint">
+                    <span class="endpoint-path">mutation { login(input: {...}) }</span>
+                    <span class="endpoint-method">MUTATION</span>
+                </div>
+                <div class="endpoint">
+                    <span class="endpoint-path">query { products(search: {...}) }</span>
+                    <span class="endpoint-method">QUERY</span>
+                </div>
+                <div class="endpoint">
+                    <span class="endpoint-path">mutation { createVendor(input: {...}) }</span>
+                    <span class="endpoint-method">MUTATION</span>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 eXobe. Building the future of African commerce. 🚀</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                Made with ❤️ in South Africa
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Animate request counter
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                obj.textContent = Math.floor(current).toLocaleString();
+            }, 16);
+        }
+        
+        // Start animation when page loads
+        window.addEventListener('load', () => {
+            animateValue('requests', 0, 1247, 2000);
+        });
+
+        // Add click effect to cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
+

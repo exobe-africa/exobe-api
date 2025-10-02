@@ -18,7 +18,6 @@ import { CatalogResolver } from './catalog.resolver.js';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      // Generate schema in-memory to avoid writing to read-only filesystems (e.g., Vercel)
       autoSchemaFile: true,
       sortSchema: true,
       playground: process.env.NODE_ENV !== 'production',

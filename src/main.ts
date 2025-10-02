@@ -7,7 +7,9 @@ import {
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import fastifyCookie from '@fastify/cookie';
+import fastifyStatic from '@fastify/static';
 import { ValidationPipe } from '@nestjs/common';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -24,8 +26,14 @@ async function bootstrap() {
     timeWindow: '1 minute',
   });
 
+  // Serve static files from public directory
+  await app.register(fastifyStatic as any, {
+    root: join(__dirname, '..', 'public'),
+    prefix: '/',
+  });
+
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
     credentials: true,
   });
 

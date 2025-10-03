@@ -159,4 +159,132 @@ export class UserAddressType {
   postalCode: string;
 }
 
+@ObjectType()
+export class OrderItemType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  sku: string;
+  @Field()
+  title: string;
+  @Field(() => GraphQLJSONObject)
+  attributes: Record<string, any>;
+  @Field()
+  price_cents: number;
+  @Field()
+  quantity: number;
+  @Field()
+  total_cents: number;
+}
+
+@ObjectType()
+export class OrderType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  order_number: string;
+  @Field()
+  email: string;
+  @Field()
+  status: string;
+  @Field()
+  payment_status: string;
+  @Field()
+  subtotal_cents: number;
+  @Field()
+  shipping_cents: number;
+  @Field()
+  vat_cents: number;
+  @Field()
+  total_cents: number;
+  @Field(() => GraphQLJSONObject)
+  shipping_address: Record<string, any>;
+  @Field(() => GraphQLJSONObject)
+  billing_address: Record<string, any>;
+  @Field(() => [OrderItemType])
+  items: OrderItemType[];
+  @Field(() => [OrderEventType], { nullable: true })
+  events?: OrderEventType[];
+}
+
+@ObjectType()
+export class OrderEventType {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true })
+  status?: string;
+  @Field({ nullable: true })
+  payment_status?: string;
+  @Field({ nullable: true })
+  description?: string;
+  @Field()
+  created_at: Date;
+}
+
+@ObjectType()
+export class VatRateType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  country: string;
+  @Field({ nullable: true })
+  province?: string;
+  @Field()
+  rate: number;
+  @Field()
+  is_active: boolean;
+}
+
+@ObjectType()
+export class ReturnEventType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  status: string;
+  @Field({ nullable: true })
+  description?: string;
+  @Field()
+  created_at: Date;
+}
+
+@ObjectType()
+export class ReturnItemType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  order_item_id: string;
+  @Field()
+  quantity: number;
+  @Field()
+  reason: string;
+  @Field()
+  condition: string;
+  @Field({ nullable: true })
+  description?: string;
+  @Field()
+  refund_cents: number;
+}
+
+@ObjectType()
+export class ReturnRequestType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  order_id: string;
+  @Field()
+  status: string;
+  @Field()
+  return_method: string;
+  @Field()
+  refund_method: string;
+  @Field({ nullable: true })
+  reason?: string;
+  @Field()
+  total_refund_cents: number;
+  @Field(() => [ReturnItemType])
+  items: ReturnItemType[];
+  @Field(() => [ReturnEventType])
+  events: ReturnEventType[];
+}
+
 

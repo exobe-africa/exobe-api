@@ -267,6 +267,85 @@ export class UpdateUserAddressInput {
 }
 
 @InputType()
+export class CreateOrderItemInput {
+  @Field()
+  variant_id: string;
+  @Field()
+  @IsInt()
+  quantity: number;
+}
+
+@InputType()
+export class CreateOrderInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  userId?: string;
+  @Field()
+  email: string;
+  @Field()
+  first_name: string;
+  @Field()
+  last_name: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  phone?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  mobile?: string;
+  @Field(() => GraphQLJSONObject)
+  shippingAddress: Record<string, any>;
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  @IsOptional()
+  billingAddress?: Record<string, any>;
+  @Field(() => [CreateOrderItemInput])
+  items: CreateOrderItemInput[];
+}
+
+@InputType()
+export class UpdateOrderInput {
+  @Field({ nullable: true })
+  status?: string;
+  @Field({ nullable: true })
+  payment_status?: string;
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  shippingAddress?: Record<string, any>;
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  billingAddress?: Record<string, any>;
+}
+
+@InputType()
+export class ReturnOrderItemInput {
+  @Field()
+  order_item_id: string;
+  @Field()
+  @IsInt()
+  @Min(1)
+  quantity: number;
+  @Field()
+  reason: string;
+  @Field()
+  condition: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  description?: string;
+}
+
+@InputType()
+export class RequestReturnInput {
+  @Field()
+  orderId: string;
+  @Field(() => [ReturnOrderItemInput])
+  items: ReturnOrderItemInput[];
+  @Field()
+  return_method: string; // 'PICKUP' | 'DROPOFF'
+  @Field()
+  refund_method: string; // 'ORIGINAL' | 'STORE_CREDIT'
+  @Field({ nullable: true })
+  @IsOptional()
+  reason?: string;
+}
+
+@InputType()
 export class CreateProductOptionInput {
   @Field()
   productId: string;

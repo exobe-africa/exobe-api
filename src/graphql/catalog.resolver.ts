@@ -6,8 +6,10 @@ import { VariantsService } from '../catalog/variants.service';
 import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType } from './types/catalog.types';
-import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput } from './dto/catalog.inputs';
+import { OrdersService } from '../catalog/orders.service';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType } from './types/catalog.types';
+import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput } from './dto/catalog.inputs';
+import { ReturnsService } from '../catalog/returns.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -23,6 +25,8 @@ export class CatalogResolver {
     private inventory: InventoryService,
     private options: OptionsService,
     private users: UsersService,
+    private orders: OrdersService,
+    private returns: ReturnsService,
   ) {}
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -239,6 +243,79 @@ export class CatalogResolver {
   @Query(() => [UserAddressType])
   getUserAddresses(@Args('userId') userId: string) {
     return this.users.getUserAddresses(userId);
+  }
+
+  @Mutation(() => OrderType)
+  createOrder(@Args('input') input: CreateOrderInput, @Context() ctx: any) {
+    const userId = ctx?.req?.user?.userId as string | undefined;
+    return this.orders.createOrder({ ...input, userId });
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => OrderType)
+  updateOrder(@Args('orderId') orderId: string, @Args('input') input: UpdateOrderInput) {
+    return this.orders.updateOrder(orderId, input as any);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => Boolean)
+  deleteOrder(@Args('orderId') orderId: string) {
+    return this.orders.deleteOrder(orderId);
+  }
+
+  @Query(() => [VatRateType])
+  vatRates(@Args('country', { nullable: true }) country?: string) {
+    return this.orders.getVatRates(country);
+  }
+
+  @Query(() => OrderType)
+  trackOrder(@Args('orderNumber') orderNumber: string, @Args('email') email: string) {
+    return this.orders.trackOrder(orderNumber, email);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [OrderType])
+  myOrders(@Context() ctx: any) {
+    return this.orders.myOrders(ctx.req.user.userId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => OrderType)
+  orderById(@Args('orderId') orderId: string, @Context() ctx: any) {
+    const role = ctx.req.user.role;
+    const isAdmin = role === 'ADMIN';
+    return this.orders.getOrderById(orderId, ctx.req.user.userId, isAdmin);
+  }
+
+  // Returns
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => ReturnRequestType)
+  requestReturn(@Args('input') input: RequestReturnInput, @Context() ctx: any) {
+    return this.returns.requestReturn({ ...input, userId: ctx.req.user.userId } as any);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [ReturnRequestType])
+  myReturns(@Context() ctx: any) {
+    return this.returns.myReturns(ctx.req.user.userId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => ReturnRequestType)
+  returnById(@Args('id') id: string, @Context() ctx: any) {
+    const role = ctx.req.user.role;
+    const isAdmin = role === 'ADMIN';
+    return this.returns.returnById(id, ctx.req.user.userId, isAdmin);
+  }
+
+  // Admin: update return status (records timeline event)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => ReturnRequestType)
+  updateReturnStatus(@Args('id') id: string, @Args('status') status: string, @Args('description', { nullable: true }) description?: string) {
+    return this.returns.updateReturnStatus(id, status, description);
   }
 }
 

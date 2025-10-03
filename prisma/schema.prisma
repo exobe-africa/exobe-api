@@ -24,6 +24,7 @@ model User {
   is_active  Boolean  @default(true)
   vendors   Vendor[]
   managed_vendors Vendor[] @relation("VendorAccountManager")
+  customer  Customer?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -228,6 +229,196 @@ enum AddressType {
   PERSONAL
 }
 
+// Customers (guests or linked to users)
+model Customer {
+  id         String   @id @default(cuid())
+  user_id    String?
+  user       User?    @relation(fields: [user_id], references: [id])
+  email      String
+  first_name String
+  last_name  String
+  phone      String?
+  mobile     String?
+  addresses  CustomerAddress[]
+  orders     Order[]
+  return_requests ReturnRequest[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([user_id])
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id            String      @id @default(cuid())
+  customer_id   String
+  customer      Customer    @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  type          AddressType @default(BUSINESS)
+  address_line1 String
+  address_line2 String?
+  city          String
+  province      String?
+  country       String
+  postal_code   String
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+
+  @@map("customer_addresses")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  INITIATED
+  AUTHORIZED
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id                String       @id @default(cuid())
+  order_number      String       @unique
+  customer_id       String
+  customer          Customer     @relation(fields: [customer_id], references: [id])
+  email             String
+  status            OrderStatus  @default(PENDING)
+  payment_status    PaymentStatus @default(INITIATED)
+  currency          String       @default("ZAR")
+  subtotal_cents    Int
+  shipping_cents    Int          @default(0)
+  vat_cents         Int          @default(0)
+  total_cents       Int
+  shipping_address  Json
+  billing_address   Json
+  items             OrderItem[]
+  payments          Payment[]
+  events            OrderEvent[]
+  returns           ReturnRequest[]
+  created_at        DateTime     @default(now())
+  updated_at        DateTime     @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                 String         @id @default(cuid())
+  order_id           String
+  order              Order          @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product_id         String
+  product_variant_id String
+  vendor_id          String
+  sku                String
+  title              String
+  attributes         Json
+  price_cents        Int
+  quantity           Int
+  total_cents        Int
+
+  returns            ReturnItem[]
+
+  @@map("order_items")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  order_id        String
+  order           Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  provider        String
+  status          PaymentStatus @default(INITIATED)
+  amount_cents    Int
+  currency        String        @default("ZAR")
+  transaction_id  String?
+  raw_response    Json?
+  created_at      DateTime      @default(now())
+
+  @@map("payments")
+}
+
+// Returns
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  IN_TRANSIT
+  RECEIVED
+  REFUNDED
+  CANCELLED
+}
+
+enum ReturnMethod {
+  PICKUP
+  DROPOFF
+}
+
+enum RefundMethod {
+  ORIGINAL
+  STORE_CREDIT
+}
+
+model ReturnRequest {
+  id                String        @id @default(cuid())
+  order_id          String
+  order             Order         @relation(fields: [order_id], references: [id])
+  customer_id       String
+  customer          Customer      @relation(fields: [customer_id], references: [id])
+  status            ReturnStatus  @default(REQUESTED)
+  return_method     ReturnMethod  @default(PICKUP)
+  refund_method     RefundMethod  @default(ORIGINAL)
+  reason            String?
+  total_refund_cents Int          @default(0)
+  items             ReturnItem[]
+  events            ReturnEvent[]
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+
+  @@map("return_requests")
+}
+
+model ReturnItem {
+  id                 String         @id @default(cuid())
+  return_request_id  String
+  return_request     ReturnRequest  @relation(fields: [return_request_id], references: [id], onDelete: Cascade)
+  order_item_id      String
+  order_item         OrderItem      @relation(fields: [order_item_id], references: [id])
+  quantity           Int            @default(1)
+  reason             String
+  condition          String
+  description        String?
+  refund_cents       Int            @default(0)
+
+  @@map("return_items")
+}
+
+model ReturnEvent {
+  id                String        @id @default(cuid())
+  return_request_id String
+  return_request    ReturnRequest @relation(fields: [return_request_id], references: [id], onDelete: Cascade)
+  status            ReturnStatus
+  description       String?
+  created_at        DateTime      @default(now())
+
+  @@map("return_events")
+}
+
+model OrderEvent {
+  id               String         @id @default(cuid())
+  order_id         String
+  order            Order          @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  status           OrderStatus?
+  payment_status   PaymentStatus?
+  description      String?
+  created_at       DateTime       @default(now())
+
+  @@map("order_events")
+}
+
 model RetailerAccount {
   id        String @id @default(cuid())
   vendor_id  String @unique
@@ -411,6 +602,19 @@ enum InventoryReason {
   RETURN
   RECEIVING
   TRANSFER
+}
+
+model VatRate {
+  id          String   @id @default(cuid())
+  country     String
+  province    String?
+  rate        Float
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@unique([country, province])
+  @@map("vat_rates")
 }
 
 enum RootCategory {

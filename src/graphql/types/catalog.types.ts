@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @ObjectType()
 export class VendorType {
@@ -62,8 +63,10 @@ export class ProductVariantType {
   weightGrams?: number;
   @Field()
   stockQuantity: number;
-  @Field(() => String)
-  attributes: any;
+  @Field(() => GraphQLJSONObject)
+  attributes: Record<string, any>;
+  @Field(() => [String], { nullable: true })
+  availableLocations?: string[];
   @Field(() => [ProductMediaType], { nullable: true })
   media?: ProductMediaType[];
 }
@@ -88,6 +91,32 @@ export class ProductType {
   isActive: boolean;
   @Field()
   featured: boolean;
+  @Field(() => [String], { nullable: true })
+  features?: string[];
+  @Field(() => [String], { nullable: true })
+  availableLocations?: string[];
+}
+
+@ObjectType()
+export class ProductOptionValueType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  value: string;
+  @Field()
+  position: number;
+}
+
+@ObjectType()
+export class ProductOptionType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  name: string;
+  @Field()
+  position: number;
+  @Field(() => [ProductOptionValueType])
+  values: ProductOptionValueType[];
 }
 
 @ObjectType()
@@ -108,6 +137,26 @@ export class CategoryTreeType {
   isActive: boolean;
   @Field(() => [CategoryTreeType])
   children: CategoryTreeType[];
+}
+
+@ObjectType()
+export class UserAddressType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  type: string;
+  @Field()
+  addressLine1: string;
+  @Field({ nullable: true })
+  addressLine2?: string;
+  @Field()
+  city: string;
+  @Field({ nullable: true })
+  province?: string;
+  @Field()
+  country: string;
+  @Field()
+  postalCode: string;
 }
 
 

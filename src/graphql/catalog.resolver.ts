@@ -4,8 +4,10 @@ import { CategoriesService } from '../catalog/categories.service';
 import { ProductsService } from '../catalog/products.service';
 import { VariantsService } from '../catalog/variants.service';
 import { InventoryService } from '../catalog/inventory.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType } from './types/catalog.types';
-import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput } from './dto/catalog.inputs';
+import { OptionsService } from '../catalog/options.service';
+import { UsersService } from '../users/users.service';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType } from './types/catalog.types';
+import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput } from './dto/catalog.inputs';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -19,6 +21,8 @@ export class CatalogResolver {
     private products: ProductsService,
     private variants: VariantsService,
     private inventory: InventoryService,
+    private options: OptionsService,
+    private users: UsersService,
   ) {}
 
   // Vendors (admin only)
@@ -47,13 +51,15 @@ export class CatalogResolver {
     return this.categoriesService.categoryTree();
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductType)
   createProduct(@Args('input') input: CreateProductInput, @Context() ctx: any) {
     return this.products.createProduct(input, ctx.req.user.userId, true);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductType)
   updateProduct(
     @Args('id') id: string,
@@ -63,7 +69,8 @@ export class CatalogResolver {
     return this.products.updateProduct(id, input, ctx.req.user.userId, true);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => Boolean)
   deleteProduct(@Args('id') id: string, @Context() ctx: any) {
     return this.products.deleteProduct(id, ctx.req.user.userId, true);
@@ -74,21 +81,44 @@ export class CatalogResolver {
     return this.products.getProductById(id);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductVariantType)
   createVariant(@Args('input') input: CreateVariantInput, @Context() ctx: any) {
     const attributes = attributesArrayToRecord(input.attributes);
     return this.variants.createVariant({ ...input, attributes }, ctx.req.user.userId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => [ProductVariantType])
   bulkCreateVariants(@Args('input') input: BulkCreateVariantsInput, @Context() ctx: any) {
     const mapped = input.variants.map(v => ({ ...v, attributes: attributesArrayToRecord(v.attributes) }));
     return this.variants.bulkCreateVariants(input.productId, mapped as any, ctx.req.user.userId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  // Options
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Mutation(() => ProductOptionType)
+  createProductOption(@Args('input') input: CreateProductOptionInput, @Context() ctx: any) {
+    return this.options.createOption(input.productId, input.name, input.position ?? 0, ctx.req.user.userId);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Mutation(() => ProductOptionType)
+  addOptionValue(@Args('input') input: AddOptionValueInput, @Context() ctx: any) {
+    return this.options.addOptionValue(input.optionId, input.value, input.position ?? 0, ctx.req.user.userId);
+  }
+
+  @Query(() => [ProductOptionType])
+  productOptions(@Args('productId') productId: string) {
+    return this.options.listOptions(productId);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductVariantType)
   updateVariant(
     @Args('id') id: string,
@@ -100,13 +130,15 @@ export class CatalogResolver {
     return this.variants.updateVariant(id, data, ctx.req.user.userId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => Boolean)
   deleteVariant(@Args('id') id: string, @Context() ctx: any) {
     return this.variants.deleteVariant(id, ctx.req.user.userId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => String)
   adjustInventory(@Args('input') input: InventoryAdjustInput, @Context() ctx: any) {
     return this.inventory
@@ -114,25 +146,29 @@ export class CatalogResolver {
       .then((r) => JSON.stringify(r));
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductMediaType)
   addVariantMedia(@Args('input') input: AddVariantMediaInput, @Context() ctx: any) {
     return this.variants.addVariantMedia(input.variantId, { url: input.url, type: input.type, position: input.position }, ctx.req.user.userId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => Boolean)
   removeVariantMedia(@Args('mediaId') mediaId: string, @Context() ctx: any) {
     return this.variants.removeVariantMedia(mediaId, ctx.req.user.userId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductMediaType)
   addProductMedia(@Args('input') input: AddProductMediaInput, @Context() ctx: any) {
     return this.products.addProductMedia(input.productId, { url: input.url, type: input.type, position: input.position }, ctx.req.user.userId);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => Boolean)
   removeProductMedia(@Args('mediaId') mediaId: string, @Context() ctx: any) {
     return this.products.removeProductMedia(mediaId, ctx.req.user.userId);
@@ -179,6 +215,34 @@ export class CatalogResolver {
   @Mutation(() => Boolean)
   archiveProduct(@Args('productId') productId: string) {
     return this.products.archiveProduct(productId).then(() => true);
+  }
+
+  // User Address Management
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => UserAddressType)
+  createUserAddress(@Args('input') input: CreateUserAddressInput, @Context() ctx: any) {
+    return this.users.createAddress(input, ctx.req.user.userId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => UserAddressType)
+  updateUserAddress(
+    @Args('id') id: string,
+    @Args('input') input: UpdateUserAddressInput,
+    @Context() ctx: any,
+  ) {
+    return this.users.updateAddress(id, input, ctx.req.user.userId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Boolean)
+  deleteUserAddress(@Args('id') id: string, @Context() ctx: any) {
+    return this.users.deleteAddress(id, ctx.req.user.userId);
+  }
+
+  @Query(() => [UserAddressType])
+  getUserAddresses(@Args('userId') userId: string) {
+    return this.users.getUserAddresses(userId);
   }
 }
 

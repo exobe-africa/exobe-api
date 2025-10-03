@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { BadRequestException } from '@nestjs/common';
@@ -39,11 +39,11 @@ export class UsersService {
         email: data.email,
         password: hashed,
         name,
-        firstName: data.firstName,
-        lastName: data.lastName,
+        first_name: data.firstName,
+        last_name: data.lastName,
         phone: data.phone,
-        agreeToTerms: data.agreeToTerms,
-        subscribeNewsletter: data.subscribeNewsletter,
+        agree_to_terms: data.agreeToTerms,
+        subscribe_newsletter: data.subscribeNewsletter,
       },
     });
   }
@@ -73,5 +73,38 @@ export class UsersService {
 
   delete(id: string) {
     return this.prisma.user.delete({ where: { id } });
+  }
+
+  async createAddress(data: any, currentUserId: string) {
+    if (data.user_id !== currentUserId) {
+      const user = await this.prisma.user.findUnique({ where: { id: currentUserId } });
+      if (user?.role !== 'ADMIN') throw new ForbiddenException('Not authorized');
+    }
+    return (this.prisma as any).userAddress.create({ data });
+  }
+
+  async updateAddress(id: string, data: any, currentUserId: string) {
+    const address = await (this.prisma as any).userAddress.findUnique({ where: { id } });
+    if (!address) throw new NotFoundException('Address not found');
+    if (address.user_id !== currentUserId) {
+      const user = await this.prisma.user.findUnique({ where: { id: currentUserId } });
+      if (user?.role !== 'ADMIN') throw new ForbiddenException('Not authorized');
+    }
+    return (this.prisma as any).userAddress.update({ where: { id }, data });
+  }
+
+  async deleteAddress(id: string, currentUserId: string) {
+    const address = await (this.prisma as any).userAddress.findUnique({ where: { id } });
+    if (!address) throw new NotFoundException('Address not found');
+    if (address.user_id !== currentUserId) {
+      const user = await this.prisma.user.findUnique({ where: { id: currentUserId } });
+      if (user?.role !== 'ADMIN') throw new ForbiddenException('Not authorized');
+    }
+    await (this.prisma as any).userAddress.delete({ where: { id } });
+    return true;
+  }
+
+  getUserAddresses(userId: string) {
+    return (this.prisma as any).userAddress.findMany({ where: { user_id: userId } });
   }
 }

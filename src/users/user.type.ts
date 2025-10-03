@@ -15,19 +15,19 @@ export class UserType {
   name?: string;
 
   @Field({ nullable: true })
-  firstName?: string;
+  first_name?: string;
 
   @Field({ nullable: true })
-  lastName?: string;
+  last_name?: string;
 
   @Field({ nullable: true })
   phone?: string;
 
   @Field()
-  agreeToTerms: boolean;
+  agree_to_terms: boolean;
 
   @Field()
-  subscribeNewsletter: boolean;
+  subscribe_newsletter: boolean;
 
   @Field(() => Role)
   role: Role;

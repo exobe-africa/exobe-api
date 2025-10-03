@@ -26,7 +26,6 @@ async function bootstrap() {
     timeWindow: '1 minute',
   });
 
-  // Serve static files from public directory
   await app.register(fastifyStatic as any, {
     root: join(__dirname, '..', 'public'),
     prefix: '/',

@@ -13,16 +13,19 @@ model User {
   email     String   @unique
   password  String
   name      String?
-  firstName String?
-  lastName  String?
+  first_name String?
+  last_name  String?
   phone     String?
-  agreeToTerms       Boolean  @default(false)
-  subscribeNewsletter Boolean @default(false)
+  mobile    String?
+  addresses UserAddress[]
+  agree_to_terms       Boolean  @default(false)
+  subscribe_newsletter Boolean @default(false)
   role      Role     @default(CUSTOMER)
-  isActive  Boolean  @default(true)
+  is_active  Boolean  @default(true)
   vendors   Vendor[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  managed_vendors Vendor[] @relation("VendorAccountManager")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 enum Role {
@@ -35,43 +38,43 @@ enum Role {
 
 model SellerApplication {
   id                   String   @id @default(cuid())
-  sellerRole           Role
-  businessType         String
-  applicantType        String
-  firstName            String
-  lastName             String
+  seller_role           Role
+  business_type         String
+  applicant_type        String
+  first_name            String
+  last_name             String
   email                String
   phone                String
   landline             String?
-  identificationType   String
-  businessName         String
-  businessRegistration String?
-  saIdNumber           String?
-  vatRegistered        String
-  vatNumber            String?
-  monthlyRevenue       String?
-  physicalStores       String?
-  numberOfStores       String?
-  supplierToRetailers  String?
-  otherMarketplaces    String?
+  identification_type   String
+  business_name         String
+  business_registration String?
+  sa_id_number           String?
+  vat_registered        String
+  vat_number            String?
+  monthly_revenue       String?
+  physical_stores       String?
+  number_of_stores       String?
+  supplier_to_retailers  String?
+  other_marketplaces    String?
   address              String
   city                 String
   province             String
-  postalCode           String
-  uniqueProducts       String?
-  primaryCategory      String
-  stockType            String
-  productDescription   String
-  ownedBrands          String?
-  resellerBrands       String?
+  postal_code           String
+  unique_products       String?
+  primary_category      String
+  stock_type            String
+  product_description   String
+  owned_brands          String?
+  reseller_brands       String?
   website              String?
-  socialMedia          String?
-  businessSummary      String
-  howDidYouHear        String
-  agreeToTerms         Boolean  @default(false)
+  social_media          String?
+  business_summary      String
+  how_did_you_hear        String
+  agree_to_terms         Boolean  @default(false)
   status               ApplicationStatus @default(PENDING)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
 }
 
 enum ApplicationStatus {
@@ -88,7 +91,7 @@ model ContactMessage {
   subject    String
   message    String
   department String?
-  createdAt  DateTime @default(now())
+  created_at  DateTime @default(now())
 }
 
 model NewsArticle {
@@ -97,15 +100,15 @@ model NewsArticle {
   excerpt     String
   content     String
   author      String
-  publishedAt DateTime
-  readTime    Int
+  published_at DateTime
+  read_time    Int
   category    String
   image       String
   featured    Boolean  @default(false)
   status      ArticleStatus @default(DRAFT)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 }
 
 enum ArticleStatus {
@@ -116,45 +119,45 @@ enum ArticleStatus {
 
 model ServiceProviderApplication {
   id                  String   @id @default(cuid())
-  firstName           String
-  lastName            String
+  first_name           String
+  last_name            String
   email               String
   phone               String
-  dateOfBirth         String?
-  idNumber            String
-  identificationType  String
-  serviceCategories   String[]
-  primaryService      String
+  date_of_birth         String?
+  id_number            String
+  identification_type  String
+  service_categories   String[]
+  primary_service      String
   experience          String
   qualifications      String?
   portfolio           String?
-  hourlyRate          String
+  hourly_rate          String
   availability        String
   address             String
   city                String
   province            String
-  postalCode          String
-  serviceRadius       String
-  transportMode       String
-  businessName        String?
-  businessRegistration String?
-  vatRegistered       String?
-  vatNumber           String?
-  bankDetails         String?
-  emergencyContact    String?
-  workSamples         String?
-  clientReferences    String?
+  postal_code          String
+  service_radius       String
+  transport_mode       String
+  business_name        String?
+  business_registration String?
+  vat_registered       String?
+  vat_number           String?
+  bank_details         String?
+  emergency_contact    String?
+  work_samples         String?
+  client_references    String?
   certifications      String?
   insurance           String?
-  backgroundCheck     String?
+  background_check     String?
   motivation          String
   goals               String?
-  howDidYouHear       String
-  agreeToTerms        Boolean  @default(false)
-  agreeToBackground   Boolean  @default(false)
+  how_did_you_hear       String
+  agree_to_terms        Boolean  @default(false)
+  agree_to_background   Boolean  @default(false)
   status              ApplicationStatus @default(PENDING)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
 }
 
 // Catalog: vendors, categories, products, variants, media, inventory
@@ -164,13 +167,18 @@ model Vendor {
   name        String
   slug        String        @unique
   description String?
-  ownerUserId String
-  owner       User          @relation(fields: [ownerUserId], references: [id])
+  owner_user_id String
+  owner       User          @relation(fields: [owner_user_id], references: [id])
+  account_manager_user_id String?
+  accountManager       User?         @relation("VendorAccountManager", fields: [account_manager_user_id], references: [id])
   status      VendorStatus  @default(PENDING)
-  isActive    Boolean       @default(false)
+  is_active    Boolean       @default(false)
+  seller_type  SellerType
   products    CatalogProduct[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  retailer_account  RetailerAccount?
+  wholesaler_account WholesalerAccount?
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
 }
 
 enum VendorStatus {
@@ -179,40 +187,88 @@ enum VendorStatus {
   SUSPENDED
 }
 
+enum SellerType {
+  RETAILER
+  WHOLESALER
+}
+
+// Normalized user addresses with types
+model UserAddress {
+  id          String      @id @default(cuid())
+  user_id      String
+  user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  type        AddressType @default(BUSINESS)
+  address_line1 String
+  address_line2 String?
+  city        String
+  province    String?
+  country     String
+  postal_code  String
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
+}
+
+enum AddressType {
+  BUSINESS
+  BILLING
+  SHIPPING
+  PERSONAL
+}
+
+model RetailerAccount {
+  id        String @id @default(cuid())
+  vendor_id  String @unique
+  vendor    Vendor @relation(fields: [vendor_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model WholesalerAccount {
+  id        String @id @default(cuid())
+  vendor_id  String @unique
+  vendor    Vendor @relation(fields: [vendor_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 model Category {
   id          String     @id @default(cuid())
   name        String
   slug        String     @unique
   description String?
-  parentId    String?
-  parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  parent_id    String?
+  parent      Category?  @relation("CategoryChildren", fields: [parent_id], references: [id])
   children    Category[] @relation("CategoryChildren")
   path        String
   root        RootCategory?
-  isActive    Boolean    @default(true)
+  is_active    Boolean    @default(true)
   products    CatalogProduct[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
 }
 
 model CatalogProduct {
   id             String          @id @default(cuid())
-  vendorId       String
-  vendor         Vendor          @relation(fields: [vendorId], references: [id])
-  categoryId     String
-  category       Category        @relation(fields: [categoryId], references: [id])
+  vendor_id       String
+  vendor         Vendor          @relation(fields: [vendor_id], references: [id])
+  category_id     String
+  category       Category        @relation(fields: [category_id], references: [id])
   title          String
   slug           String          @unique
   description    String?
   status         ProductStatus   @default(DRAFT)
-  isActive       Boolean         @default(false)
+  is_active       Boolean         @default(false)
   featured       Boolean         @default(false)
-  seoTitle       String?
-  seoDescription String?
+  seo_title       String?
+  seo_description String?
+  features       String[]
+  available_locations String[]
+  tags           String[]
+  options        ProductOption[]
   variants       ProductVariant[]
   media          ProductMedia[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
 }
 
 enum ProductStatus {
@@ -223,28 +279,68 @@ enum ProductStatus {
 
 model ProductVariant {
   id                  String          @id @default(cuid())
-  productId           String
-  product             CatalogProduct  @relation(fields: [productId], references: [id])
+  product_id           String
+  product             CatalogProduct  @relation(fields: [product_id], references: [id])
   sku                 String          @unique
   title               String
-  attributes          Json            // { Size: "M", Color: "Black" }
-  priceCents          Int
-  compareAtPriceCents Int?
+  attributes          Json 
+  price_cents          Int
+  compare_at_price_cents Int?
   barcode             String?
-  weightGrams         Int?            @default(0)
-  trackInventory      Boolean         @default(true)
-  allowBackorder      Boolean         @default(false)
-  stockQuantity       Int             @default(0)
+  weight_grams         Int?            @default(0)
+  track_inventory      Boolean         @default(true)
+  allow_backorder      Boolean         @default(false)
+  stock_quantity       Int             @default(0)
+  available_locations  String[]
   inventory           InventoryTransaction[]
+  selected_option_values ProductVariantOptionValue[]
   media               ProductVariantMedia[]
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
+}
+
+// Product options (e.g., Size, Color) and their values (Small, Red)
+model ProductOption {
+  id         String          @id @default(cuid())
+  product_id  String
+  product    CatalogProduct  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  name       String
+  position   Int             @default(0)
+  values     ProductOptionValue[]
+  variant_selections ProductVariantOptionValue[]
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
+}
+
+model ProductOptionValue {
+  id         String        @id @default(cuid())
+  option_id   String
+  option     ProductOption @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  value      String
+  position   Int           @default(0)
+  variants   ProductVariantOptionValue[]
+}
+
+// Junction linking a variant to the chosen value for an option
+model ProductVariantOptionValue {
+  id             String            @id @default(cuid())
+  variant_id      String
+  variant        ProductVariant    @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  option_id       String
+  option         ProductOption     @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  option_value_id  String
+  optionValue    ProductOptionValue @relation(fields: [option_value_id], references: [id], onDelete: Cascade)
+
+  @@index([variant_id])
+  @@index([option_id])
+  @@index([option_value_id])
+  @@unique([variant_id, option_id])
 }
 
 model ProductMedia {
   id        String         @id @default(cuid())
-  productId String
-  product   CatalogProduct @relation(fields: [productId], references: [id])
+  product_id String
+  product   CatalogProduct @relation(fields: [product_id], references: [id])
   url       String
   type      MediaType      @default(IMAGE)
   position  Int            @default(0)
@@ -258,8 +354,8 @@ enum MediaType {
 
 model ProductVariantMedia {
   id         String           @id @default(cuid())
-  variantId  String
-  variant    ProductVariant   @relation(fields: [variantId], references: [id])
+  variant_id  String
+  variant    ProductVariant   @relation(fields: [variant_id], references: [id])
   url        String
   type       MediaType        @default(IMAGE)
   position   Int              @default(0)
@@ -267,12 +363,12 @@ model ProductVariantMedia {
 
 model InventoryTransaction {
   id         String         @id @default(cuid())
-  variantId  String
-  variant    ProductVariant @relation(fields: [variantId], references: [id])
+  variant_id  String
+  variant    ProductVariant @relation(fields: [variant_id], references: [id])
   change     Int
   reason     InventoryReason
   notes      String?
-  createdAt  DateTime       @default(now())
+  created_at  DateTime       @default(now())
 }
 
 enum InventoryReason {

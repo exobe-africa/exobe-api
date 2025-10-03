@@ -1,5 +1,6 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
 import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType()
 export class CreateVendorInput {
@@ -41,6 +42,12 @@ export class CreateProductInput {
   @Field({ nullable: true })
   @IsOptional()
   description?: string;
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  features?: string[];
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  availableLocations?: string[];
   @Field({ nullable: true })
   @IsOptional()
   status?: string;
@@ -64,6 +71,12 @@ export class UpdateProductInput {
   @Field({ nullable: true })
   @IsOptional()
   description?: string;
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  features?: string[];
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  availableLocations?: string[];
   @Field({ nullable: true })
   @IsOptional()
   status?: string;
@@ -108,6 +121,9 @@ export class CreateVariantInput {
   @IsOptional()
   @IsInt()
   stockQuantity?: number;
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  availableLocations?: string[];
 }
 
 @InputType()
@@ -210,6 +226,68 @@ export class BulkCreateVariantsInput {
   productId: string;
   @Field(() => [CreateVariantInput])
   variants: CreateVariantInput[];
+}
+
+@InputType()
+export class CreateUserAddressInput {
+  @Field()
+  userId: string;
+  @Field()
+  type: string;
+  @Field()
+  addressLine1: string;
+  @Field({ nullable: true })
+  addressLine2?: string;
+  @Field()
+  city: string;
+  @Field({ nullable: true })
+  province?: string;
+  @Field()
+  country: string;
+  @Field()
+  postalCode: string;
+}
+
+@InputType()
+export class UpdateUserAddressInput {
+  @Field({ nullable: true })
+  type?: string;
+  @Field({ nullable: true })
+  addressLine1?: string;
+  @Field({ nullable: true })
+  addressLine2?: string;
+  @Field({ nullable: true })
+  city?: string;
+  @Field({ nullable: true })
+  province?: string;
+  @Field({ nullable: true })
+  country?: string;
+  @Field({ nullable: true })
+  postalCode?: string;
+}
+
+@InputType()
+export class CreateProductOptionInput {
+  @Field()
+  productId: string;
+  @Field()
+  name: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  position?: number;
+}
+
+@InputType()
+export class AddOptionValueInput {
+  @Field()
+  optionId: string;
+  @Field()
+  value: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  position?: number;
 }
 
 

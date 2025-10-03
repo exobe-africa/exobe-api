@@ -8,14 +8,14 @@ export class NewsService {
   list(category?: string) {
     return this.prisma.newsArticle.findMany({
       where: category && category !== 'All' ? { category } : undefined,
-      orderBy: { publishedAt: 'desc' },
+      orderBy: { published_at: 'desc' },
     });
   }
 
   featured() {
     return this.prisma.newsArticle.findMany({
       where: { featured: true },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: { published_at: 'desc' },
     });
   }
 
@@ -27,14 +27,14 @@ export class NewsService {
     return this.prisma.newsArticle.create({
       data: {
         ...data,
-        publishedAt: new Date(data.publishedAt),
+        published_at: new Date(data.published_at),
       },
     });
   }
 
   update(id: string, data: any) {
     const updateData = { ...data } as any;
-    if (data.publishedAt) updateData.publishedAt = new Date(data.publishedAt);
+    if (data.published_at) updateData.published_at = new Date(data.published_at);
     return this.prisma.newsArticle.update({ where: { id }, data: updateData });
   }
 

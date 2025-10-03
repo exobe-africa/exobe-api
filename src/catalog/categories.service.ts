@@ -24,8 +24,8 @@ export class CategoriesService {
     const roots: any[] = [];
     for (const c of cats) {
       const node = byId.get(c.id);
-      if (c.parentId) {
-        const parent = byId.get(c.parentId);
+      if (c.parent_id) {
+        const parent = byId.get(c.parent_id);
         if (parent) parent.children.push(node);
         else roots.push(node);
       } else {

@@ -5,11 +5,12 @@ import { CategoriesService } from './categories.service';
 import { ProductsService } from './products.service';
 import { VariantsService } from './variants.service';
 import { InventoryService } from './inventory.service';
+import { OptionsService } from './options.service';
 
 @Module({
   imports: [PrismaModule],
-  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService],
-  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService],
+  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService],
+  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService],
 })
 export class CatalogModule {}
 

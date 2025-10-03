@@ -25,6 +25,7 @@ model User {
   vendors   Vendor[]
   managed_vendors Vendor[] @relation("VendorAccountManager")
   customer  Customer?
+  wishlist  Wishlist?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -171,8 +172,6 @@ model ServiceProviderApplication {
   @@map("service_provider_applications")
 }
 
-// Catalog: vendors, categories, products, variants, media, inventory
-
 model Vendor {
   id          String        @id @default(cuid())
   name        String
@@ -229,7 +228,6 @@ enum AddressType {
   PERSONAL
 }
 
-// Customers (guests or linked to users)
 model Customer {
   id         String   @id @default(cuid())
   user_id    String?
@@ -477,6 +475,7 @@ model CatalogProduct {
   options        ProductOption[]
   variants       ProductVariant[]
   media          ProductMedia[]
+  wishlist_items WishlistItem[]
   created_at      DateTime        @default(now())
   updated_at      DateTime        @updatedAt
 
@@ -538,7 +537,6 @@ model ProductOptionValue {
   @@map("product_option_values")
 }
 
-// Junction linking a variant to the chosen value for an option
 model ProductVariantOptionValue {
   id             String            @id @default(cuid())
   variant_id      String
@@ -582,6 +580,30 @@ model ProductVariantMedia {
   position   Int              @default(0)
 
   @@map("product_variant_media")
+}
+
+model Wishlist {
+  id        String        @id @default(cuid())
+  user_id   String        @unique
+  user      User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items     WishlistItem[]
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id              String    @id @default(cuid())
+  wishlist_id     String
+  wishlist        Wishlist  @relation(fields: [wishlist_id], references: [id], onDelete: Cascade)
+  product_id      String
+  product         CatalogProduct @relation(fields: [product_id], references: [id])
+  product_variant_id String?
+  created_at      DateTime  @default(now())
+
+  @@unique([wishlist_id, product_id, product_variant_id])
+  @@map("wishlist_items")
 }
 
 model InventoryTransaction {

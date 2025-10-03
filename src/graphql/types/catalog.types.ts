@@ -222,6 +222,24 @@ export class OrderEventType {
 }
 
 @ObjectType()
+export class WishlistItemType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  product_id: string;
+  @Field({ nullable: true })
+  product_variant_id?: string;
+}
+
+@ObjectType()
+export class WishlistType {
+  @Field(() => ID)
+  id: string;
+  @Field(() => [WishlistItemType])
+  items: WishlistItemType[];
+}
+
+@ObjectType()
 export class VatRateType {
   @Field(() => ID)
   id: string;

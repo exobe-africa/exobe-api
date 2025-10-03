@@ -8,11 +8,12 @@ import { InventoryService } from './inventory.service';
 import { OptionsService } from './options.service';
 import { OrdersService } from '../catalog/orders.service';
 import { ReturnsService } from '../catalog/returns.service';
+import { WishlistsService } from '../catalog/wishlists.service';
 
 @Module({
   imports: [PrismaModule],
-  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService],
-  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService],
+  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService],
+  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService],
 })
 export class CatalogModule {}
 

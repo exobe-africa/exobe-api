@@ -346,6 +346,14 @@ export class RequestReturnInput {
 }
 
 @InputType()
+export class WishlistItemInput {
+  @Field()
+  product_id: string;
+  @Field({ nullable: true })
+  product_variant_id?: string;
+}
+
+@InputType()
 export class CreateProductOptionInput {
   @Field()
   productId: string;

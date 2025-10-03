@@ -240,6 +240,24 @@ export class WishlistType {
 }
 
 @ObjectType()
+export class ReviewType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  product_id: string;
+  @Field()
+  user_id: string;
+  @Field()
+  rating: number;
+  @Field()
+  comment: string;
+  @Field()
+  created_at: Date;
+  @Field()
+  updated_at: Date;
+}
+
+@ObjectType()
 export class VatRateType {
   @Field(() => ID)
   id: string;

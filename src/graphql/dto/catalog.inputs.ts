@@ -354,6 +354,30 @@ export class WishlistItemInput {
 }
 
 @InputType()
+export class CreateReviewInput {
+  @Field()
+  product_id: string;
+  @Field()
+  @IsInt()
+  rating: number;
+  @Field()
+  comment: string;
+}
+
+@InputType()
+export class UpdateReviewInput {
+  @Field()
+  product_id: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  rating?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  comment?: string;
+}
+
+@InputType()
 export class CreateProductOptionInput {
   @Field()
   productId: string;

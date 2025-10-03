@@ -7,10 +7,11 @@ import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType } from './types/catalog.types';
-import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput } from './dto/catalog.inputs';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType } from './types/catalog.types';
+import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
+import { ReviewsService } from '../catalog/reviews.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -29,6 +30,7 @@ export class CatalogResolver {
     private orders: OrdersService,
     private returns: ReturnsService,
     private wishlists: WishlistsService,
+    private reviews: ReviewsService,
   ) {}
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -337,6 +339,36 @@ export class CatalogResolver {
   @Mutation(() => Boolean)
   removeFromWishlist(@Args('input') input: WishlistItemInput, @Context() ctx: any) {
     return this.wishlists.removeFromWishlist(ctx.req.user.userId, input);
+  }
+
+  // Reviews
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => ReviewType)
+  createReview(@Args('input') input: CreateReviewInput, @Context() ctx: any) {
+    return this.reviews.createReview(ctx.req.user.userId, input);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => ReviewType)
+  updateReview(@Args('input') input: UpdateReviewInput, @Context() ctx: any) {
+    return this.reviews.updateReview(ctx.req.user.userId, input);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Boolean)
+  deleteReview(@Args('productId') productId: string, @Context() ctx: any) {
+    return this.reviews.deleteReview(ctx.req.user.userId, productId);
+  }
+
+  @Query(() => [ReviewType])
+  productReviews(@Args('productId') productId: string) {
+    return this.reviews.productReviews(productId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [ReviewType])
+  myReviews(@Context() ctx: any) {
+    return this.reviews.myReviews(ctx.req.user.userId);
   }
 }
 

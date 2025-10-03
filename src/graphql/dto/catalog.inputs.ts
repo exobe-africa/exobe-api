@@ -378,6 +378,19 @@ export class UpdateReviewInput {
 }
 
 @InputType()
+export class UpdateNotificationSettingsInput {
+  @Field({ nullable: true }) order_confirmations?: boolean;
+  @Field({ nullable: true }) shipping_updates?: boolean;
+  @Field({ nullable: true }) delivery_notifications?: boolean;
+  @Field({ nullable: true }) product_recommendations?: boolean;
+  @Field({ nullable: true }) exclusive_deals?: boolean;
+  @Field({ nullable: true }) wishlist_updates?: boolean;
+  @Field({ nullable: true }) shopping_insights?: boolean;
+  @Field({ nullable: true }) login_alerts?: boolean;
+  @Field({ nullable: true }) password_changes?: boolean;
+}
+
+@InputType()
 export class CreateProductOptionInput {
   @Field()
   productId: string;

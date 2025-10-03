@@ -27,10 +27,30 @@ model User {
   customer  Customer?
   wishlist  Wishlist?
   reviews   Review[]
+  notification_settings UserNotificationSettings?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@map("users")
+}
+
+model UserNotificationSettings {
+  id                 String  @id @default(cuid())
+  user_id            String  @unique
+  user               User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order_confirmations Boolean @default(true)
+  shipping_updates    Boolean @default(true)
+  delivery_notifications Boolean @default(true)
+  product_recommendations Boolean @default(false)
+  exclusive_deals     Boolean @default(false)
+  wishlist_updates    Boolean @default(false)
+  shopping_insights   Boolean @default(false)
+  login_alerts        Boolean @default(true)
+  password_changes    Boolean @default(true)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  @@map("user_notification_settings")
 }
 
 enum Role {

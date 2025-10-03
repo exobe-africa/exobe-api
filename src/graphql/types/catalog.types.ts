@@ -258,6 +258,30 @@ export class ReviewType {
 }
 
 @ObjectType()
+export class UserNotificationSettingsType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  order_confirmations: boolean;
+  @Field()
+  shipping_updates: boolean;
+  @Field()
+  delivery_notifications: boolean;
+  @Field()
+  product_recommendations: boolean;
+  @Field()
+  exclusive_deals: boolean;
+  @Field()
+  wishlist_updates: boolean;
+  @Field()
+  shopping_insights: boolean;
+  @Field()
+  login_alerts: boolean;
+  @Field()
+  password_changes: boolean;
+}
+
+@ObjectType()
 export class VatRateType {
   @Field(() => ID)
   id: string;

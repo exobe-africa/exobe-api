@@ -107,4 +107,18 @@ export class UsersService {
   getUserAddresses(userId: string) {
     return (this.prisma as any).userAddress.findMany({ where: { user_id: userId } });
   }
+
+  async getNotificationSettings(userId: string) {
+    const existing = await (this.prisma as any).userNotificationSettings.findFirst({ where: { user_id: userId } });
+    if (existing) return existing;
+    return (this.prisma as any).userNotificationSettings.create({ data: { user_id: userId } });
+  }
+
+  async updateNotificationSettings(userId: string, input: any) {
+    const existing = await (this.prisma as any).userNotificationSettings.findFirst({ where: { user_id: userId } });
+    if (!existing) {
+      return (this.prisma as any).userNotificationSettings.create({ data: { user_id: userId, ...input } });
+    }
+    return (this.prisma as any).userNotificationSettings.update({ where: { id: existing.id }, data: input });
+  }
 }

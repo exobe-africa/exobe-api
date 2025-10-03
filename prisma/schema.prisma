@@ -26,6 +26,8 @@ model User {
   managed_vendors Vendor[] @relation("VendorAccountManager")
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@map("users")
 }
 
 enum Role {
@@ -75,6 +77,8 @@ model SellerApplication {
   status               ApplicationStatus @default(PENDING)
   created_at            DateTime @default(now())
   updated_at            DateTime @updatedAt
+
+  @@map("seller_applications")
 }
 
 enum ApplicationStatus {
@@ -92,6 +96,8 @@ model ContactMessage {
   message    String
   department String?
   created_at  DateTime @default(now())
+
+  @@map("contact_messages")
 }
 
 model NewsArticle {
@@ -109,6 +115,8 @@ model NewsArticle {
   is_active    Boolean  @default(true)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
+
+  @@map("news_articles")
 }
 
 enum ArticleStatus {
@@ -158,6 +166,8 @@ model ServiceProviderApplication {
   status              ApplicationStatus @default(PENDING)
   created_at           DateTime @default(now())
   updated_at           DateTime @updatedAt
+
+  @@map("service_provider_applications")
 }
 
 // Catalog: vendors, categories, products, variants, media, inventory
@@ -179,6 +189,8 @@ model Vendor {
   wholesaler_account WholesalerAccount?
   created_at   DateTime      @default(now())
   updated_at   DateTime      @updatedAt
+
+  @@map("vendors")
 }
 
 enum VendorStatus {
@@ -192,7 +204,6 @@ enum SellerType {
   WHOLESALER
 }
 
-// Normalized user addresses with types
 model UserAddress {
   id          String      @id @default(cuid())
   user_id      String
@@ -206,6 +217,8 @@ model UserAddress {
   postal_code  String
   created_at   DateTime    @default(now())
   updated_at   DateTime    @updatedAt
+
+  @@map("user_addresses")
 }
 
 enum AddressType {
@@ -221,6 +234,8 @@ model RetailerAccount {
   vendor    Vendor @relation(fields: [vendor_id], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@map("retailer_accounts")
 }
 
 model WholesalerAccount {
@@ -229,6 +244,8 @@ model WholesalerAccount {
   vendor    Vendor @relation(fields: [vendor_id], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@map("wholesaler_accounts")
 }
 
 model Category {
@@ -245,6 +262,8 @@ model Category {
   products    CatalogProduct[]
   created_at   DateTime   @default(now())
   updated_at   DateTime   @updatedAt
+
+  @@map("categories")
 }
 
 model CatalogProduct {
@@ -269,6 +288,8 @@ model CatalogProduct {
   media          ProductMedia[]
   created_at      DateTime        @default(now())
   updated_at      DateTime        @updatedAt
+
+  @@map("catalog_products")
 }
 
 enum ProductStatus {
@@ -297,9 +318,10 @@ model ProductVariant {
   media               ProductVariantMedia[]
   created_at           DateTime        @default(now())
   updated_at           DateTime        @updatedAt
+
+  @@map("product_variants")
 }
 
-// Product options (e.g., Size, Color) and their values (Small, Red)
 model ProductOption {
   id         String          @id @default(cuid())
   product_id  String
@@ -310,6 +332,8 @@ model ProductOption {
   variant_selections ProductVariantOptionValue[]
   created_at  DateTime        @default(now())
   updated_at  DateTime        @updatedAt
+
+  @@map("product_options")
 }
 
 model ProductOptionValue {
@@ -319,6 +343,8 @@ model ProductOptionValue {
   value      String
   position   Int           @default(0)
   variants   ProductVariantOptionValue[]
+
+  @@map("product_option_values")
 }
 
 // Junction linking a variant to the chosen value for an option
@@ -335,6 +361,8 @@ model ProductVariantOptionValue {
   @@index([option_id])
   @@index([option_value_id])
   @@unique([variant_id, option_id])
+
+  @@map("product_variant_option_values")
 }
 
 model ProductMedia {
@@ -344,6 +372,8 @@ model ProductMedia {
   url       String
   type      MediaType      @default(IMAGE)
   position  Int            @default(0)
+
+  @@map("product_media")
 }
 
 enum MediaType {
@@ -359,6 +389,8 @@ model ProductVariantMedia {
   url        String
   type       MediaType        @default(IMAGE)
   position   Int              @default(0)
+
+  @@map("product_variant_media")
 }
 
 model InventoryTransaction {
@@ -369,6 +401,8 @@ model InventoryTransaction {
   reason     InventoryReason
   notes      String?
   created_at  DateTime       @default(now())
+
+  @@map("inventory_transactions")
 }
 
 enum InventoryReason {
@@ -379,7 +413,6 @@ enum InventoryReason {
   TRANSFER
 }
 
-// Top-level product taxonomy categories
 enum RootCategory {
   ANIMALS_PET_SUPPLIES
   APPAREL_ACCESSORIES

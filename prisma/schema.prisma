@@ -17,6 +17,7 @@ model User {
   last_name  String?
   phone     String?
   mobile    String?
+  date_of_birth DateTime?
   addresses UserAddress[]
   agree_to_terms       Boolean  @default(false)
   subscribe_newsletter Boolean @default(false)

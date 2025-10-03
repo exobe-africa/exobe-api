@@ -391,6 +391,21 @@ export class UpdateNotificationSettingsInput {
 }
 
 @InputType()
+export class UpdateProfileInput {
+  @Field({ nullable: true }) first_name?: string;
+  @Field({ nullable: true }) last_name?: string;
+  @Field({ nullable: true }) email?: string;
+  @Field({ nullable: true }) phone?: string;
+  @Field({ nullable: true }) date_of_birth?: Date;
+}
+
+@InputType()
+export class UpdatePasswordInput {
+  @Field() current_password: string;
+  @Field() new_password: string;
+}
+
+@InputType()
 export class CreateProductOptionInput {
   @Field()
   productId: string;

@@ -71,6 +71,21 @@ export class UsersService {
     return this.prisma.user.update({ where: { id }, data: updateData });
   }
 
+  async updateProfile(userId: string, data: { first_name?: string; last_name?: string; email?: string; phone?: string; date_of_birth?: Date }) {
+    const name = [data.first_name, data.last_name].filter(Boolean).join(' ').trim() || undefined;
+    return this.prisma.user.update({ where: { id: userId }, data: { ...data, name } as any });
+  }
+
+  async updatePassword(userId: string, current_password: string, new_password: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    const ok = await bcrypt.compare(current_password, user.password);
+    if (!ok) throw new ForbiddenException('Current password is incorrect');
+    const hashed = await bcrypt.hash(new_password, 12);
+    await this.prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+    return true;
+  }
+
   delete(id: string) {
     return this.prisma.user.delete({ where: { id } });
   }

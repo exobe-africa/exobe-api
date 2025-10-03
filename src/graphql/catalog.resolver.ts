@@ -32,7 +32,6 @@ export class CatalogResolver {
     return this.vendors.createVendor({ ...input, ownerUser_id: ctx.req.user.userId });
   }
 
-  // Categories (admin only)
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Mutation(() => CategoryType)
@@ -96,7 +95,6 @@ export class CatalogResolver {
     return this.variants.bulkCreateVariants(input.productId, mapped as any, ctx.req.user.userId);
   }
 
-  // Options
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductOptionType)
@@ -216,7 +214,6 @@ export class CatalogResolver {
     return this.products.archiveProduct(product_id).then(() => true);
   }
 
-  // User Address Management
   @UseGuards(GqlAuthGuard)
   @Mutation(() => UserAddressType)
   createUserAddress(@Args('input') input: CreateUserAddressInput, @Context() ctx: any) {

@@ -25,12 +25,11 @@ export class CatalogResolver {
     private users: UsersService,
   ) {}
 
-  // Vendors (admin only)
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Mutation(() => VendorType)
   createVendor(@Args('input') input: CreateVendorInput, @Context() ctx: any) {
-    return this.vendors.createVendor({ ...input, ownerUserId: ctx.req.user.userId });
+    return this.vendors.createVendor({ ...input, ownerUser_id: ctx.req.user.userId });
   }
 
   // Categories (admin only)
@@ -192,29 +191,29 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Mutation(() => Boolean)
-  approveVendor(@Args('vendorId') vendorId: string) {
-    return this.vendors.approveVendor(vendorId).then(() => true);
+  approveVendor(@Args('vendorId') vendor_id: string) {
+    return this.vendors.approveVendor(vendor_id).then(() => true);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Mutation(() => Boolean)
-  suspendVendor(@Args('vendorId') vendorId: string) {
-    return this.vendors.suspendVendor(vendorId).then(() => true);
+  suspendVendor(@Args('vendorId') vendor_id: string) {
+    return this.vendors.suspendVendor(vendor_id).then(() => true);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Mutation(() => Boolean)
-  approveProduct(@Args('productId') productId: string) {
-    return this.products.approveProduct(productId).then(() => true);
+  approveProduct(@Args('productId') product_id: string) {
+    return this.products.approveProduct(product_id).then(() => true);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Mutation(() => Boolean)
-  archiveProduct(@Args('productId') productId: string) {
-    return this.products.archiveProduct(productId).then(() => true);
+  archiveProduct(@Args('productId') product_id: string) {
+    return this.products.archiveProduct(product_id).then(() => true);
   }
 
   // User Address Management

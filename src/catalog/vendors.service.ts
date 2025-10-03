@@ -5,12 +5,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class VendorsService {
   constructor(private prisma: PrismaService) {}
 
-  createVendor(data: { name: string; slug: string; description?: string; ownerUserId: string; sellerType?: 'RETAILER' | 'WHOLESALER' }) {
-    return (this.prisma as any).vendor.create({ data: { ...data, sellerType: (data as any).sellerType ?? 'RETAILER' } });
+  createVendor(data: { name: string; slug: string; description?: string; ownerUser_id: string; seller_type?: 'RETAILER' | 'WHOLESALER' }) {
+    return this.prisma.vendor.create({ data: { ...data, seller_type: data.seller_type ?? 'RETAILER', owner: { connect: { id: data.ownerUser_id } } } });
   }
 
-  updateVendor(id: string, data: Partial<{ name: string; slug: string; description?: string; isActive: boolean; sellerType: 'RETAILER' | 'WHOLESALER' }>) {
-    return (this.prisma as any).vendor.update({ where: { id }, data });
+  updateVendor(id: string, data: Partial<{ name: string; slug: string; description?: string; is_active: boolean; seller_type: 'RETAILER' | 'WHOLESALER' }>) {
+    return this.prisma.vendor.update({ where: { id }, data });
   }
 
   getVendorById(id: string) {
@@ -20,26 +20,26 @@ export class VendorsService {
   getVendorBySlug(slug: string) {
     return this.prisma.vendor.findUnique({ where: { slug } });
   }
-
-  approveVendor(vendorId: string) {
-    return this.prisma.vendor.update({ where: { id: vendorId }, data: { status: 'APPROVED', is_active: true } });
+  
+  approveVendor(vendor_id: string) {
+    return this.prisma.vendor.update({ where: { id: vendor_id }, data: { status: 'APPROVED', is_active: true } });
   }
 
-  suspendVendor(vendorId: string) {
-    return this.prisma.vendor.update({ where: { id: vendorId }, data: { status: 'SUSPENDED', is_active: false } });
+  suspendVendor(vendor_id: string) {
+    return this.prisma.vendor.update({ where: { id: vendor_id }, data: { status: 'SUSPENDED', is_active: false } });
   }
 
-  async deleteVendorAsAdmin(vendorId: string) {
-    await this.prisma.catalogProduct.deleteMany({ where: { vendor_id: vendorId } });
-    await this.prisma.vendor.delete({ where: { id: vendorId } });
+  async deleteVendorAsAdmin(vendor_id: string) {
+    await this.prisma.catalogProduct.deleteMany({ where: { vendor_id: vendor_id } });
+    await this.prisma.vendor.delete({ where: { id: vendor_id } });
     return true;
   }
 
-  async requestVendorDeletion(vendorId: string, requesterUserId: string) {
-    const vendor = await this.prisma.vendor.findUnique({ where: { id: vendorId } });
+  async requestVendorDeletion(vendor_id: string, requesterUser_id: string) {
+    const vendor = await this.prisma.vendor.findUnique({ where: { id: vendor_id } });
     if (!vendor) throw new NotFoundException('Vendor not found');
-    if (vendor.owner_user_id !== requesterUserId) throw new ForbiddenException('Not vendor owner');
-    await this.prisma.vendor.update({ where: { id: vendorId }, data: { status: 'SUSPENDED', is_active: false } });
+    if (vendor.owner_user_id !== requesterUser_id) throw new ForbiddenException('Not vendor owner');
+    await this.prisma.vendor.update({ where: { id: vendor_id }, data: { status: 'SUSPENDED', is_active: false } });
     return true;
   }
 }

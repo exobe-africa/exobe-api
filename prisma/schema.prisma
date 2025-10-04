@@ -262,6 +262,7 @@ model Customer {
   addresses  CustomerAddress[]
   orders     Order[]
   return_requests ReturnRequest[]
+  gift_cards GiftCard[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -315,12 +316,15 @@ model Order {
   shipping_cents    Int          @default(0)
   vat_cents         Int          @default(0)
   total_cents       Int
+  gift_card_amount_cents Int     @default(0)
+  gift_card_code    String?
   shipping_address  Json
   billing_address   Json
   items             OrderItem[]
   payments          Payment[]
   events            OrderEvent[]
   returns           ReturnRequest[]
+  gift_card_transactions GiftCardTransaction[]
   created_at        DateTime     @default(now())
   updated_at        DateTime     @updatedAt
 
@@ -675,6 +679,50 @@ model VatRate {
 
   @@unique([country, province])
   @@map("vat_rates")
+}
+
+// Gift Cards
+enum GiftCardStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model GiftCard {
+  id                   String          @id @default(cuid())
+  code                 String          @unique
+  customer_id          String?
+  customer             Customer?       @relation(fields: [customer_id], references: [id])
+  initial_value_cents  Int
+  balance_cents        Int
+  status               GiftCardStatus  @default(ACTIVE)
+  notes                String?
+  expires_at           DateTime?
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
+  transactions         GiftCardTransaction[]
+
+  @@map("gift_cards")
+}
+
+enum GiftCardTransactionType {
+  ISSUE
+  REDEEM
+  REFUND
+  ADJUSTMENT
+}
+
+model GiftCardTransaction {
+  id               String                     @id @default(cuid())
+  gift_card_id     String
+  gift_card        GiftCard                   @relation(fields: [gift_card_id], references: [id], onDelete: Cascade)
+  type             GiftCardTransactionType
+  amount_cents     Int
+  notes            String?
+  order_id         String?
+  order            Order?                     @relation(fields: [order_id], references: [id])
+  created_at       DateTime                   @default(now())
+
+  @@map("gift_card_transactions")
 }
 
 enum RootCategory {

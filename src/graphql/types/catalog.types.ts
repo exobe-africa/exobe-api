@@ -197,6 +197,10 @@ export class OrderType {
   vat_cents: number;
   @Field()
   total_cents: number;
+  @Field({ nullable: true })
+  gift_card_code?: string;
+  @Field({ nullable: true })
+  gift_card_amount_cents?: number;
   @Field(() => GraphQLJSONObject)
   shipping_address: Record<string, any>;
   @Field(() => GraphQLJSONObject)
@@ -205,6 +209,26 @@ export class OrderType {
   items: OrderItemType[];
   @Field(() => [OrderEventType], { nullable: true })
   events?: OrderEventType[];
+}
+
+@ObjectType()
+export class GiftCardType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  code: string;
+  @Field({ nullable: true })
+  customer_id?: string;
+  @Field()
+  initial_value_cents: number;
+  @Field()
+  balance_cents: number;
+  @Field()
+  status: string;
+  @Field({ nullable: true })
+  notes?: string;
+  @Field({ nullable: true })
+  expires_at?: Date;
 }
 
 @ObjectType()

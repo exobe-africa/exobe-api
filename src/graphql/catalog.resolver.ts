@@ -7,11 +7,12 @@ import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, UserNotificationSettingsType } from './types/catalog.types';
-import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput } from './dto/catalog.inputs';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, UserNotificationSettingsType, GiftCardType } from './types/catalog.types';
+import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CreateGiftCardInput, UpdateGiftCardInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
 import { ReviewsService } from '../catalog/reviews.service';
+import { GiftCardsService } from '../catalog/gift-cards.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -31,6 +32,7 @@ export class CatalogResolver {
     private returns: ReturnsService,
     private wishlists: WishlistsService,
     private reviews: ReviewsService,
+    private giftcards: GiftCardsService,
   ) {}
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -395,6 +397,42 @@ export class CatalogResolver {
   @Query(() => [ReviewType])
   myReviews(@Context() ctx: any) {
     return this.reviews.myReviews(ctx.req.user.userId);
+  }
+
+  // Gift Cards (Admin)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => GiftCardType)
+  createGiftCard(@Args('input') input: CreateGiftCardInput) {
+    return this.giftcards.createGiftCard(input as any);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => GiftCardType)
+  updateGiftCard(@Args('id') id: string, @Args('input') input: UpdateGiftCardInput) {
+    return this.giftcards.updateGiftCard(id, input as any);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => Boolean)
+  deleteGiftCard(@Args('id') id: string) {
+    return this.giftcards.deleteGiftCard(id);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => GiftCardType)
+  assignGiftCardToCustomer(@Args('id') id: string, @Args('customerId', { nullable: true }) customerId?: string) {
+    return this.giftcards.assignGiftCardToCustomer(id, customerId ?? null);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Query(() => [GiftCardType])
+  giftCards(@Args('status', { nullable: true }) status?: string, @Args('customerId', { nullable: true }) customerId?: string) {
+    return this.giftcards.listGiftCards({ status: status as any, customer_id: customerId });
   }
 }
 

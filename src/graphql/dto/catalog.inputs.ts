@@ -299,6 +299,9 @@ export class CreateOrderInput {
   billingAddress?: Record<string, any>;
   @Field(() => [CreateOrderItemInput])
   items: CreateOrderItemInput[];
+  @Field({ nullable: true })
+  @IsOptional()
+  gift_card_code?: string;
 }
 
 @InputType()
@@ -311,6 +314,27 @@ export class UpdateOrderInput {
   shippingAddress?: Record<string, any>;
   @Field(() => GraphQLJSONObject, { nullable: true })
   billingAddress?: Record<string, any>;
+}
+
+@InputType()
+export class CreateGiftCardInput {
+  @Field() code: string;
+  @Field() @IsInt() @Min(0) initial_value_cents: number;
+  @Field({ nullable: true }) @IsOptional() expires_at?: Date;
+  @Field({ nullable: true }) @IsOptional() notes?: string;
+  @Field({ nullable: true }) @IsOptional() status?: string; // ACTIVE | INACTIVE
+  @Field({ nullable: true }) @IsOptional() customer_id?: string;
+}
+
+@InputType()
+export class UpdateGiftCardInput {
+  @Field({ nullable: true }) @IsOptional() code?: string;
+  @Field({ nullable: true }) @IsOptional() @IsInt() initial_value_cents?: number;
+  @Field({ nullable: true }) @IsOptional() @IsInt() balance_cents?: number;
+  @Field({ nullable: true }) @IsOptional() expires_at?: Date;
+  @Field({ nullable: true }) @IsOptional() notes?: string;
+  @Field({ nullable: true }) @IsOptional() status?: string;
+  @Field({ nullable: true }) @IsOptional() customer_id?: string;
 }
 
 @InputType()

@@ -10,11 +10,12 @@ import { OrdersService } from '../catalog/orders.service';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
 import { ReviewsService } from '../catalog/reviews.service';
+import { GiftCardsService } from './gift-cards.service';
 
 @Module({
   imports: [PrismaModule],
-  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService],
-  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService],
+  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService],
+  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService],
 })
 export class CatalogModule {}
 

@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { GiftCardsService } from './gift-cards.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private giftcards: GiftCardsService) {}
 
   private generateOrderNumber() {
     return `EX-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -68,6 +69,7 @@ export class OrdersService {
     shippingAddress: any;
     billingAddress?: any;
     items: Array<{ variant_id: string; quantity: number }>;
+    gift_card_code?: string;
   }) {
     const customer = await this.ensureCustomerForUserOrGuest(params);
     const variants = await this.prisma.productVariant.findMany({ where: { id: { in: params.items.map(i => i.variant_id) } } });
@@ -98,7 +100,7 @@ export class OrdersService {
     const shipping = 0;
     const vatRate = await this.getVatRate(params.shippingAddress.country, params.shippingAddress.province);
     const vat = Math.round(subtotal * vatRate);
-    const total = subtotal + shipping + vat;
+    let total = subtotal + shipping + vat;
 
     const orderNumber = this.generateOrderNumber();
 
@@ -116,6 +118,18 @@ export class OrdersService {
           billing_address: params.billingAddress ?? params.shippingAddress,
         },
       });
+
+      // Apply gift card if provided
+      if (params.gift_card_code) {
+        const applied = await this.giftcards.applyGiftCardWithinTransaction(tx, params.gift_card_code, total, order.id);
+        if (applied.applied_cents > 0) {
+          total = total - applied.applied_cents;
+          await (tx as any).order.update({
+            where: { id: order.id },
+            data: { total_cents: total, gift_card_amount_cents: applied.applied_cents, gift_card_code: applied.code },
+          });
+        }
+      }
       await (tx as any).orderEvent.create({ data: { order_id: order.id, status: 'PENDING', payment_status: 'INITIATED', description: 'Order created' } });
       for (const it of items) {
         await (tx as any).orderItem.create({ data: { ...it, order_id: order.id } });

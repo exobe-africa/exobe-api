@@ -241,6 +241,18 @@ export class DiscountTypeGQL {
 }
 
 @ObjectType()
+export class CollectionType {
+  @Field(() => ID)
+  id: string;
+  @Field() vendor_id: string;
+  @Field() name: string;
+  @Field() slug: string;
+  @Field({ nullable: true }) description?: string;
+  @Field({ nullable: true }) image?: string;
+  @Field() is_active: boolean;
+}
+
+@ObjectType()
 export class GiftCardType {
   @Field(() => ID)
   id: string;

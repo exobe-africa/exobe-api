@@ -76,7 +76,7 @@ export class DiscountsService {
           },
         ],
       },
-      include: { products: true, categories: true },
+      include: { products: true, categories: true, collections: true },
     });
 
     let totalOrderDiscount = 0;
@@ -95,29 +95,35 @@ export class DiscountsService {
         amount = params.shipping_cents;
       } else if (d.type === 'PRODUCT_AMOUNT' || d.type === 'PRODUCT_PERCENT' || d.type === 'BUY_X_GET_Y') {
         const productIds = new Set<string>(d.products?.map((p: any) => p.product_id) || []);
-        const appliesAll = !!d.applies_to_all_products || productIds.size === 0;
+        const collectionProductIdsSet = new Set<string>();
+        if (d.collections?.length) {
+          const colIds = d.collections.map((c: any) => c.collection_id);
+          const cps = await tx.collectionProduct.findMany({ where: { collection_id: { in: colIds } } });
+          for (const cp of cps) collectionProductIdsSet.add(cp.product_id);
+        }
+        const appliesAll = !!d.applies_to_all_products || (productIds.size === 0 && collectionProductIdsSet.size === 0);
         let discountOnProducts = 0;
         if (d.type === 'PRODUCT_AMOUNT' && d.amount_cents) {
           for (const it of params.items) {
-            if (appliesAll || productIds.has(it.product_id)) {
+            if (appliesAll || productIds.has(it.product_id) || collectionProductIdsSet.has(it.product_id)) {
               const amt = Math.min(d.amount_cents * it.quantity, it.price_cents * it.quantity);
               discountOnProducts += amt;
             }
           }
         } else if (d.type === 'PRODUCT_PERCENT' && d.percent) {
           for (const it of params.items) {
-            if (appliesAll || productIds.has(it.product_id)) {
+            if (appliesAll || productIds.has(it.product_id) || collectionProductIdsSet.has(it.product_id)) {
               const amt = Math.floor((it.price_cents * it.quantity * d.percent) / 100);
               discountOnProducts += amt;
             }
           }
         } else if (d.type === 'BUY_X_GET_Y' && d.buy_x_quantity && d.get_y_quantity) {
           let eligibleQty = 0;
-          for (const it of params.items) if (appliesAll || productIds.has(it.product_id)) eligibleQty += it.quantity;
+          for (const it of params.items) if (appliesAll || productIds.has(it.product_id) || collectionProductIdsSet.has(it.product_id)) eligibleQty += it.quantity;
           const groups = Math.floor(eligibleQty / d.buy_x_quantity);
           const freeQty = groups * d.get_y_quantity;
           if (freeQty > 0) {
-            const unit = Math.min(...params.items.filter(it => appliesAll || productIds.has(it.product_id)).map(it => it.price_cents));
+            const unit = Math.min(...params.items.filter(it => appliesAll || productIds.has(it.product_id) || collectionProductIdsSet.has(it.product_id)).map(it => it.price_cents));
             if (isFinite(unit)) discountOnProducts += unit * freeQty;
           }
         }
@@ -130,7 +136,7 @@ export class DiscountsService {
         // naive proportional split across eligible items for reporting
         const eligibleIndexes = params.items
           .map((it, idx) => ({ it, idx }))
-          .filter(({ it }) => d.applies_to_all_products || (d.products?.some((p: any) => p.product_id === it.product_id)))
+          .filter(({ it }) => d.applies_to_all_products || (d.products?.some((p: any) => p.product_id === it.product_id)) || (d.collections?.length ? true : false))
           .map(({ idx }) => idx);
         const totalEligible = eligibleIndexes.reduce((s, idx) => s + params.items[idx].price_cents * params.items[idx].quantity, 0) || 1;
         const itemsAlloc = eligibleIndexes.map((idx) => {

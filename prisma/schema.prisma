@@ -208,6 +208,7 @@ model Vendor {
   seller_type  SellerType
   products    CatalogProduct[]
   discounts   Discount[]
+  collections Collection[]
   retailer_account  RetailerAccount?
   wholesaler_account WholesalerAccount?
   created_at   DateTime      @default(now())
@@ -489,12 +490,52 @@ model Discount {
   shipping_countries         String[]
   products                   DiscountProduct[]
   categories                 DiscountCategory[]
+  collections                DiscountCollection[]
   redemptions                DiscountRedemption[]
   order_discounts            OrderDiscount[]
   created_at                 DateTime        @default(now())
   updated_at                 DateTime        @updatedAt
 
   @@map("discounts")
+}
+
+// Seller Collections (marketing groupings)
+model Collection {
+  id          String   @id @default(cuid())
+  vendor_id   String
+  vendor      Vendor   @relation(fields: [vendor_id], references: [id])
+  name        String
+  slug        String   @unique
+  description String?
+  image       String?
+  is_active   Boolean  @default(true)
+  products    CollectionProduct[]
+  discounts   DiscountCollection[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("collections")
+}
+
+model CollectionProduct {
+  id            String   @id @default(cuid())
+  collection_id String
+  collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+  product_id    String
+
+  @@unique([collection_id, product_id])
+  @@map("collection_products")
+}
+
+model DiscountCollection {
+  id           String   @id @default(cuid())
+  discount_id  String
+  discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
+  collection_id String
+  collection   Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+
+  @@unique([discount_id, collection_id])
+  @@map("discount_collections")
 }
 
 model DiscountProduct {

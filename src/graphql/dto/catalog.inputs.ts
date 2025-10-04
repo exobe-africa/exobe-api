@@ -376,6 +376,29 @@ export class UpdateDiscountInput {
   @Field(() => [String], { nullable: true }) @IsOptional() category_ids?: string[];
 }
 
+// Collections
+@InputType()
+export class CreateCollectionInput {
+  @Field() vendor_id: string;
+  @Field() name: string;
+  @Field({ nullable: true }) @IsOptional() description?: string;
+  @Field({ nullable: true }) @IsOptional() image?: string;
+}
+
+@InputType()
+export class UpdateCollectionInput {
+  @Field({ nullable: true }) @IsOptional() name?: string;
+  @Field({ nullable: true }) @IsOptional() description?: string;
+  @Field({ nullable: true }) @IsOptional() image?: string;
+  @Field({ nullable: true }) @IsOptional() is_active?: boolean;
+}
+
+@InputType()
+export class ModifyCollectionProductsInput {
+  @Field() collection_id: string;
+  @Field(() => [String]) product_ids: string[];
+}
+
 @InputType()
 export class CreateGiftCardInput {
   @Field() code: string;

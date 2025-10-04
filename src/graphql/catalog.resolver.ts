@@ -7,14 +7,15 @@ import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, UserNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType } from './types/catalog.types';
-import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput } from './dto/catalog.inputs';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, UserNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType } from './types/catalog.types';
+import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
 import { ReviewsService } from '../catalog/reviews.service';
 import { GiftCardsService } from '../catalog/gift-cards.service';
 import { DiscountsService } from '../catalog/discounts.service';
 import { CollectionsService } from '../catalog/collections.service';
+import { VendorNotificationsService } from '../catalog/vendor-notifications.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -37,6 +38,7 @@ export class CatalogResolver {
     private giftcards: GiftCardsService,
     private discounts: DiscountsService,
     private collections: CollectionsService,
+    private vendorNotifs: VendorNotificationsService,
   ) {}
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -506,6 +508,21 @@ export class CatalogResolver {
   @Mutation(() => Boolean)
   removeProductFromCollection(@Args('collectionId') collectionId: string, @Args('productId') productId: string, @Context() ctx: any) {
     return this.collections.removeProduct(collectionId, productId, { userId: ctx.req.user.userId, role: ctx.req.user.role });
+  }
+
+  // Vendor notification settings
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Query(() => VendorNotificationSettingsType)
+  vendorNotificationSettings(@Args('vendorId') vendorId: string) {
+    return this.vendorNotifs.getSettings(vendorId);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Mutation(() => VendorNotificationSettingsType)
+  updateVendorNotificationSettings(@Args('vendorId') vendorId: string, @Args('input') input: UpdateVendorNotificationSettingsInput) {
+    return this.vendorNotifs.updateSettings(vendorId, input);
   }
 }
 

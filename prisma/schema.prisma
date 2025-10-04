@@ -209,6 +209,7 @@ model Vendor {
   products    CatalogProduct[]
   discounts   Discount[]
   collections Collection[]
+  notification_settings VendorNotificationSettings?
   retailer_account  RetailerAccount?
   wholesaler_account WholesalerAccount?
   created_at   DateTime      @default(now())
@@ -499,7 +500,6 @@ model Discount {
   @@map("discounts")
 }
 
-// Seller Collections (marketing groupings)
 model Collection {
   id          String   @id @default(cuid())
   vendor_id   String
@@ -536,6 +536,29 @@ model DiscountCollection {
 
   @@unique([discount_id, collection_id])
   @@map("discount_collections")
+}
+
+// Vendor Notifications
+model VendorNotificationSettings {
+  id                         String   @id @default(cuid())
+  vendor_id                  String   @unique
+  vendor                     Vendor   @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
+  email_notifications_enabled Boolean  @default(true)
+  order_new                  Boolean  @default(true)
+  order_paid                 Boolean  @default(true)
+  order_cancelled            Boolean  @default(true)
+  order_refunded             Boolean  @default(true)
+  return_requested           Boolean  @default(true)
+  low_stock                  Boolean  @default(true)
+  low_stock_threshold        Int      @default(5)
+  product_status_change      Boolean  @default(true)
+  review_received            Boolean  @default(true)
+  payout_sent                Boolean  @default(true)
+  message_received           Boolean  @default(true)
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime @updatedAt
+
+  @@map("vendor_notification_settings")
 }
 
 model DiscountProduct {

@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { GiftCardsService } from './gift-cards.service';
 import { DiscountsService } from './discounts.service';
+import { VendorNotificationsService } from './vendor-notifications.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService, private giftcards: GiftCardsService, private discounts: DiscountsService) {}
+  constructor(private prisma: PrismaService, private giftcards: GiftCardsService, private discounts: DiscountsService, private vendorNotifs: VendorNotificationsService) {}
 
   private generateOrderNumber() {
     return `EX-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -177,6 +178,8 @@ export class OrdersService {
       }
       return order;
     });
+    // Notify vendors (fire & forget)
+    try { await this.vendorNotifs.sendNewOrderEmailsForVendors(result as any); } catch {}
     return result;
   }
 

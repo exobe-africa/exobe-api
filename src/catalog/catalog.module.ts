@@ -13,11 +13,13 @@ import { ReviewsService } from '../catalog/reviews.service';
 import { GiftCardsService } from './gift-cards.service';
 import { DiscountsService } from './discounts.service';
 import { CollectionsService } from './collections.service';
+import { VendorNotificationsService } from './vendor-notifications.service';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [PrismaModule],
-  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService],
-  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService],
+  imports: [PrismaModule, EmailModule],
+  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService],
+  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService],
 })
 export class CatalogModule {}
 

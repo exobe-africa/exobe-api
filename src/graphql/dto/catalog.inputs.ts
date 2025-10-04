@@ -400,6 +400,22 @@ export class ModifyCollectionProductsInput {
 }
 
 @InputType()
+export class UpdateVendorNotificationSettingsInput {
+  @Field({ nullable: true }) email_notifications_enabled?: boolean;
+  @Field({ nullable: true }) order_new?: boolean;
+  @Field({ nullable: true }) order_paid?: boolean;
+  @Field({ nullable: true }) order_cancelled?: boolean;
+  @Field({ nullable: true }) order_refunded?: boolean;
+  @Field({ nullable: true }) return_requested?: boolean;
+  @Field({ nullable: true }) low_stock?: boolean;
+  @Field({ nullable: true }) low_stock_threshold?: number;
+  @Field({ nullable: true }) product_status_change?: boolean;
+  @Field({ nullable: true }) review_received?: boolean;
+  @Field({ nullable: true }) payout_sent?: boolean;
+  @Field({ nullable: true }) message_received?: boolean;
+}
+
+@InputType()
 export class CreateGiftCardInput {
   @Field() code: string;
   @Field() @IsInt() @Min(0) initial_value_cents: number;

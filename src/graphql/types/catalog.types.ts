@@ -361,6 +361,38 @@ export class VatRateType {
 }
 
 @ObjectType()
+export class VendorNotificationSettingsType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  vendor_id: string;
+  @Field()
+  email_notifications_enabled: boolean;
+  @Field()
+  order_new: boolean;
+  @Field()
+  order_paid: boolean;
+  @Field()
+  order_cancelled: boolean;
+  @Field()
+  order_refunded: boolean;
+  @Field()
+  return_requested: boolean;
+  @Field()
+  low_stock: boolean;
+  @Field()
+  low_stock_threshold: number;
+  @Field()
+  product_status_change: boolean;
+  @Field()
+  review_received: boolean;
+  @Field()
+  payout_sent: boolean;
+  @Field()
+  message_received: boolean;
+}
+
+@ObjectType()
 export class ReturnEventType {
   @Field(() => ID)
   id: string;

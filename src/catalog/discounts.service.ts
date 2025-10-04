@@ -80,7 +80,7 @@ export class DiscountsService {
     });
 
     let totalOrderDiscount = 0;
-    const applied: Array<{ discount_id?: string; amount_cents: number; description?: string; code?: string }> = [];
+    const applied: Array<{ discount_id?: string; amount_cents: number; description?: string; code?: string; items?: Array<{ order_item_index: number; amount_cents: number }> }> = [];
 
     for (const d of applicable) {
       if (d.method === 'CODE' && d.code && params.input_code !== d.code) continue;
@@ -100,13 +100,15 @@ export class DiscountsService {
         if (d.type === 'PRODUCT_AMOUNT' && d.amount_cents) {
           for (const it of params.items) {
             if (appliesAll || productIds.has(it.product_id)) {
-              discountOnProducts += Math.min(d.amount_cents * it.quantity, it.price_cents * it.quantity);
+              const amt = Math.min(d.amount_cents * it.quantity, it.price_cents * it.quantity);
+              discountOnProducts += amt;
             }
           }
         } else if (d.type === 'PRODUCT_PERCENT' && d.percent) {
           for (const it of params.items) {
             if (appliesAll || productIds.has(it.product_id)) {
-              discountOnProducts += Math.floor((it.price_cents * it.quantity * d.percent) / 100);
+              const amt = Math.floor((it.price_cents * it.quantity * d.percent) / 100);
+              discountOnProducts += amt;
             }
           }
         } else if (d.type === 'BUY_X_GET_Y' && d.buy_x_quantity && d.get_y_quantity) {
@@ -125,7 +127,21 @@ export class DiscountsService {
       amount = Math.max(0, Math.min(amount, params.subtotal_cents));
       if (amount > 0) {
         totalOrderDiscount += amount;
-        applied.push({ discount_id: d.id, amount_cents: amount, description: d.title, code: d.code || undefined });
+        // naive proportional split across eligible items for reporting
+        const eligibleIndexes = params.items
+          .map((it, idx) => ({ it, idx }))
+          .filter(({ it }) => d.applies_to_all_products || (d.products?.some((p: any) => p.product_id === it.product_id)))
+          .map(({ idx }) => idx);
+        const totalEligible = eligibleIndexes.reduce((s, idx) => s + params.items[idx].price_cents * params.items[idx].quantity, 0) || 1;
+        const itemsAlloc = eligibleIndexes.map((idx) => {
+          const base = params.items[idx].price_cents * params.items[idx].quantity;
+          const alloc = Math.floor((base / totalEligible) * amount);
+          return { order_item_index: idx, amount_cents: alloc };
+        });
+        // adjust rounding remainder
+        const remainder = amount - itemsAlloc.reduce((s, a) => s + a.amount_cents, 0);
+        if (remainder > 0 && itemsAlloc.length > 0) itemsAlloc[0].amount_cents += remainder;
+        applied.push({ discount_id: d.id, amount_cents: amount, description: d.title, code: d.code || undefined, items: itemsAlloc });
       }
     }
 

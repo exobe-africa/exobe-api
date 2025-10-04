@@ -121,7 +121,6 @@ export class OrdersService {
         },
       });
 
-      // Evaluate discounts (automatic + code)
       const discountEval = await this.discounts.evaluateDiscountsForOrder(tx, {
         userId: params.userId,
         customer_id: customer.id,
@@ -135,12 +134,28 @@ export class OrdersService {
       if (discountEval.total_discount_cents > 0) {
         total = Math.max(0, total - discountEval.total_discount_cents);
         for (const ap of discountEval.applied) {
-          await (tx as any).orderDiscount.create({ data: { order_id: order.id, discount_id: ap.discount_id ?? null, amount_cents: ap.amount_cents, description: ap.description ?? null, code: ap.code ?? null } });
+          const od = await (tx as any).orderDiscount.create({ data: { order_id: order.id, discount_id: ap.discount_id ?? null, amount_cents: ap.amount_cents, description: ap.description ?? null, code: ap.code ?? null } });
+          if (ap.items && ap.items.length) {
+            for (const alloc of ap.items) {
+              const item = items[alloc.order_item_index];
+              const orderItem = await (tx as any).orderItem.findFirst({ where: { order_id: order.id, product_variant_id: item.product_variant_id } });
+              if (orderItem) {
+                await (tx as any).orderDiscountItem.create({
+                  data: {
+                    order_discount_id: od.id,
+                    order_item_id: orderItem.id,
+                    product_id: item.product_id,
+                    product_variant_id: item.product_variant_id,
+                    amount_cents: alloc.amount_cents,
+                  },
+                });
+              }
+            }
+          }
         }
         await (tx as any).order.update({ where: { id: order.id }, data: { total_cents: total } });
       }
 
-      // Apply gift card if provided
       if (params.gift_card_code) {
         const applied = await this.giftcards.applyGiftCardWithinTransaction(tx, params.gift_card_code, total, order.id);
         if (applied.applied_cents > 0) {

@@ -349,6 +349,7 @@ model OrderItem {
   total_cents        Int
 
   returns            ReturnItem[]
+  discount_items     OrderDiscountItem[]
 
   @@map("order_items")
 }
@@ -539,8 +540,22 @@ model OrderDiscount {
   code         String?
   amount_cents Int
   description  String?
+  items        OrderDiscountItem[]
 
   @@map("order_discounts")
+}
+
+model OrderDiscountItem {
+  id                String   @id @default(cuid())
+  order_discount_id String
+  order_discount    OrderDiscount @relation(fields: [order_discount_id], references: [id], onDelete: Cascade)
+  order_item_id     String
+  order_item        OrderItem @relation(fields: [order_item_id], references: [id])
+  product_id        String
+  product_variant_id String
+  amount_cents      Int
+
+  @@map("order_discount_items")
 }
 
 model RetailerAccount {

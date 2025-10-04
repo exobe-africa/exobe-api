@@ -302,6 +302,9 @@ export class CreateOrderInput {
   @Field({ nullable: true })
   @IsOptional()
   gift_card_code?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  discount_code?: string;
 }
 
 @InputType()
@@ -314,6 +317,63 @@ export class UpdateOrderInput {
   shippingAddress?: Record<string, any>;
   @Field(() => GraphQLJSONObject, { nullable: true })
   billingAddress?: Record<string, any>;
+}
+
+// Discounts
+@InputType()
+export class CreateDiscountInput {
+  @Field({ nullable: true }) @IsOptional() code?: string; // required if method=CODE
+  @Field({ nullable: true }) @IsOptional() title?: string;
+  @Field({ nullable: true }) @IsOptional() description?: string;
+  @Field() type: string; // DiscountType
+  @Field({ nullable: true }) @IsOptional() method?: string; // CODE | AUTOMATIC
+  @Field({ nullable: true }) @IsOptional() vendor_id?: string; // seller scope
+  @Field({ nullable: true }) @IsOptional() amount_cents?: number;
+  @Field({ nullable: true }) @IsOptional() percent?: number;
+  @Field({ nullable: true }) @IsOptional() buy_x_quantity?: number;
+  @Field({ nullable: true }) @IsOptional() get_y_quantity?: number;
+  @Field({ nullable: true }) @IsOptional() min_purchase_amount_cents?: number;
+  @Field({ nullable: true }) @IsOptional() min_quantity?: number;
+  @Field({ nullable: true }) @IsOptional() usage_limit_total?: number;
+  @Field({ nullable: true }) @IsOptional() usage_limit_per_customer?: number;
+  @Field({ nullable: true }) @IsOptional() applies_to_all_products?: boolean;
+  @Field({ nullable: true }) @IsOptional() combine_with_product?: boolean;
+  @Field({ nullable: true }) @IsOptional() combine_with_order?: boolean;
+  @Field({ nullable: true }) @IsOptional() combine_with_shipping?: boolean;
+  @Field({ nullable: true }) @IsOptional() starts_at?: Date;
+  @Field({ nullable: true }) @IsOptional() ends_at?: Date;
+  @Field({ nullable: true }) @IsOptional() is_active?: boolean;
+  @Field(() => [String], { nullable: true }) @IsOptional() shipping_countries?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() product_ids?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() category_ids?: string[];
+}
+
+@InputType()
+export class UpdateDiscountInput {
+  @Field({ nullable: true }) @IsOptional() code?: string;
+  @Field({ nullable: true }) @IsOptional() title?: string;
+  @Field({ nullable: true }) @IsOptional() description?: string;
+  @Field({ nullable: true }) @IsOptional() type?: string;
+  @Field({ nullable: true }) @IsOptional() method?: string;
+  @Field({ nullable: true }) @IsOptional() vendor_id?: string;
+  @Field({ nullable: true }) @IsOptional() amount_cents?: number;
+  @Field({ nullable: true }) @IsOptional() percent?: number;
+  @Field({ nullable: true }) @IsOptional() buy_x_quantity?: number;
+  @Field({ nullable: true }) @IsOptional() get_y_quantity?: number;
+  @Field({ nullable: true }) @IsOptional() min_purchase_amount_cents?: number;
+  @Field({ nullable: true }) @IsOptional() min_quantity?: number;
+  @Field({ nullable: true }) @IsOptional() usage_limit_total?: number;
+  @Field({ nullable: true }) @IsOptional() usage_limit_per_customer?: number;
+  @Field({ nullable: true }) @IsOptional() applies_to_all_products?: boolean;
+  @Field({ nullable: true }) @IsOptional() combine_with_product?: boolean;
+  @Field({ nullable: true }) @IsOptional() combine_with_order?: boolean;
+  @Field({ nullable: true }) @IsOptional() combine_with_shipping?: boolean;
+  @Field({ nullable: true }) @IsOptional() starts_at?: Date;
+  @Field({ nullable: true }) @IsOptional() ends_at?: Date;
+  @Field({ nullable: true }) @IsOptional() is_active?: boolean;
+  @Field(() => [String], { nullable: true }) @IsOptional() shipping_countries?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() product_ids?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() category_ids?: string[];
 }
 
 @InputType()

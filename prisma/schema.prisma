@@ -207,6 +207,7 @@ model Vendor {
   is_active    Boolean       @default(false)
   seller_type  SellerType
   products    CatalogProduct[]
+  discounts   Discount[]
   retailer_account  RetailerAccount?
   wholesaler_account WholesalerAccount?
   created_at   DateTime      @default(now())
@@ -324,7 +325,9 @@ model Order {
   payments          Payment[]
   events            OrderEvent[]
   returns           ReturnRequest[]
+  discounts         OrderDiscount[]
   gift_card_transactions GiftCardTransaction[]
+  discount_redemptions DiscountRedemption[]
   created_at        DateTime     @default(now())
   updated_at        DateTime     @updatedAt
 
@@ -441,6 +444,103 @@ model OrderEvent {
   created_at       DateTime       @default(now())
 
   @@map("order_events")
+}
+
+enum DiscountType {
+  PRODUCT_AMOUNT
+  PRODUCT_PERCENT
+  BUY_X_GET_Y
+  ORDER_AMOUNT
+  ORDER_PERCENT
+  FREE_SHIPPING
+}
+
+enum DiscountMethod {
+  CODE
+  AUTOMATIC
+}
+
+model Discount {
+  id                         String          @id @default(cuid())
+  code                       String?         @unique
+  title                      String?
+  description                String?
+  type                       DiscountType
+  method                     DiscountMethod  @default(CODE)
+  vendor_id                  String?
+  vendor                     Vendor?         @relation(fields: [vendor_id], references: [id])
+  created_by_user_id         String?
+  amount_cents               Int?
+  percent                    Int?
+  buy_x_quantity             Int?
+  get_y_quantity             Int?
+  min_purchase_amount_cents  Int?
+  min_quantity               Int?
+  usage_limit_total          Int?
+  usage_limit_per_customer   Int?
+  applies_to_all_products    Boolean         @default(false)
+  combine_with_product       Boolean         @default(true)
+  combine_with_order         Boolean         @default(false)
+  combine_with_shipping      Boolean         @default(false)
+  starts_at                  DateTime?
+  ends_at                    DateTime?
+  is_active                  Boolean         @default(true)
+  shipping_countries         String[]
+  products                   DiscountProduct[]
+  categories                 DiscountCategory[]
+  redemptions                DiscountRedemption[]
+  order_discounts            OrderDiscount[]
+  created_at                 DateTime        @default(now())
+  updated_at                 DateTime        @updatedAt
+
+  @@map("discounts")
+}
+
+model DiscountProduct {
+  id           String   @id @default(cuid())
+  discount_id  String
+  discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
+  product_id   String
+
+  @@unique([discount_id, product_id])
+  @@map("discount_products")
+}
+
+model DiscountCategory {
+  id           String   @id @default(cuid())
+  discount_id  String
+  discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
+  category_id  String
+
+  @@unique([discount_id, category_id])
+  @@map("discount_categories")
+}
+
+model DiscountRedemption {
+  id           String   @id @default(cuid())
+  discount_id  String
+  discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
+  order_id     String?
+  order        Order?   @relation(fields: [order_id], references: [id])
+  customer_id  String?
+  amount_cents Int      @default(0)
+  code_used    String?
+  created_at   DateTime @default(now())
+
+  @@map("discount_redemptions")
+}
+
+model OrderDiscount {
+  id           String   @id @default(cuid())
+  order_id     String
+  order        Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  discount_id  String?
+  discount     Discount? @relation(fields: [discount_id], references: [id])
+  code         String?
+  amount_cents Int
+  description  String?
+
+  @@map("order_discounts")
 }
 
 model RetailerAccount {
@@ -681,7 +781,6 @@ model VatRate {
   @@map("vat_rates")
 }
 
-// Gift Cards
 enum GiftCardStatus {
   ACTIVE
   INACTIVE

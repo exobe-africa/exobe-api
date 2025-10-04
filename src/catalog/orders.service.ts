@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { GiftCardsService } from './gift-cards.service';
+import { DiscountsService } from './discounts.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService, private giftcards: GiftCardsService) {}
+  constructor(private prisma: PrismaService, private giftcards: GiftCardsService, private discounts: DiscountsService) {}
 
   private generateOrderNumber() {
     return `EX-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -70,6 +71,7 @@ export class OrdersService {
     billingAddress?: any;
     items: Array<{ variant_id: string; quantity: number }>;
     gift_card_code?: string;
+    discount_code?: string;
   }) {
     const customer = await this.ensureCustomerForUserOrGuest(params);
     const variants = await this.prisma.productVariant.findMany({ where: { id: { in: params.items.map(i => i.variant_id) } } });
@@ -118,6 +120,25 @@ export class OrdersService {
           billing_address: params.billingAddress ?? params.shippingAddress,
         },
       });
+
+      // Evaluate discounts (automatic + code)
+      const discountEval = await this.discounts.evaluateDiscountsForOrder(tx, {
+        userId: params.userId,
+        customer_id: customer.id,
+        email: params.email,
+        items: items.map(i => ({ product_id: i.product_id, variant_id: i.product_variant_id, quantity: i.quantity, price_cents: i.price_cents })),
+        shipping_cents: shipping,
+        subtotal_cents: subtotal,
+        country: params.shippingAddress?.country,
+        input_code: params.discount_code,
+      });
+      if (discountEval.total_discount_cents > 0) {
+        total = Math.max(0, total - discountEval.total_discount_cents);
+        for (const ap of discountEval.applied) {
+          await (tx as any).orderDiscount.create({ data: { order_id: order.id, discount_id: ap.discount_id ?? null, amount_cents: ap.amount_cents, description: ap.description ?? null, code: ap.code ?? null } });
+        }
+        await (tx as any).order.update({ where: { id: order.id }, data: { total_cents: total } });
+      }
 
       // Apply gift card if provided
       if (params.gift_card_code) {

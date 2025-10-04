@@ -7,12 +7,13 @@ import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, UserNotificationSettingsType, GiftCardType } from './types/catalog.types';
-import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CreateGiftCardInput, UpdateGiftCardInput } from './dto/catalog.inputs';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, UserNotificationSettingsType, GiftCardType, DiscountTypeGQL } from './types/catalog.types';
+import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
 import { ReviewsService } from '../catalog/reviews.service';
 import { GiftCardsService } from '../catalog/gift-cards.service';
+import { DiscountsService } from '../catalog/discounts.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -33,6 +34,7 @@ export class CatalogResolver {
     private wishlists: WishlistsService,
     private reviews: ReviewsService,
     private giftcards: GiftCardsService,
+    private discounts: DiscountsService,
   ) {}
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -433,6 +435,39 @@ export class CatalogResolver {
   @Query(() => [GiftCardType])
   giftCards(@Args('status', { nullable: true }) status?: string, @Args('customerId', { nullable: true }) customerId?: string) {
     return this.giftcards.listGiftCards({ status: status as any, customer_id: customerId });
+  }
+
+  // Discounts
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Mutation(() => DiscountTypeGQL)
+  createDiscount(@Args('input') input: CreateDiscountInput, @Context() ctx: any) {
+    return this.discounts.createDiscount(input, { userId: ctx.req.user.userId, role: ctx.req.user.role });
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Mutation(() => DiscountTypeGQL)
+  updateDiscount(@Args('id') id: string, @Args('input') input: UpdateDiscountInput, @Context() ctx: any) {
+    return this.discounts.updateDiscount(id, input, { userId: ctx.req.user.userId, role: ctx.req.user.role });
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Mutation(() => Boolean)
+  deleteDiscount(@Args('id') id: string, @Context() ctx: any) {
+    return this.discounts.deleteDiscount(id, { role: ctx.req.user.role });
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Query(() => [DiscountTypeGQL])
+  discountsList(
+    @Args('vendorId', { nullable: true }) vendorId: string,
+    @Args('type', { nullable: true }) type?: string,
+    @Context() ctx?: any,
+  ) {
+    return this.discounts.listDiscounts({ vendor_id: vendorId, type }, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 }
 

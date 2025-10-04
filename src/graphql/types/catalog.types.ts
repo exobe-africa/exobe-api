@@ -209,6 +209,35 @@ export class OrderType {
   items: OrderItemType[];
   @Field(() => [OrderEventType], { nullable: true })
   events?: OrderEventType[];
+  @Field({ nullable: true })
+  discount_total_cents?: number;
+}
+
+@ObjectType()
+export class DiscountTypeGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) code?: string;
+  @Field({ nullable: true }) title?: string;
+  @Field({ nullable: true }) description?: string;
+  @Field() type: string;
+  @Field() method: string;
+  @Field({ nullable: true }) vendor_id?: string;
+  @Field({ nullable: true }) amount_cents?: number;
+  @Field({ nullable: true }) percent?: number;
+  @Field({ nullable: true }) buy_x_quantity?: number;
+  @Field({ nullable: true }) get_y_quantity?: number;
+  @Field({ nullable: true }) min_purchase_amount_cents?: number;
+  @Field({ nullable: true }) min_quantity?: number;
+  @Field({ nullable: true }) usage_limit_total?: number;
+  @Field({ nullable: true }) usage_limit_per_customer?: number;
+  @Field({ nullable: true }) applies_to_all_products?: boolean;
+  @Field({ nullable: true }) combine_with_product?: boolean;
+  @Field({ nullable: true }) combine_with_order?: boolean;
+  @Field({ nullable: true }) combine_with_shipping?: boolean;
+  @Field({ nullable: true }) starts_at?: Date;
+  @Field({ nullable: true }) ends_at?: Date;
+  @Field() is_active: boolean;
 }
 
 @ObjectType()

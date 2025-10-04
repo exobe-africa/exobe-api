@@ -34,17 +34,40 @@ export class UsersService {
 
     const hashed = await bcrypt.hash(data.password, 12);
     const name = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || undefined;
-    return this.prisma.user.create({
-      data: {
-        email: data.email,
-        password: hashed,
-        name,
-        first_name: data.firstName,
-        last_name: data.lastName,
-        phone: data.phone,
-        agree_to_terms: data.agreeToTerms,
-        subscribe_newsletter: data.subscribeNewsletter,
-      },
+
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: data.email,
+          password: hashed,
+          name,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          phone: data.phone,
+          agree_to_terms: data.agreeToTerms,
+          subscribe_newsletter: data.subscribeNewsletter,
+        },
+      });
+
+      // Link existing guest customer (same email, no user linked) to this new user
+      const existingGuestCustomer = await (tx as any).customer.findFirst({
+        where: { email: data.email, user_id: null },
+        orderBy: { created_at: 'desc' },
+      });
+      if (existingGuestCustomer) {
+        await (tx as any).customer.update({
+          where: { id: existingGuestCustomer.id },
+          data: {
+            user_id: user.id,
+            // Preserve existing values; fill from registration if missing
+            first_name: existingGuestCustomer.first_name || (data.firstName ?? ''),
+            last_name: existingGuestCustomer.last_name || (data.lastName ?? ''),
+            phone: existingGuestCustomer.phone || data.phone,
+          },
+        });
+      }
+
+      return user;
     });
   }
 

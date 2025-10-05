@@ -3,53 +3,53 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  first_name String?
-  last_name  String?
-  phone     String?
-  mobile    String?
-  date_of_birth DateTime?
-  addresses UserAddress[]
-  agree_to_terms       Boolean  @default(false)
-  subscribe_newsletter Boolean @default(false)
-  role      Role     @default(CUSTOMER)
-  is_active  Boolean  @default(true)
-  vendors   Vendor[]
-  managed_vendors Vendor[] @relation("VendorAccountManager")
-  customer  Customer?
-  wishlist  Wishlist?
-  reviews   Review[]
+  id                    String                        @id @default(cuid()) @db.VarChar(25)
+  email                 String                        @unique @db.VarChar(254)
+  password              String                        @db.VarChar(255)
+  name                  String?                       @db.VarChar(150)
+  first_name            String?                       @db.VarChar(100)
+  last_name             String?                       @db.VarChar(100)
+  phone                 String?                       @db.VarChar(32)
+  mobile                String?                       @db.VarChar(32)
+  date_of_birth         DateTime?
+  addresses             UserAddress[]
+  agree_to_terms        Boolean                       @default(false)
+  subscribe_newsletter  Boolean                       @default(false)
+  role                  Role                          @default(CUSTOMER)
+  is_active             Boolean                       @default(true)
+  vendors               Vendor[]
+  managed_vendors       Vendor[]                      @relation("VendorAccountManager")
+  customer              Customer?
+  wishlist              Wishlist?
+  reviews               Review[]
   notification_settings CustomerNotificationSettings?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at            DateTime                      @default(now())
+  updated_at            DateTime                      @updatedAt
 
   @@map("users")
 }
 
 model CustomerNotificationSettings {
-  id                 String  @id @default(cuid())
-  user_id            String  @unique
-  user               User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  order_confirmations Boolean @default(true)
-  shipping_updates    Boolean @default(true)
-  delivery_notifications Boolean @default(true)
-  product_recommendations Boolean @default(false)
-  exclusive_deals     Boolean @default(false)
-  wishlist_updates    Boolean @default(false)
-  shopping_insights   Boolean @default(false)
-  login_alerts        Boolean @default(true)
-  password_changes    Boolean @default(true)
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
+  id                      String   @id @default(cuid()) @db.VarChar(25)
+  user_id                 String   @unique @db.VarChar(25)
+  user                    User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order_confirmations     Boolean  @default(true)
+  shipping_updates        Boolean  @default(true)
+  delivery_notifications  Boolean  @default(true)
+  product_recommendations Boolean  @default(false)
+  exclusive_deals         Boolean  @default(false)
+  wishlist_updates        Boolean  @default(false)
+  shopping_insights       Boolean  @default(false)
+  login_alerts            Boolean  @default(true)
+  password_changes        Boolean  @default(true)
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
 
   @@map("customer_notification_settings")
 }
@@ -63,44 +63,44 @@ enum Role {
 }
 
 model SellerApplication {
-  id                   String   @id @default(cuid())
+  id                    String            @id @default(cuid()) @db.VarChar(25)
   seller_role           Role
-  business_type         String
-  applicant_type        String
-  first_name            String
-  last_name             String
-  email                String
-  phone                String
-  landline             String?
-  identification_type   String
-  business_name         String
-  business_registration String?
-  sa_id_number           String?
-  vat_registered        String
-  vat_number            String?
-  monthly_revenue       String?
-  physical_stores       String?
-  number_of_stores       String?
-  supplier_to_retailers  String?
-  other_marketplaces    String?
-  address              String
-  city                 String
-  province             String
-  postal_code           String
-  unique_products       String?
-  primary_category      String
-  stock_type            String
-  product_description   String
-  owned_brands          String?
-  reseller_brands       String?
-  website              String?
-  social_media          String?
-  business_summary      String
-  how_did_you_hear        String
-  agree_to_terms         Boolean  @default(false)
-  status               ApplicationStatus @default(PENDING)
-  created_at            DateTime @default(now())
-  updated_at            DateTime @updatedAt
+  business_type         String            @db.VarChar(50)
+  applicant_type        String            @db.VarChar(50)
+  first_name            String            @db.VarChar(100)
+  last_name             String            @db.VarChar(100)
+  email                 String            @db.VarChar(254)
+  phone                 String            @db.VarChar(32)
+  landline              String?           @db.VarChar(32)
+  identification_type   String            @db.VarChar(50)
+  business_name         String            @db.VarChar(150)
+  business_registration String?           @db.VarChar(100)
+  sa_id_number          String?           @db.VarChar(20)
+  vat_registered        String            @db.VarChar(10)
+  vat_number            String?           @db.VarChar(64)
+  monthly_revenue       String?           @db.VarChar(50)
+  physical_stores       String?           @db.VarChar(10)
+  number_of_stores      String?           @db.VarChar(10)
+  supplier_to_retailers String?           @db.VarChar(10)
+  other_marketplaces    String?           @db.VarChar(255)
+  address               String            @db.VarChar(255)
+  city                  String            @db.VarChar(100)
+  province              String            @db.VarChar(100)
+  postal_code           String            @db.VarChar(20)
+  unique_products       String?           @db.VarChar(255)
+  primary_category      String            @db.VarChar(100)
+  stock_type            String            @db.VarChar(50)
+  product_description   String            @db.Text
+  owned_brands          String?           @db.VarChar(255)
+  reseller_brands       String?           @db.VarChar(255)
+  website               String?           @db.VarChar(255)
+  social_media          String?           @db.VarChar(255)
+  business_summary      String            @db.Text
+  how_did_you_hear      String            @db.VarChar(100)
+  agree_to_terms        Boolean           @default(false)
+  status                ApplicationStatus @default(PENDING)
+  created_at            DateTime          @default(now())
+  updated_at            DateTime          @updatedAt
 
   @@map("seller_applications")
 }
@@ -112,33 +112,33 @@ enum ApplicationStatus {
 }
 
 model ContactMessage {
-  id         String   @id @default(cuid())
-  name       String
-  email      String
-  phone      String?
-  subject    String
-  message    String
-  department String?
-  created_at  DateTime @default(now())
+  id         String   @id @default(cuid()) @db.VarChar(25)
+  name       String   @db.VarChar(150)
+  email      String   @db.VarChar(254)
+  phone      String?  @db.VarChar(32)
+  subject    String   @db.VarChar(150)
+  message    String   @db.Text
+  department String?  @db.VarChar(50)
+  created_at DateTime @default(now())
 
   @@map("contact_messages")
 }
 
 model NewsArticle {
-  id          String   @id @default(cuid())
-  title       String
-  excerpt     String
-  content     String
-  author      String
+  id           String        @id @default(cuid()) @db.VarChar(25)
+  title        String        @db.VarChar(200)
+  excerpt      String        @db.Text
+  content      String        @db.Text
+  author       String        @db.VarChar(100)
   published_at DateTime
   read_time    Int
-  category    String
-  image       String
-  featured    Boolean  @default(false)
-  status      ArticleStatus @default(DRAFT)
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  category     String        @db.VarChar(100)
+  image        String        @db.VarChar(2048)
+  featured     Boolean       @default(false)
+  status       ArticleStatus @default(DRAFT)
+  is_active    Boolean       @default(true)
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
 
   @@map("news_articles")
 }
@@ -150,70 +150,70 @@ enum ArticleStatus {
 }
 
 model ServiceProviderApplication {
-  id                  String   @id @default(cuid())
-  first_name           String
-  last_name            String
-  email               String
-  phone               String
-  date_of_birth         String?
-  id_number            String
-  identification_type  String
-  service_categories   String[]
-  primary_service      String
-  experience          String
-  qualifications      String?
-  portfolio           String?
-  hourly_rate          String
-  availability        String
-  address             String
-  city                String
-  province            String
-  postal_code          String
-  service_radius       String
-  transport_mode       String
-  business_name        String?
-  business_registration String?
-  vat_registered       String?
-  vat_number           String?
-  bank_details         String?
-  emergency_contact    String?
-  work_samples         String?
-  client_references    String?
-  certifications      String?
-  insurance           String?
-  background_check     String?
-  motivation          String
-  goals               String?
-  how_did_you_hear       String
-  agree_to_terms        Boolean  @default(false)
-  agree_to_background   Boolean  @default(false)
-  status              ApplicationStatus @default(PENDING)
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
+  id                    String            @id @default(cuid()) @db.VarChar(25)
+  first_name            String            @db.VarChar(100)
+  last_name             String            @db.VarChar(100)
+  email                 String            @db.VarChar(254)
+  phone                 String            @db.VarChar(32)
+  date_of_birth         String?           @db.VarChar(20)
+  id_number             String            @db.VarChar(50)
+  identification_type   String            @db.VarChar(50)
+  service_categories    String[]
+  primary_service       String            @db.VarChar(100)
+  experience            String            @db.Text
+  qualifications        String?           @db.Text
+  portfolio             String?           @db.VarChar(255)
+  hourly_rate           String            @db.VarChar(50)
+  availability          String            @db.VarChar(100)
+  address               String            @db.VarChar(255)
+  city                  String            @db.VarChar(100)
+  province              String            @db.VarChar(100)
+  postal_code           String            @db.VarChar(20)
+  service_radius        String            @db.VarChar(50)
+  transport_mode        String            @db.VarChar(50)
+  business_name         String?           @db.VarChar(150)
+  business_registration String?           @db.VarChar(100)
+  vat_registered        String?           @db.VarChar(10)
+  vat_number            String?           @db.VarChar(64)
+  bank_details          String?           @db.Text
+  emergency_contact     String?           @db.VarChar(255)
+  work_samples          String?           @db.Text
+  client_references     String?           @db.Text
+  certifications        String?           @db.Text
+  insurance             String?           @db.Text
+  background_check      String?           @db.VarChar(10)
+  motivation            String            @db.Text
+  goals                 String?           @db.Text
+  how_did_you_hear      String            @db.VarChar(100)
+  agree_to_terms        Boolean           @default(false)
+  agree_to_background   Boolean           @default(false)
+  status                ApplicationStatus @default(PENDING)
+  created_at            DateTime          @default(now())
+  updated_at            DateTime          @updatedAt
 
   @@map("service_provider_applications")
 }
 
 model Vendor {
-  id          String        @id @default(cuid())
-  name        String
-  slug        String        @unique
-  description String?
-  owner_user_id String
-  owner       User          @relation(fields: [owner_user_id], references: [id])
-  account_manager_user_id String?
-  accountManager       User?         @relation("VendorAccountManager", fields: [account_manager_user_id], references: [id])
-  status      VendorStatus  @default(PENDING)
-  is_active    Boolean       @default(false)
-  seller_type  SellerType
-  products    CatalogProduct[]
-  discounts   Discount[]
-  collections Collection[]
-  notification_settings VendorNotificationSettings?
-  retailer_account  RetailerAccount?
-  wholesaler_account WholesalerAccount?
-  created_at   DateTime      @default(now())
-  updated_at   DateTime      @updatedAt
+  id                      String                      @id @default(cuid()) @db.VarChar(25)
+  name                    String                      @db.VarChar(150)
+  slug                    String                      @unique @db.VarChar(191)
+  description             String?                     @db.Text
+  owner_user_id           String                      @db.VarChar(25)
+  owner                   User                        @relation(fields: [owner_user_id], references: [id])
+  account_manager_user_id String?                     @db.VarChar(25)
+  accountManager          User?                       @relation("VendorAccountManager", fields: [account_manager_user_id], references: [id])
+  status                  VendorStatus                @default(PENDING)
+  is_active               Boolean                     @default(false)
+  seller_type             SellerType
+  products                CatalogProduct[]
+  discounts               Discount[]
+  collections             Collection[]
+  notification_settings   VendorNotificationSettings?
+  retailer_account        RetailerAccount?
+  wholesaler_account      WholesalerAccount?
+  created_at              DateTime                    @default(now())
+  updated_at              DateTime                    @updatedAt
 
   @@map("vendors")
 }
@@ -230,18 +230,18 @@ enum SellerType {
 }
 
 model UserAddress {
-  id          String      @id @default(cuid())
-  user_id      String
-  user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  type        AddressType @default(BUSINESS)
-  address_line1 String
-  address_line2 String?
-  city        String
-  province    String?
-  country     String
-  postal_code  String
-  created_at   DateTime    @default(now())
-  updated_at   DateTime    @updatedAt
+  id            String      @id @default(cuid()) @db.VarChar(25)
+  user_id       String      @db.VarChar(25)
+  user          User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  type          AddressType @default(BUSINESS)
+  address_line1 String      @db.VarChar(255)
+  address_line2 String?     @db.VarChar(255)
+  city          String      @db.VarChar(100)
+  province      String?     @db.VarChar(100)
+  country       String      @db.VarChar(100)
+  postal_code   String      @db.VarChar(20)
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
 
   @@map("user_addresses")
 }
@@ -254,36 +254,36 @@ enum AddressType {
 }
 
 model Customer {
-  id         String   @id @default(cuid())
-  user_id    String?
-  user       User?    @relation(fields: [user_id], references: [id])
-  email      String
-  first_name String
-  last_name  String
-  phone      String?
-  mobile     String?
-  addresses  CustomerAddress[]
-  orders     Order[]
+  id              String            @id @default(cuid()) @db.VarChar(25)
+  user_id         String?           @db.VarChar(25)
+  user            User?             @relation(fields: [user_id], references: [id])
+  email           String            @db.VarChar(254)
+  first_name      String            @db.VarChar(100)
+  last_name       String            @db.VarChar(100)
+  phone           String?           @db.VarChar(32)
+  mobile          String?           @db.VarChar(32)
+  addresses       CustomerAddress[]
+  orders          Order[]
   return_requests ReturnRequest[]
-  gift_cards GiftCard[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  gift_cards      GiftCard[]
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
 
   @@unique([user_id])
   @@map("customers")
 }
 
 model CustomerAddress {
-  id            String      @id @default(cuid())
-  customer_id   String
+  id            String      @id @default(cuid()) @db.VarChar(25)
+  customer_id   String      @db.VarChar(25)
   customer      Customer    @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   type          AddressType @default(BUSINESS)
-  address_line1 String
-  address_line2 String?
-  city          String
-  province      String?
-  country       String
-  postal_code   String
+  address_line1 String      @db.VarChar(255)
+  address_line2 String?     @db.VarChar(255)
+  city          String      @db.VarChar(100)
+  province      String?     @db.VarChar(100)
+  country       String      @db.VarChar(100)
+  postal_code   String      @db.VarChar(20)
   created_at    DateTime    @default(now())
   updated_at    DateTime    @updatedAt
 
@@ -307,66 +307,66 @@ enum PaymentStatus {
 }
 
 model Order {
-  id                String       @id @default(cuid())
-  order_number      String       @unique
-  customer_id       String
-  customer          Customer     @relation(fields: [customer_id], references: [id])
-  email             String
-  status            OrderStatus  @default(PENDING)
-  payment_status    PaymentStatus @default(INITIATED)
-  currency          String       @default("ZAR")
-  subtotal_cents    Int
-  shipping_cents    Int          @default(0)
-  vat_cents         Int          @default(0)
-  total_cents       Int
-  gift_card_amount_cents Int     @default(0)
-  gift_card_code    String?
-  shipping_address  Json
-  billing_address   Json
-  items             OrderItem[]
-  payments          Payment[]
-  events            OrderEvent[]
-  returns           ReturnRequest[]
-  discounts         OrderDiscount[]
+  id                     String                @id @default(cuid()) @db.VarChar(25)
+  order_number           String                @unique @db.VarChar(40)
+  customer_id            String                @db.VarChar(25)
+  customer               Customer              @relation(fields: [customer_id], references: [id])
+  email                  String                @db.VarChar(254)
+  status                 OrderStatus           @default(PENDING)
+  payment_status         PaymentStatus         @default(INITIATED)
+  currency               String                @default("ZAR") @db.VarChar(3)
+  subtotal_cents         Int
+  shipping_cents         Int                   @default(0)
+  vat_cents              Int                   @default(0)
+  total_cents            Int
+  gift_card_amount_cents Int                   @default(0)
+  gift_card_code         String?               @db.VarChar(64)
+  shipping_address       Json
+  billing_address        Json
+  items                  OrderItem[]
+  payments               Payment[]
+  events                 OrderEvent[]
+  returns                ReturnRequest[]
+  discounts              OrderDiscount[]
   gift_card_transactions GiftCardTransaction[]
-  discount_redemptions DiscountRedemption[]
-  created_at        DateTime     @default(now())
-  updated_at        DateTime     @updatedAt
+  discount_redemptions   DiscountRedemption[]
+  created_at             DateTime              @default(now())
+  updated_at             DateTime              @updatedAt
 
   @@map("orders")
 }
 
 model OrderItem {
-  id                 String         @id @default(cuid())
-  order_id           String
-  order              Order          @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  product_id         String
-  product_variant_id String
-  vendor_id          String
-  sku                String
-  title              String
+  id                 String @id @default(cuid()) @db.VarChar(25)
+  order_id           String @db.VarChar(25)
+  order              Order  @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product_id         String @db.VarChar(25)
+  product_variant_id String @db.VarChar(25)
+  vendor_id          String @db.VarChar(25)
+  sku                String @db.VarChar(64)
+  title              String @db.VarChar(200)
   attributes         Json
   price_cents        Int
   quantity           Int
   total_cents        Int
 
-  returns            ReturnItem[]
-  discount_items     OrderDiscountItem[]
+  returns        ReturnItem[]
+  discount_items OrderDiscountItem[]
 
   @@map("order_items")
 }
 
 model Payment {
-  id              String        @id @default(cuid())
-  order_id        String
-  order           Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  provider        String
-  status          PaymentStatus @default(INITIATED)
-  amount_cents    Int
-  currency        String        @default("ZAR")
-  transaction_id  String?
-  raw_response    Json?
-  created_at      DateTime      @default(now())
+  id             String        @id @default(cuid()) @db.VarChar(25)
+  order_id       String        @db.VarChar(25)
+  order          Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  provider       String        @db.VarChar(50)
+  status         PaymentStatus @default(INITIATED)
+  amount_cents   Int
+  currency       String        @default("ZAR") @db.VarChar(3)
+  transaction_id String?       @db.VarChar(128)
+  raw_response   Json?
+  created_at     DateTime      @default(now())
 
   @@map("payments")
 }
@@ -393,58 +393,58 @@ enum RefundMethod {
 }
 
 model ReturnRequest {
-  id                String        @id @default(cuid())
-  order_id          String
-  order             Order         @relation(fields: [order_id], references: [id])
-  customer_id       String
-  customer          Customer      @relation(fields: [customer_id], references: [id])
-  status            ReturnStatus  @default(REQUESTED)
-  return_method     ReturnMethod  @default(PICKUP)
-  refund_method     RefundMethod  @default(ORIGINAL)
-  reason            String?
-  total_refund_cents Int          @default(0)
-  items             ReturnItem[]
-  events            ReturnEvent[]
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
+  id                 String        @id @default(cuid()) @db.VarChar(25)
+  order_id           String        @db.VarChar(25)
+  order              Order         @relation(fields: [order_id], references: [id])
+  customer_id        String        @db.VarChar(25)
+  customer           Customer      @relation(fields: [customer_id], references: [id])
+  status             ReturnStatus  @default(REQUESTED)
+  return_method      ReturnMethod  @default(PICKUP)
+  refund_method      RefundMethod  @default(ORIGINAL)
+  reason             String?       @db.VarChar(255)
+  total_refund_cents Int           @default(0)
+  items              ReturnItem[]
+  events             ReturnEvent[]
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
 
   @@map("return_requests")
 }
 
 model ReturnItem {
-  id                 String         @id @default(cuid())
-  return_request_id  String
-  return_request     ReturnRequest  @relation(fields: [return_request_id], references: [id], onDelete: Cascade)
-  order_item_id      String
-  order_item         OrderItem      @relation(fields: [order_item_id], references: [id])
-  quantity           Int            @default(1)
-  reason             String
-  condition          String
-  description        String?
-  refund_cents       Int            @default(0)
+  id                String        @id @default(cuid()) @db.VarChar(25)
+  return_request_id String        @db.VarChar(25)
+  return_request    ReturnRequest @relation(fields: [return_request_id], references: [id], onDelete: Cascade)
+  order_item_id     String        @db.VarChar(25)
+  order_item        OrderItem     @relation(fields: [order_item_id], references: [id])
+  quantity          Int           @default(1)
+  reason            String        @db.VarChar(255)
+  condition         String        @db.VarChar(100)
+  description       String?       @db.Text
+  refund_cents      Int           @default(0)
 
   @@map("return_items")
 }
 
 model ReturnEvent {
-  id                String        @id @default(cuid())
-  return_request_id String
+  id                String        @id @default(cuid()) @db.VarChar(25)
+  return_request_id String        @db.VarChar(25)
   return_request    ReturnRequest @relation(fields: [return_request_id], references: [id], onDelete: Cascade)
   status            ReturnStatus
-  description       String?
+  description       String?       @db.Text
   created_at        DateTime      @default(now())
 
   @@map("return_events")
 }
 
 model OrderEvent {
-  id               String         @id @default(cuid())
-  order_id         String
-  order            Order          @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  status           OrderStatus?
-  payment_status   PaymentStatus?
-  description      String?
-  created_at       DateTime       @default(now())
+  id             String         @id @default(cuid()) @db.VarChar(25)
+  order_id       String         @db.VarChar(25)
+  order          Order          @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  status         OrderStatus?
+  payment_status PaymentStatus?
+  description    String?        @db.Text
+  created_at     DateTime       @default(now())
 
   @@map("order_events")
 }
@@ -464,75 +464,75 @@ enum DiscountMethod {
 }
 
 model Discount {
-  id                         String          @id @default(cuid())
-  code                       String?         @unique
-  title                      String?
-  description                String?
-  type                       DiscountType
-  method                     DiscountMethod  @default(CODE)
-  vendor_id                  String?
-  vendor                     Vendor?         @relation(fields: [vendor_id], references: [id])
-  created_by_user_id         String?
-  amount_cents               Int?
-  percent                    Int?
-  buy_x_quantity             Int?
-  get_y_quantity             Int?
-  min_purchase_amount_cents  Int?
-  min_quantity               Int?
-  usage_limit_total          Int?
-  usage_limit_per_customer   Int?
-  applies_to_all_products    Boolean         @default(false)
-  combine_with_product       Boolean         @default(true)
-  combine_with_order         Boolean         @default(false)
-  combine_with_shipping      Boolean         @default(false)
-  starts_at                  DateTime?
-  ends_at                    DateTime?
-  is_active                  Boolean         @default(true)
-  shipping_countries         String[]
-  products                   DiscountProduct[]
-  categories                 DiscountCategory[]
-  collections                DiscountCollection[]
-  redemptions                DiscountRedemption[]
-  order_discounts            OrderDiscount[]
-  created_at                 DateTime        @default(now())
-  updated_at                 DateTime        @updatedAt
+  id                        String               @id @default(cuid()) @db.VarChar(25)
+  code                      String?              @unique @db.VarChar(50)
+  title                     String?              @db.VarChar(150)
+  description               String?              @db.Text
+  type                      DiscountType
+  method                    DiscountMethod       @default(CODE)
+  vendor_id                 String?              @db.VarChar(25)
+  vendor                    Vendor?              @relation(fields: [vendor_id], references: [id])
+  created_by_user_id        String?              @db.VarChar(25)
+  amount_cents              Int?
+  percent                   Int?
+  buy_x_quantity            Int?
+  get_y_quantity            Int?
+  min_purchase_amount_cents Int?
+  min_quantity              Int?
+  usage_limit_total         Int?
+  usage_limit_per_customer  Int?
+  applies_to_all_products   Boolean              @default(false)
+  combine_with_product      Boolean              @default(true)
+  combine_with_order        Boolean              @default(false)
+  combine_with_shipping     Boolean              @default(false)
+  starts_at                 DateTime?
+  ends_at                   DateTime?
+  is_active                 Boolean              @default(true)
+  shipping_countries        String[]
+  products                  DiscountProduct[]
+  categories                DiscountCategory[]
+  collections               DiscountCollection[]
+  redemptions               DiscountRedemption[]
+  order_discounts           OrderDiscount[]
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
 
   @@map("discounts")
 }
 
 model Collection {
-  id          String   @id @default(cuid())
-  vendor_id   String
-  vendor      Vendor   @relation(fields: [vendor_id], references: [id])
-  name        String
-  slug        String   @unique
-  description String?
-  image       String?
-  is_active   Boolean  @default(true)
+  id          String               @id @default(cuid()) @db.VarChar(25)
+  vendor_id   String               @db.VarChar(25)
+  vendor      Vendor               @relation(fields: [vendor_id], references: [id])
+  name        String               @db.VarChar(150)
+  slug        String               @unique @db.VarChar(191)
+  description String?              @db.Text
+  image       String?              @db.VarChar(2048)
+  is_active   Boolean              @default(true)
   products    CollectionProduct[]
   discounts   DiscountCollection[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at  DateTime             @default(now())
+  updated_at  DateTime             @updatedAt
 
   @@map("collections")
 }
 
 model CollectionProduct {
-  id            String   @id @default(cuid())
-  collection_id String
+  id            String     @id @default(cuid()) @db.VarChar(25)
+  collection_id String     @db.VarChar(25)
   collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
-  product_id    String
+  product_id    String     @db.VarChar(25)
 
   @@unique([collection_id, product_id])
   @@map("collection_products")
 }
 
 model DiscountCollection {
-  id           String   @id @default(cuid())
-  discount_id  String
-  discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
-  collection_id String
-  collection   Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+  id            String     @id @default(cuid()) @db.VarChar(25)
+  discount_id   String     @db.VarChar(25)
+  discount      Discount   @relation(fields: [discount_id], references: [id], onDelete: Cascade)
+  collection_id String     @db.VarChar(25)
+  collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
 
   @@unique([discount_id, collection_id])
   @@map("discount_collections")
@@ -540,92 +540,92 @@ model DiscountCollection {
 
 // Vendor Notifications
 model VendorNotificationSettings {
-  id                         String   @id @default(cuid())
-  vendor_id                  String   @unique
-  vendor                     Vendor   @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
+  id                          String   @id @default(cuid()) @db.VarChar(25)
+  vendor_id                   String   @unique @db.VarChar(25)
+  vendor                      Vendor   @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
   email_notifications_enabled Boolean  @default(true)
-  order_new                  Boolean  @default(true)
-  order_paid                 Boolean  @default(true)
-  order_cancelled            Boolean  @default(true)
-  order_refunded             Boolean  @default(true)
-  return_requested           Boolean  @default(true)
-  low_stock                  Boolean  @default(true)
-  low_stock_threshold        Int      @default(5)
-  product_status_change      Boolean  @default(true)
-  review_received            Boolean  @default(true)
-  payout_sent                Boolean  @default(true)
-  message_received           Boolean  @default(true)
-  created_at                 DateTime @default(now())
-  updated_at                 DateTime @updatedAt
+  order_new                   Boolean  @default(true)
+  order_paid                  Boolean  @default(true)
+  order_cancelled             Boolean  @default(true)
+  order_refunded              Boolean  @default(true)
+  return_requested            Boolean  @default(true)
+  low_stock                   Boolean  @default(true)
+  low_stock_threshold         Int      @default(5)
+  product_status_change       Boolean  @default(true)
+  review_received             Boolean  @default(true)
+  payout_sent                 Boolean  @default(true)
+  message_received            Boolean  @default(true)
+  created_at                  DateTime @default(now())
+  updated_at                  DateTime @updatedAt
 
   @@map("vendor_notification_settings")
 }
 
 model DiscountProduct {
-  id           String   @id @default(cuid())
-  discount_id  String
-  discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
-  product_id   String
+  id          String   @id @default(cuid()) @db.VarChar(25)
+  discount_id String   @db.VarChar(25)
+  discount    Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
+  product_id  String   @db.VarChar(25)
 
   @@unique([discount_id, product_id])
   @@map("discount_products")
 }
 
 model DiscountCategory {
-  id           String   @id @default(cuid())
-  discount_id  String
-  discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
-  category_id  String
+  id          String   @id @default(cuid()) @db.VarChar(25)
+  discount_id String   @db.VarChar(25)
+  discount    Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
+  category_id String   @db.VarChar(25)
 
   @@unique([discount_id, category_id])
   @@map("discount_categories")
 }
 
 model DiscountRedemption {
-  id           String   @id @default(cuid())
-  discount_id  String
+  id           String   @id @default(cuid()) @db.VarChar(25)
+  discount_id  String   @db.VarChar(25)
   discount     Discount @relation(fields: [discount_id], references: [id], onDelete: Cascade)
-  order_id     String?
+  order_id     String?  @db.VarChar(25)
   order        Order?   @relation(fields: [order_id], references: [id])
-  customer_id  String?
+  customer_id  String?  @db.VarChar(25)
   amount_cents Int      @default(0)
-  code_used    String?
+  code_used    String?  @db.VarChar(50)
   created_at   DateTime @default(now())
 
   @@map("discount_redemptions")
 }
 
 model OrderDiscount {
-  id           String   @id @default(cuid())
-  order_id     String
-  order        Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  discount_id  String?
-  discount     Discount? @relation(fields: [discount_id], references: [id])
-  code         String?
+  id           String              @id @default(cuid()) @db.VarChar(25)
+  order_id     String              @db.VarChar(25)
+  order        Order               @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  discount_id  String?             @db.VarChar(25)
+  discount     Discount?           @relation(fields: [discount_id], references: [id])
+  code         String?             @db.VarChar(50)
   amount_cents Int
-  description  String?
+  description  String?             @db.VarChar(255)
   items        OrderDiscountItem[]
 
   @@map("order_discounts")
 }
 
 model OrderDiscountItem {
-  id                String   @id @default(cuid())
-  order_discount_id String
-  order_discount    OrderDiscount @relation(fields: [order_discount_id], references: [id], onDelete: Cascade)
-  order_item_id     String
-  order_item        OrderItem @relation(fields: [order_item_id], references: [id])
-  product_id        String
-  product_variant_id String
-  amount_cents      Int
+  id                 String        @id @default(cuid()) @db.VarChar(25)
+  order_discount_id  String        @db.VarChar(25)
+  order_discount     OrderDiscount @relation(fields: [order_discount_id], references: [id], onDelete: Cascade)
+  order_item_id      String        @db.VarChar(25)
+  order_item         OrderItem     @relation(fields: [order_item_id], references: [id])
+  product_id         String        @db.VarChar(25)
+  product_variant_id String        @db.VarChar(25)
+  amount_cents       Int
 
   @@map("order_discount_items")
 }
 
 model RetailerAccount {
-  id        String @id @default(cuid())
-  vendor_id  String @unique
-  vendor    Vendor @relation(fields: [vendor_id], references: [id])
+  id         String   @id @default(cuid()) @db.VarChar(25)
+  vendor_id  String   @unique @db.VarChar(25)
+  vendor     Vendor   @relation(fields: [vendor_id], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -633,9 +633,9 @@ model RetailerAccount {
 }
 
 model WholesalerAccount {
-  id        String @id @default(cuid())
-  vendor_id  String @unique
-  vendor    Vendor @relation(fields: [vendor_id], references: [id])
+  id         String   @id @default(cuid()) @db.VarChar(25)
+  vendor_id  String   @unique @db.VarChar(25)
+  vendor     Vendor   @relation(fields: [vendor_id], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -643,61 +643,61 @@ model WholesalerAccount {
 }
 
 model Category {
-  id          String     @id @default(cuid())
-  name        String
-  slug        String     @unique
-  description String?
-  parent_id    String?
-  parent      Category?  @relation("CategoryChildren", fields: [parent_id], references: [id])
-  children    Category[] @relation("CategoryChildren")
-  path        String
+  id          String           @id @default(cuid()) @db.VarChar(25)
+  name        String           @db.VarChar(150)
+  slug        String           @unique @db.VarChar(191)
+  description String?          @db.Text
+  parent_id   String?          @db.VarChar(25)
+  parent      Category?        @relation("CategoryChildren", fields: [parent_id], references: [id])
+  children    Category[]       @relation("CategoryChildren")
+  path        String           @db.VarChar(512)
   root        RootCategory?
-  is_active    Boolean    @default(true)
+  is_active   Boolean          @default(true)
   products    CatalogProduct[]
-  created_at   DateTime   @default(now())
-  updated_at   DateTime   @updatedAt
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
 
   @@map("categories")
 }
 
 model CatalogProduct {
-  id             String          @id @default(cuid())
-  vendor_id       String
-  vendor         Vendor          @relation(fields: [vendor_id], references: [id])
-  category_id     String
-  category       Category        @relation(fields: [category_id], references: [id])
-  title          String
-  slug           String          @unique
-  description    String?
-  status         ProductStatus   @default(DRAFT)
-  is_active       Boolean         @default(false)
-  featured       Boolean         @default(false)
-  seo_title       String?
-  seo_description String?
-  features       String[]
+  id                  String           @id @default(cuid()) @db.VarChar(25)
+  vendor_id           String           @db.VarChar(25)
+  vendor              Vendor           @relation(fields: [vendor_id], references: [id])
+  category_id         String           @db.VarChar(25)
+  category            Category         @relation(fields: [category_id], references: [id])
+  title               String           @db.VarChar(200)
+  slug                String           @unique @db.VarChar(191)
+  description         String?          @db.Text
+  status              ProductStatus    @default(DRAFT)
+  is_active           Boolean          @default(false)
+  featured            Boolean          @default(false)
+  seo_title           String?          @db.VarChar(70)
+  seo_description     String?          @db.VarChar(160)
+  features            String[]
   available_locations String[]
-  tags           String[]
-  options        ProductOption[]
-  variants       ProductVariant[]
-  media          ProductMedia[]
-  wishlist_items WishlistItem[]
-  reviews        Review[]
-  created_at      DateTime        @default(now())
-  updated_at      DateTime        @updatedAt
+  tags                String[]
+  options             ProductOption[]
+  variants            ProductVariant[]
+  media               ProductMedia[]
+  wishlist_items      WishlistItem[]
+  reviews             Review[]
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
 
   @@map("catalog_products")
 }
 
 model Review {
-  id          String   @id @default(cuid())
-  product_id  String
-  product     CatalogProduct @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  user_id     String
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  rating      Int
-  comment     String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id         String         @id @default(cuid()) @db.VarChar(25)
+  product_id String         @db.VarChar(25)
+  product    CatalogProduct @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  user_id    String         @db.VarChar(25)
+  user       User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String         @db.Text
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
 
   @@unique([product_id, user_id])
   @@map("reviews")
@@ -710,78 +710,77 @@ enum ProductStatus {
 }
 
 model ProductVariant {
-  id                  String          @id @default(cuid())
-  product_id           String
-  product             CatalogProduct  @relation(fields: [product_id], references: [id])
-  sku                 String          @unique
-  title               String
-  attributes          Json 
-  price_cents          Int
+  id                     String                      @id @default(cuid()) @db.VarChar(25)
+  product_id             String                      @db.VarChar(25)
+  product                CatalogProduct              @relation(fields: [product_id], references: [id])
+  sku                    String                      @unique @db.VarChar(64)
+  title                  String                      @db.VarChar(200)
+  attributes             Json
+  price_cents            Int
   compare_at_price_cents Int?
-  barcode             String?
-  weight_grams         Int?            @default(0)
-  track_inventory      Boolean         @default(true)
-  allow_backorder      Boolean         @default(false)
-  stock_quantity       Int             @default(0)
-  available_locations  String[]
-  inventory           InventoryTransaction[]
+  barcode                String?                     @db.VarChar(64)
+  weight_grams           Int?                        @default(0)
+  track_inventory        Boolean                     @default(true)
+  allow_backorder        Boolean                     @default(false)
+  stock_quantity         Int                         @default(0)
+  available_locations    String[]
+  inventory              InventoryTransaction[]
   selected_option_values ProductVariantOptionValue[]
-  media               ProductVariantMedia[]
-  created_at           DateTime        @default(now())
-  updated_at           DateTime        @updatedAt
+  media                  ProductVariantMedia[]
+  created_at             DateTime                    @default(now())
+  updated_at             DateTime                    @updatedAt
 
   @@map("product_variants")
 }
 
 model ProductOption {
-  id         String          @id @default(cuid())
-  product_id  String
-  product    CatalogProduct  @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  name       String
-  position   Int             @default(0)
-  values     ProductOptionValue[]
+  id                 String                      @id @default(cuid()) @db.VarChar(25)
+  product_id         String                      @db.VarChar(25)
+  product            CatalogProduct              @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  name               String                      @db.VarChar(100)
+  position           Int                         @default(0)
+  values             ProductOptionValue[]
   variant_selections ProductVariantOptionValue[]
-  created_at  DateTime        @default(now())
-  updated_at  DateTime        @updatedAt
+  created_at         DateTime                    @default(now())
+  updated_at         DateTime                    @updatedAt
 
   @@map("product_options")
 }
 
 model ProductOptionValue {
-  id         String        @id @default(cuid())
-  option_id   String
-  option     ProductOption @relation(fields: [option_id], references: [id], onDelete: Cascade)
-  value      String
-  position   Int           @default(0)
-  variants   ProductVariantOptionValue[]
+  id        String                      @id @default(cuid()) @db.VarChar(25)
+  option_id String                      @db.VarChar(25)
+  option    ProductOption               @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  value     String                      @db.VarChar(100)
+  position  Int                         @default(0)
+  variants  ProductVariantOptionValue[]
 
   @@map("product_option_values")
 }
 
 model ProductVariantOptionValue {
-  id             String            @id @default(cuid())
-  variant_id      String
-  variant        ProductVariant    @relation(fields: [variant_id], references: [id], onDelete: Cascade)
-  option_id       String
-  option         ProductOption     @relation(fields: [option_id], references: [id], onDelete: Cascade)
-  option_value_id  String
-  optionValue    ProductOptionValue @relation(fields: [option_value_id], references: [id], onDelete: Cascade)
+  id              String             @id @default(cuid()) @db.VarChar(25)
+  variant_id      String             @db.VarChar(25)
+  variant         ProductVariant     @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  option_id       String             @db.VarChar(25)
+  option          ProductOption      @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  option_value_id String             @db.VarChar(25)
+  optionValue     ProductOptionValue @relation(fields: [option_value_id], references: [id], onDelete: Cascade)
 
+  @@unique([variant_id, option_id])
   @@index([variant_id])
   @@index([option_id])
   @@index([option_value_id])
-  @@unique([variant_id, option_id])
-
   @@map("product_variant_option_values")
 }
 
 model ProductMedia {
-  id        String         @id @default(cuid())
-  product_id String
-  product   CatalogProduct @relation(fields: [product_id], references: [id])
-  url       String
-  type      MediaType      @default(IMAGE)
-  position  Int            @default(0)
+  id         String         @id @default(cuid()) @db.VarChar(25)
+  product_id String         @db.VarChar(25)
+  product    CatalogProduct @relation(fields: [product_id], references: [id])
+  url        String         @db.VarChar(2048)
+  type       MediaType      @default(IMAGE)
+  position   Int            @default(0)
 
   @@map("product_media")
 }
@@ -793,48 +792,48 @@ enum MediaType {
 }
 
 model ProductVariantMedia {
-  id         String           @id @default(cuid())
-  variant_id  String
-  variant    ProductVariant   @relation(fields: [variant_id], references: [id])
-  url        String
-  type       MediaType        @default(IMAGE)
-  position   Int              @default(0)
+  id         String         @id @default(cuid()) @db.VarChar(25)
+  variant_id String         @db.VarChar(25)
+  variant    ProductVariant @relation(fields: [variant_id], references: [id])
+  url        String         @db.VarChar(2048)
+  type       MediaType      @default(IMAGE)
+  position   Int            @default(0)
 
   @@map("product_variant_media")
 }
 
 model Wishlist {
-  id        String        @id @default(cuid())
-  user_id   String        @unique
-  user      User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  items     WishlistItem[]
-  created_at DateTime     @default(now())
-  updated_at DateTime     @updatedAt
+  id         String         @id @default(cuid()) @db.VarChar(25)
+  user_id    String         @unique @db.VarChar(25)
+  user       User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items      WishlistItem[]
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
 
   @@map("wishlists")
 }
 
 model WishlistItem {
-  id              String    @id @default(cuid())
-  wishlist_id     String
-  wishlist        Wishlist  @relation(fields: [wishlist_id], references: [id], onDelete: Cascade)
-  product_id      String
-  product         CatalogProduct @relation(fields: [product_id], references: [id])
-  product_variant_id String?
-  created_at      DateTime  @default(now())
+  id                 String         @id @default(cuid()) @db.VarChar(25)
+  wishlist_id        String         @db.VarChar(25)
+  wishlist           Wishlist       @relation(fields: [wishlist_id], references: [id], onDelete: Cascade)
+  product_id         String         @db.VarChar(25)
+  product            CatalogProduct @relation(fields: [product_id], references: [id])
+  product_variant_id String?        @db.VarChar(25)
+  created_at         DateTime       @default(now())
 
   @@unique([wishlist_id, product_id, product_variant_id])
   @@map("wishlist_items")
 }
 
 model InventoryTransaction {
-  id         String         @id @default(cuid())
-  variant_id  String
-  variant    ProductVariant @relation(fields: [variant_id], references: [id])
+  id         String          @id @default(cuid()) @db.VarChar(25)
+  variant_id String          @db.VarChar(25)
+  variant    ProductVariant  @relation(fields: [variant_id], references: [id])
   change     Int
   reason     InventoryReason
-  notes      String?
-  created_at  DateTime       @default(now())
+  notes      String?         @db.Text
+  created_at DateTime        @default(now())
 
   @@map("inventory_transactions")
 }
@@ -848,13 +847,13 @@ enum InventoryReason {
 }
 
 model VatRate {
-  id          String   @id @default(cuid())
-  country     String
-  province    String?
-  rate        Float
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id         String   @id @default(cuid()) @db.VarChar(25)
+  country    String   @db.VarChar(100)
+  province   String?  @db.VarChar(100)
+  rate       Float
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@unique([country, province])
   @@map("vat_rates")
@@ -866,19 +865,19 @@ enum GiftCardStatus {
 }
 
 model GiftCard {
-  id                   String          @id @default(cuid())
-  code                 String          @unique
-  customer_id          String?
-  customer             Customer?       @relation(fields: [customer_id], references: [id])
-  initial_value_cents  Int
-  balance_cents        Int
-  status               GiftCardStatus  @default(ACTIVE)
-  notes                String?
-  image                String?
-  expires_at           DateTime?
-  created_at           DateTime        @default(now())
-  updated_at           DateTime        @updatedAt
-  transactions         GiftCardTransaction[]
+  id                  String                @id @default(cuid()) @db.VarChar(25)
+  code                String                @unique @db.VarChar(50)
+  customer_id         String?               @db.VarChar(25)
+  customer            Customer?             @relation(fields: [customer_id], references: [id])
+  initial_value_cents Int
+  balance_cents       Int
+  status              GiftCardStatus        @default(ACTIVE)
+  notes               String?               @db.Text
+  image               String?               @db.VarChar(2048)
+  expires_at          DateTime?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+  transactions        GiftCardTransaction[]
 
   @@map("gift_cards")
 }
@@ -891,15 +890,15 @@ enum GiftCardTransactionType {
 }
 
 model GiftCardTransaction {
-  id               String                     @id @default(cuid())
-  gift_card_id     String
-  gift_card        GiftCard                   @relation(fields: [gift_card_id], references: [id], onDelete: Cascade)
-  type             GiftCardTransactionType
-  amount_cents     Int
-  notes            String?
-  order_id         String?
-  order            Order?                     @relation(fields: [order_id], references: [id])
-  created_at       DateTime                   @default(now())
+  id           String                  @id @default(cuid()) @db.VarChar(25)
+  gift_card_id String                  @db.VarChar(25)
+  gift_card    GiftCard                @relation(fields: [gift_card_id], references: [id], onDelete: Cascade)
+  type         GiftCardTransactionType
+  amount_cents Int
+  notes        String?                 @db.Text
+  order_id     String?                 @db.VarChar(25)
+  order        Order?                  @relation(fields: [order_id], references: [id])
+  created_at   DateTime                @default(now())
 
   @@map("gift_card_transactions")
 }

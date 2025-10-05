@@ -31,6 +31,9 @@ model User {
   notification_settings CustomerNotificationSettings?
   created_at            DateTime                      @default(now())
   updated_at            DateTime                      @updatedAt
+  AnalyticsEvent        AnalyticsEvent[]
+  UserEngagementStats   UserEngagementStats?
+  UserDailyActive       UserDailyActive[]
 
   @@map("users")
 }
@@ -930,4 +933,66 @@ enum RootCategory {
   SERVICES
   PRODUCT_ADD_ONS
   BUNDLES
+}
+
+/// Analytics: granular user event tracking for personalization
+model AnalyticsEvent {
+  id            String   @id @default(cuid()) @db.VarChar(25)
+  user_id       String?  @db.VarChar(25)
+  user          User?    @relation(fields: [user_id], references: [id])
+  session_id    String?  @db.VarChar(50)
+  event_type    String   @db.VarChar(50)
+  page_path     String?  @db.VarChar(512)
+  page_title    String?  @db.VarChar(200)
+  referrer      String?  @db.VarChar(512)
+  product_id    String?  @db.VarChar(25)
+  collection_id String?  @db.VarChar(25)
+  vendor_id     String?  @db.VarChar(25)
+  search_query  String?  @db.VarChar(200)
+  duration_ms   Int?
+  scroll_depth  Int?
+  attributes    Json?
+  user_agent    String?  @db.VarChar(512)
+  ip            String?  @db.VarChar(64)
+  created_at    DateTime @default(now())
+
+  @@index([user_id])
+  @@index([session_id])
+  @@index([event_type])
+  @@index([created_at])
+  @@index([product_id])
+  @@index([collection_id])
+  @@map("analytics_events")
+}
+
+/// Engagement rollups and streak tracking per user
+model UserEngagementStats {
+  id                  String   @id @default(cuid()) @db.VarChar(25)
+  user_id             String   @unique @db.VarChar(25)
+  user                User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  first_active_date   DateTime
+  last_active_date    DateTime
+  days_active_count   Int      @default(0)
+  current_streak_days Int      @default(0)
+  longest_streak_days Int      @default(0)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  @@map("user_engagement_stats")
+}
+
+/// Daily activity summary per user (UTC date)
+model UserDailyActive {
+  id            String   @id @default(cuid()) @db.VarChar(25)
+  user_id       String   @db.VarChar(25)
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  date          DateTime
+  session_count Int      @default(0)
+  event_count   Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@unique([user_id, date])
+  @@index([date])
+  @@map("user_daily_active")
 }

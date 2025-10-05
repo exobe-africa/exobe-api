@@ -13,6 +13,8 @@ import { NewsModule } from '../news/news.module';
 import { NewsResolver } from './news.resolver.js';
 import { CatalogModule } from '../catalog/catalog.module';
 import { CatalogResolver } from './catalog.resolver.js';
+import { AnalyticsModule } from '../analytics/analytics.module';
+import { AnalyticsResolver } from './analytics.resolver';
 
 @Module({
   imports: [
@@ -34,7 +36,8 @@ import { CatalogResolver } from './catalog.resolver.js';
     ContactModule,
     NewsModule,
     CatalogModule,
+    AnalyticsModule,
   ],
-  providers: [UsersResolver, AuthResolver, ApplicationsResolver, ContactResolver, NewsResolver, CatalogResolver],
+  providers: [UsersResolver, AuthResolver, ApplicationsResolver, ContactResolver, NewsResolver, CatalogResolver, AnalyticsResolver],
 })
 export class GraphqlModule {}

@@ -324,6 +324,8 @@ model Order {
   total_cents            Int
   gift_card_amount_cents Int                   @default(0)
   gift_card_code         String?               @db.VarChar(64)
+  invoice_url            String?               @db.VarChar(2048)
+  receipt_url            String?               @db.VarChar(2048)
   shipping_address       Json
   billing_address        Json
   items                  OrderItem[]

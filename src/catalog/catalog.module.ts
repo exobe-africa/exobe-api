@@ -14,14 +14,15 @@ import { GiftCardsService } from './gift-cards.service';
 import { DiscountsService } from './discounts.service';
 import { CollectionsService } from './collections.service';
 import { VendorNotificationsService } from './vendor-notifications.service';
+import { DocumentsService } from './documents.service';
 import { EmailModule } from '../email/email.module';
 import { StorageModule } from '../storage/storage.module';
 import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [PrismaModule, EmailModule, StorageModule, UsersModule],
-  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService],
-  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService],
+  providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService, DocumentsService],
+  exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService, DocumentsService],
 })
 export class CatalogModule {}
 

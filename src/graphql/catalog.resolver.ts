@@ -16,6 +16,7 @@ import { GiftCardsService } from '../catalog/gift-cards.service';
 import { DiscountsService } from '../catalog/discounts.service';
 import { CollectionsService } from '../catalog/collections.service';
 import { VendorNotificationsService } from '../catalog/vendor-notifications.service';
+import { DocumentsService } from '../catalog/documents.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -39,6 +40,7 @@ export class CatalogResolver {
     private discounts: DiscountsService,
     private collections: CollectionsService,
     private vendorNotifs: VendorNotificationsService,
+    private documents: DocumentsService,
   ) {}
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -531,6 +533,31 @@ export class CatalogResolver {
   @Mutation(() => VendorNotificationSettingsType)
   updateVendorNotificationSettings(@Args('vendorId') vendorId: string, @Args('input') input: UpdateVendorNotificationSettingsInput) {
     return this.vendorNotifs.updateSettings(vendorId, input);
+  }
+
+  // Invoice and Receipt Generation
+  @UseGuards(GqlAuthGuard)
+  @Query(() => String)
+  async getInvoiceUrl(@Args('orderId') orderId: string, @Context() ctx: any) {
+    return this.documents.getInvoiceUrl(orderId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => String)
+  async getReceiptUrl(@Args('orderId') orderId: string, @Context() ctx: any) {
+    return this.documents.getReceiptUrl(orderId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => String)
+  async generateInvoice(@Args('orderId') orderId: string, @Context() ctx: any) {
+    return this.documents.generateInvoice(orderId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => String)
+  async generateReceipt(@Args('orderId') orderId: string, @Context() ctx: any) {
+    return this.documents.generateReceipt(orderId);
   }
 }
 

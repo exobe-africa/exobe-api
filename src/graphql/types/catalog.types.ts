@@ -201,6 +201,10 @@ export class OrderType {
   gift_card_code?: string;
   @Field({ nullable: true })
   gift_card_amount_cents?: number;
+  @Field({ nullable: true })
+  invoice_url?: string;
+  @Field({ nullable: true })
+  receipt_url?: string;
   @Field(() => GraphQLJSONObject)
   shipping_address: Record<string, any>;
   @Field(() => GraphQLJSONObject)

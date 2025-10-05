@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 
 function slugify(input: string) {
   return input
@@ -12,7 +13,7 @@ function slugify(input: string) {
 
 @Injectable()
 export class CollectionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService) {}
 
   private async uniqueSlugForVendor(vendor_id: string, name: string) {
     const base = slugify(name) || 'collection';
@@ -34,13 +35,20 @@ export class CollectionsService {
     }
   }
 
-  async createCollection(input: { vendor_id: string; name: string; description?: string; image?: string }, ctx: { userId: string; role: string }) {
+  async createCollection(input: { vendor_id: string; name: string; description?: string; image?: string; imageBase64?: string; imageFilename?: string; imageContentType?: string }, ctx: { userId: string; role: string }) {
     await this.assertVendorOwnership(input.vendor_id, ctx.userId, ctx.role);
     const slug = await this.uniqueSlugForVendor(input.vendor_id, input.name);
-    return (this.prisma as any).collection.create({ data: { ...input, slug } });
+    let image = input.image;
+    if (!image && input.imageBase64 && input.imageFilename) {
+      const buf = Buffer.from((input.imageBase64 as string).split(',').pop() || input.imageBase64, 'base64');
+      const path = `collections/${input.vendor_id}/${Date.now()}-${input.imageFilename}`;
+      const uploaded = await this.storage.uploadFileFromBuffer(path, buf, input.imageContentType || undefined);
+      image = uploaded.publicUrl;
+    }
+    return (this.prisma as any).collection.create({ data: { vendor_id: input.vendor_id, name: input.name, description: input.description, image, slug } });
   }
 
-  async updateCollection(id: string, input: { name?: string; description?: string; image?: string; is_active?: boolean }, ctx: { userId: string; role: string }) {
+  async updateCollection(id: string, input: { name?: string; description?: string; image?: string; imageBase64?: string; imageFilename?: string; imageContentType?: string; is_active?: boolean }, ctx: { userId: string; role: string }) {
     const existing = await (this.prisma as any).collection.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Collection not found');
     await this.assertVendorOwnership(existing.vendor_id, ctx.userId, ctx.role);
@@ -48,6 +56,12 @@ export class CollectionsService {
     if (input.name && input.name.trim()) {
       data.slug = await this.uniqueSlugForVendor(existing.vendor_id, input.name);
       data.name = input.name;
+    }
+    if (!data.image && input.imageBase64 && input.imageFilename) {
+      const buf = Buffer.from((input.imageBase64 as string).split(',').pop() || input.imageBase64, 'base64');
+      const path = `collections/${existing.vendor_id}/${Date.now()}-${input.imageFilename}`;
+      const uploaded = await this.storage.uploadFileFromBuffer(path, buf, input.imageContentType || undefined);
+      data.image = uploaded.publicUrl;
     }
     return (this.prisma as any).collection.update({ where: { id }, data });
   }

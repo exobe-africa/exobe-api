@@ -1,10 +1,11 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { ProductStatus } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService) {}
 
   async createProduct(data: any, currentUserId: string, requireOwnership = true) {
     if (requireOwnership) {
@@ -29,7 +30,24 @@ export class ProductsService {
       category: { connect: { id: data.categoryId } },
     };
     if (data.status) createData.status = data.status as ProductStatus;
-    return this.prisma.catalogProduct.create({ data: createData });
+    const created = await this.prisma.catalogProduct.create({ data: createData });
+    if (Array.isArray(data.mediaUploads) && data.mediaUploads.length > 0) {
+      for (const [idx, m] of data.mediaUploads.entries()) {
+        if (!m?.base64 || !m?.filename) continue;
+        const buf = Buffer.from(m.base64.split(',').pop() || m.base64, 'base64');
+        const path = `products/${created.id}/${Date.now()}-${m.filename}`;
+        const uploaded = await this.storage.uploadFileFromBuffer(path, buf, m.contentType || undefined);
+        await this.prisma.productMedia.create({
+          data: {
+            product_id: created.id,
+            url: uploaded.publicUrl,
+            type: (m.type as any) ?? undefined,
+            position: m.position ?? idx,
+          },
+        });
+      }
+    }
+    return created;
   }
 
   async updateProduct(id: string, data: any, currentUserId: string, requireOwnership = true) {
@@ -48,7 +66,24 @@ export class ProductsService {
       delete updateData.categoryId;
     }
     if (data.status) updateData.status = data.status as ProductStatus;
-    return this.prisma.catalogProduct.update({ where: { id }, data: updateData });
+    const updated = await this.prisma.catalogProduct.update({ where: { id }, data: updateData });
+    if (Array.isArray(data.mediaUploads) && data.mediaUploads.length > 0) {
+      for (const [idx, m] of data.mediaUploads.entries()) {
+        if (!m?.base64 || !m?.filename) continue;
+        const buf = Buffer.from(m.base64.split(',').pop() || m.base64, 'base64');
+        const path = `products/${id}/${Date.now()}-${m.filename}`;
+        const uploaded = await this.storage.uploadFileFromBuffer(path, buf, m.contentType || undefined);
+        await this.prisma.productMedia.create({
+          data: {
+            product_id: id,
+            url: uploaded.publicUrl,
+            type: (m.type as any) ?? undefined,
+            position: m.position ?? idx,
+          },
+        });
+      }
+    }
+    return updated;
   }
 
   async deleteProduct(id: string, currentUserId: string, requireOwnership = true) {
@@ -118,8 +153,16 @@ export class ProductsService {
     return this.prisma.catalogProduct.update({ where: { id: product_id }, data: { status: 'ARCHIVED', is_active: false } });
   }
 
-  addProductMedia(product_id: string, data: any, currentUserId: string) {
-    return this.prisma.productMedia.create({ data: { product_id, url: data.url, type: (data.type as any) ?? undefined, position: data.position ?? 0 } });
+  async addProductMedia(product_id: string, data: any, currentUserId: string) {
+    let url = data.url as string | undefined;
+    if (!url && data.base64 && data.filename) {
+      const buf = Buffer.from((data.base64 as string).split(',').pop() || data.base64, 'base64');
+      const path = `products/${product_id}/${Date.now()}-${data.filename}`;
+      const uploaded = await this.storage.uploadFileFromBuffer(path, buf, data.contentType || undefined);
+      url = uploaded.publicUrl;
+    }
+    if (!url) throw new Error('Either url or base64+filename must be provided');
+    return this.prisma.productMedia.create({ data: { product_id, url, type: (data.type as any) ?? undefined, position: data.position ?? 0 } });
   }
   removeProductMedia(mediaId: string, currentUserId: string) {
     return this.prisma.productMedia.delete({ where: { id: mediaId } }).then(() => true);

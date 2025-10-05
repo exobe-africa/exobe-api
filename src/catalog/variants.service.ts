@@ -1,9 +1,10 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class VariantsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService) {}
 
   async createVariant(data: any, currentUserId: string) {
     const product = await this.prisma.catalogProduct.findUnique({ where: { id: data.product_id } });
@@ -67,8 +68,16 @@ export class VariantsService {
     return created;
   }
 
-  addVariantMedia(variant_id: string, data: any, currentUserId: string) {
-    return this.prisma.productVariantMedia.create({ data: { variant_id, url: data.url, type: (data.type as any) ?? undefined, position: data.position ?? 0 } });
+  async addVariantMedia(variant_id: string, data: any, currentUserId: string) {
+    let url = data.url as string | undefined;
+    if (!url && data.base64 && data.filename) {
+      const buf = Buffer.from((data.base64 as string).split(',').pop() || data.base64, 'base64');
+      const path = `variants/${variant_id}/${Date.now()}-${data.filename}`;
+      const uploaded = await this.storage.uploadFileFromBuffer(path, buf, data.contentType || undefined);
+      url = uploaded.publicUrl;
+    }
+    if (!url) throw new Error('Either url or base64+filename must be provided');
+    return this.prisma.productVariantMedia.create({ data: { variant_id, url, type: (data.type as any) ?? undefined, position: data.position ?? 0 } });
   }
   removeVariantMedia(media_id: string, currentUserId: string) {
     return this.prisma.productVariantMedia.delete({ where: { id: media_id } }).then(() => true);

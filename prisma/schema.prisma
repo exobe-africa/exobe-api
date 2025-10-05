@@ -874,6 +874,7 @@ model GiftCard {
   balance_cents        Int
   status               GiftCardStatus  @default(ACTIVE)
   notes                String?
+  image                String?
   expires_at           DateTime?
   created_at           DateTime        @default(now())
   updated_at           DateTime        @updatedAt

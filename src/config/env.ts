@@ -11,6 +11,9 @@ export const envSchema = z.object({
   POSTMARK_FROM_EMAIL: z.string().email('POSTMARK_FROM_EMAIL must be a valid email'),
   POSTMARK_STREAM: z.string().min(1, 'POSTMARK_STREAM is required'),
   CONTACT_TO_EMAIL: z.string().email('CONTACT_TO_EMAIL must be a valid email'),
+  SUPABASE_URL: z.string().url(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY is required'),
+  SUPABASE_PUBLIC_BUCKET: z.string().min(1, 'SUPABASE_PUBLIC_BUCKET is required'),
 });
 
 export type Env = z.infer<typeof envSchema>;

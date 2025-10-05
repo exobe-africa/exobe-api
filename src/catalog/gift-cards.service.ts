@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class GiftCardsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService) {}
 
   private assertAdmin(isAdmin: boolean) {
     if (!isAdmin) throw new BadRequestException('Admin only');
@@ -16,9 +17,20 @@ export class GiftCardsService {
     notes?: string | null;
     status?: 'ACTIVE' | 'INACTIVE';
     customer_id?: string | null;
+    image?: string | null;
+    imageBase64?: string | null;
+    imageFilename?: string | null;
+    imageContentType?: string | null;
   }) {
     if (!input.code || input.code.trim().length < 6) throw new BadRequestException('Gift card code too short');
     if (input.initial_value_cents < 0) throw new BadRequestException('Initial value must be >= 0');
+    let image = input.image ?? null;
+    if (!image && input.imageBase64 && input.imageFilename) {
+      const buf = Buffer.from((input.imageBase64 as string).split(',').pop() || input.imageBase64, 'base64');
+      const path = `giftcards/${Date.now()}-${input.imageFilename}`;
+      const uploaded = await this.storage.uploadFileFromBuffer(path, buf, input.imageContentType || undefined);
+      image = uploaded.publicUrl;
+    }
     return (this.prisma as any).giftCard.create({
       data: {
         code: input.code,
@@ -28,6 +40,7 @@ export class GiftCardsService {
         notes: input.notes ?? null,
         status: (input.status as any) ?? 'ACTIVE',
         customer_id: input.customer_id ?? null,
+        image: image ?? null,
       },
     });
   }
@@ -40,10 +53,21 @@ export class GiftCardsService {
     notes: string | null;
     status: 'ACTIVE' | 'INACTIVE';
     customer_id: string | null;
+    image?: string | null;
+    imageBase64?: string | null;
+    imageFilename?: string | null;
+    imageContentType?: string | null;
   }>) {
     const gc = await (this.prisma as any).giftCard.findUnique({ where: { id } });
     if (!gc) throw new NotFoundException('Gift card not found');
-    return (this.prisma as any).giftCard.update({ where: { id }, data: input });
+    const data: any = { ...input };
+    if (!data.image && input.imageBase64 && input.imageFilename) {
+      const buf = Buffer.from((input.imageBase64 as string).split(',').pop() || input.imageBase64, 'base64');
+      const path = `giftcards/${id}/${Date.now()}-${input.imageFilename}`;
+      const uploaded = await this.storage.uploadFileFromBuffer(path, buf, input.imageContentType || undefined);
+      data.image = uploaded.publicUrl;
+    }
+    return (this.prisma as any).giftCard.update({ where: { id }, data });
   }
 
   async deleteGiftCard(id: string) {

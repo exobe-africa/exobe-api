@@ -55,6 +55,9 @@ export class CreateProductInput {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+  @Field(() => [MediaUploadInput], { nullable: true })
+  @IsOptional()
+  mediaUploads?: MediaUploadInput[];
 }
 
 @InputType()
@@ -84,6 +87,9 @@ export class UpdateProductInput {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+  @Field(() => [MediaUploadInput], { nullable: true })
+  @IsOptional()
+  mediaUploads?: MediaUploadInput[];
 }
 
 @InputType()
@@ -196,8 +202,18 @@ export class InventoryAdjustInput {
 export class AddVariantMediaInput {
   @Field()
   variantId: string;
-  @Field()
-  url: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  url?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  base64?: string; // if provided, upload and use resulting URL
+  @Field({ nullable: true })
+  @IsOptional()
+  filename?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  contentType?: string;
   @Field({ nullable: true })
   @IsOptional()
   type?: string;
@@ -210,8 +226,18 @@ export class AddVariantMediaInput {
 export class AddProductMediaInput {
   @Field()
   productId: string;
-  @Field()
-  url: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  url?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  base64?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  filename?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  contentType?: string;
   @Field({ nullable: true })
   @IsOptional()
   type?: string;
@@ -322,12 +348,12 @@ export class UpdateOrderInput {
 // Discounts
 @InputType()
 export class CreateDiscountInput {
-  @Field({ nullable: true }) @IsOptional() code?: string; // required if method=CODE
+  @Field({ nullable: true }) @IsOptional() code?: string;
   @Field({ nullable: true }) @IsOptional() title?: string;
   @Field({ nullable: true }) @IsOptional() description?: string;
-  @Field() type: string; // DiscountType
-  @Field({ nullable: true }) @IsOptional() method?: string; // CODE | AUTOMATIC
-  @Field({ nullable: true }) @IsOptional() vendor_id?: string; // seller scope
+  @Field() type: string;
+  @Field({ nullable: true }) @IsOptional() method?: string;
+  @Field({ nullable: true }) @IsOptional() vendor_id?: string;
   @Field({ nullable: true }) @IsOptional() amount_cents?: number;
   @Field({ nullable: true }) @IsOptional() percent?: number;
   @Field({ nullable: true }) @IsOptional() buy_x_quantity?: number;
@@ -376,13 +402,15 @@ export class UpdateDiscountInput {
   @Field(() => [String], { nullable: true }) @IsOptional() category_ids?: string[];
 }
 
-// Collections
 @InputType()
 export class CreateCollectionInput {
   @Field() vendor_id: string;
   @Field() name: string;
   @Field({ nullable: true }) @IsOptional() description?: string;
   @Field({ nullable: true }) @IsOptional() image?: string;
+  @Field({ nullable: true }) @IsOptional() imageBase64?: string;
+  @Field({ nullable: true }) @IsOptional() imageFilename?: string;
+  @Field({ nullable: true }) @IsOptional() imageContentType?: string;
 }
 
 @InputType()
@@ -390,6 +418,9 @@ export class UpdateCollectionInput {
   @Field({ nullable: true }) @IsOptional() name?: string;
   @Field({ nullable: true }) @IsOptional() description?: string;
   @Field({ nullable: true }) @IsOptional() image?: string;
+  @Field({ nullable: true }) @IsOptional() imageBase64?: string;
+  @Field({ nullable: true }) @IsOptional() imageFilename?: string;
+  @Field({ nullable: true }) @IsOptional() imageContentType?: string;
   @Field({ nullable: true }) @IsOptional() is_active?: boolean;
 }
 
@@ -423,6 +454,10 @@ export class CreateGiftCardInput {
   @Field({ nullable: true }) @IsOptional() notes?: string;
   @Field({ nullable: true }) @IsOptional() status?: string; // ACTIVE | INACTIVE
   @Field({ nullable: true }) @IsOptional() customer_id?: string;
+  @Field({ nullable: true }) @IsOptional() image?: string;
+  @Field({ nullable: true }) @IsOptional() imageBase64?: string;
+  @Field({ nullable: true }) @IsOptional() imageFilename?: string;
+  @Field({ nullable: true }) @IsOptional() imageContentType?: string;
 }
 
 @InputType()
@@ -434,6 +469,10 @@ export class UpdateGiftCardInput {
   @Field({ nullable: true }) @IsOptional() notes?: string;
   @Field({ nullable: true }) @IsOptional() status?: string;
   @Field({ nullable: true }) @IsOptional() customer_id?: string;
+  @Field({ nullable: true }) @IsOptional() image?: string;
+  @Field({ nullable: true }) @IsOptional() imageBase64?: string;
+  @Field({ nullable: true }) @IsOptional() imageFilename?: string;
+  @Field({ nullable: true }) @IsOptional() imageContentType?: string;
 }
 
 @InputType()
@@ -460,9 +499,9 @@ export class RequestReturnInput {
   @Field(() => [ReturnOrderItemInput])
   items: ReturnOrderItemInput[];
   @Field()
-  return_method: string; // 'PICKUP' | 'DROPOFF'
+  return_method: string;
   @Field()
-  refund_method: string; // 'ORIGINAL' | 'STORE_CREDIT'
+  refund_method: string;
   @Field({ nullable: true })
   @IsOptional()
   reason?: string;
@@ -546,6 +585,24 @@ export class AddOptionValueInput {
   optionId: string;
   @Field()
   value: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  position?: number;
+}
+
+@InputType()
+export class MediaUploadInput {
+  @Field()
+  base64: string;
+  @Field()
+  filename: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  contentType?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  type?: string;
   @Field({ nullable: true })
   @IsOptional()
   @IsInt()

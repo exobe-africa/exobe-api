@@ -163,7 +163,11 @@ export class CatalogResolver {
   @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductMediaType)
   addVariantMedia(@Args('input') input: AddVariantMediaInput, @Context() ctx: any) {
-    return this.variants.addVariantMedia(input.variantId, { url: input.url, type: input.type, position: input.position }, ctx.req.user.userId);
+    return this.variants.addVariantMedia(
+      input.variantId,
+      { url: input.url, base64: input.base64, filename: input.filename, contentType: input.contentType, type: input.type, position: input.position },
+      ctx.req.user.userId,
+    );
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -177,7 +181,11 @@ export class CatalogResolver {
   @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductMediaType)
   addProductMedia(@Args('input') input: AddProductMediaInput, @Context() ctx: any) {
-    return this.products.addProductMedia(input.productId, { url: input.url, type: input.type, position: input.position }, ctx.req.user.userId);
+    return this.products.addProductMedia(
+      input.productId,
+      { url: input.url, base64: input.base64, filename: input.filename, contentType: input.contentType, type: input.type, position: input.position },
+      ctx.req.user.userId,
+    );
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)

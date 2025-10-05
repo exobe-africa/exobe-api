@@ -147,16 +147,16 @@ export class UsersService {
   }
 
   async getNotificationSettings(userId: string) {
-    const existing = await (this.prisma as any).userNotificationSettings.findFirst({ where: { user_id: userId } });
+    const existing = await (this.prisma as any).customerNotificationSettings.findFirst({ where: { user_id: userId } });
     if (existing) return existing;
-    return (this.prisma as any).userNotificationSettings.create({ data: { user_id: userId } });
+    return (this.prisma as any).customerNotificationSettings.create({ data: { user_id: userId } });
   }
 
   async updateNotificationSettings(userId: string, input: any) {
-    const existing = await (this.prisma as any).userNotificationSettings.findFirst({ where: { user_id: userId } });
+    const existing = await (this.prisma as any).customerNotificationSettings.findFirst({ where: { user_id: userId } });
     if (!existing) {
-      return (this.prisma as any).userNotificationSettings.create({ data: { user_id: userId, ...input } });
+      return (this.prisma as any).customerNotificationSettings.create({ data: { user_id: userId, ...input } });
     }
-    return (this.prisma as any).userNotificationSettings.update({ where: { id: existing.id }, data: input });
+    return (this.prisma as any).customerNotificationSettings.update({ where: { id: existing.id }, data: input });
   }
 }

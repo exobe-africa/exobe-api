@@ -7,7 +7,7 @@ import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, UserNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType } from './types/catalog.types';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, CustomerNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType } from './types/catalog.types';
 import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
@@ -359,13 +359,13 @@ export class CatalogResolver {
 
   // Notification settings
   @UseGuards(GqlAuthGuard)
-  @Query(() => UserNotificationSettingsType)
+  @Query(() => CustomerNotificationSettingsType)
   myNotificationSettings(@Context() ctx: any) {
     return this.users.getNotificationSettings(ctx.req.user.userId);
   }
 
   @UseGuards(GqlAuthGuard)
-  @Mutation(() => UserNotificationSettingsType)
+  @Mutation(() => CustomerNotificationSettingsType)
   updateMyNotificationSettings(@Args('input') input: UpdateNotificationSettingsInput, @Context() ctx: any) {
     return this.users.updateNotificationSettings(ctx.req.user.userId, input);
   }

@@ -323,7 +323,7 @@ export class ReviewType {
 }
 
 @ObjectType()
-export class UserNotificationSettingsType {
+export class CustomerNotificationSettingsType {
   @Field(() => ID)
   id: string;
   @Field()

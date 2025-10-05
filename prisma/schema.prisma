@@ -28,14 +28,14 @@ model User {
   customer  Customer?
   wishlist  Wishlist?
   reviews   Review[]
-  notification_settings UserNotificationSettings?
+  notification_settings CustomerNotificationSettings?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@map("users")
 }
 
-model UserNotificationSettings {
+model CustomerNotificationSettings {
   id                 String  @id @default(cuid())
   user_id            String  @unique
   user               User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -51,7 +51,7 @@ model UserNotificationSettings {
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
 
-  @@map("user_notification_settings")
+  @@map("customer_notification_settings")
 }
 
 enum Role {

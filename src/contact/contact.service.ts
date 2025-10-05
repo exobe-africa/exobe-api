@@ -22,6 +22,7 @@ export class ContactService {
         subject,
         template: 'contact-form',
         variables: {
+          logoUrl: `${process.env.FRONTEND_URL || 'https://exobe.africa'}/logo.png`,
           name: data.name,
           email: data.email,
           phone: data.phone || '',

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Order Notification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            color: #333333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo-img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .notification-badge {
+            background-color: #ff6b35;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        .subtitle {
+            color: #666666;
+            font-size: 16px;
+            margin: 0 0 30px 0;
+        }
+        .order-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #ff6b35;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .order-number {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 10px 0;
+        }
+        .order-detail {
+            font-size: 14px;
+            color: #666666;
+            margin: 5px 0;
+        }
+        .order-detail strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        .items-section {
+            margin: 30px 0;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .item {
+            display: table;
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .item-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 5px 0;
+        }
+        .item-details {
+            font-size: 14px;
+            color: #666666;
+        }
+        .item-price {
+            font-weight: 600;
+            color: #ff6b35;
+            float: right;
+        }
+        .total-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .total-row.grand-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            padding-top: 10px;
+            border-top: 2px solid #e0e0e0;
+            margin-top: 15px;
+        }
+        .customer-section {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .address-block {
+            margin: 15px 0;
+        }
+        .address-title {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 8px 0;
+            font-size: 14px;
+        }
+        .address-text {
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.6;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #ff6b35;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #e55a2b;
+        }
+        .footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #cccccc;
+            margin: 10px 0;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ff6b35;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 30px 0;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{logoUrl}}" alt="eXobe" class="logo-img">
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="notification-badge">🎉 New Order</div>
+            
+            <h1>You have a new order!</h1>
+            <p class="subtitle">A customer has just placed an order for your products.</p>
+
+            <!-- Order Summary -->
+            <div class="order-box">
+                <p class="order-number">Order #{{orderNumber}}</p>
+                <p class="order-detail"><strong>Date:</strong> {{orderDate}}</p>
+                <p class="order-detail"><strong>Customer:</strong> {{customerName}}</p>
+                <p class="order-detail"><strong>Status:</strong> {{orderStatus}}</p>
+                {{#if paymentStatus}}
+                <p class="order-detail"><strong>Payment:</strong> {{paymentStatus}}</p>
+                {{/if}}
+            </div>
+
+            <!-- Items Section -->
+            <div class="items-section">
+                <h2 class="section-title">Order Items</h2>
+                {{#if items}}
+                {{items}}
+                {{/if}}
+            </div>
+
+            <!-- Total Section -->
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>{{subtotal}}</span>
+                </div>
+                {{#if discount}}
+                <div class="total-row">
+                    <span>Discount:</span>
+                    <span style="color: #28a745;">-{{discount}}</span>
+                </div>
+                {{/if}}
+                <div class="total-row">
+                    <span>Shipping:</span>
+                    <span>{{shipping}}</span>
+                </div>
+                <div class="total-row">
+                    <span>VAT:</span>
+                    <span>{{vat}}</span>
+                </div>
+                {{#if giftCard}}
+                <div class="total-row">
+                    <span>Gift Card:</span>
+                    <span style="color: #28a745;">-{{giftCard}}</span>
+                </div>
+                {{/if}}
+                <div class="total-row grand-total">
+                    <span>Total:</span>
+                    <span>{{total}}</span>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="customer-section">
+                <h2 class="section-title">Customer Information</h2>
+                
+                <div class="address-block">
+                    <p class="address-title">Contact Details</p>
+                    <p class="address-text">
+                        {{customerEmail}}<br>
+                        {{#if customerPhone}}
+                        {{customerPhone}}
+                        {{/if}}
+                    </p>
+                </div>
+
+                <div class="address-block">
+                    <p class="address-title">Shipping Address</p>
+                    <p class="address-text">{{shippingAddress}}</p>
+                </div>
+
+                {{#if billingAddress}}
+                <div class="address-block">
+                    <p class="address-title">Billing Address</p>
+                    <p class="address-text">{{billingAddress}}</p>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- CTA Button -->
+            <div style="text-align: center;">
+                <a href="{{dashboardUrl}}" class="cta-button">View Order in Dashboard</a>
+            </div>
+
+            <div class="divider"></div>
+
+            <p style="font-size: 14px; color: #666666; text-align: center;">
+                This is an automated notification. You can manage your notification preferences in your vendor dashboard settings.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                <strong>eXobe</strong> - Your Premium African Marketplace
+            </p>
+            <div class="social-links">
+                <a href="https://facebook.com/exobe" class="social-link">Facebook</a>
+                <a href="https://twitter.com/exobe" class="social-link">Twitter</a>
+                <a href="https://instagram.com/exobe" class="social-link">Instagram</a>
+                <a href="https://linkedin.com/company/exobe" class="social-link">LinkedIn</a>
+            </div>
+            <p class="footer-text">
+                © {{year}} eXobe. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

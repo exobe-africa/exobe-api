@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Stock Alert</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            color: #333333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo-img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .notification-badge {
+            background-color: #dc3545;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        .subtitle {
+            color: #666666;
+            font-size: 16px;
+            margin: 0 0 30px 0;
+        }
+        .alert-box {
+            background-color: #fff5f5;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #dc3545;
+            margin: 0 0 10px 0;
+        }
+        .alert-text {
+            font-size: 14px;
+            color: #666666;
+            margin: 5px 0;
+        }
+        .product-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .product-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 10px 0;
+        }
+        .product-detail {
+            font-size: 14px;
+            color: #666666;
+            margin: 5px 0;
+        }
+        .product-detail strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        .stock-indicator {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #dc3545;
+            color: #ffffff;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .stock-indicator.warning {
+            background-color: #ffc107;
+            color: #1a1a1a;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #ff6b35;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #e55a2b;
+        }
+        .footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #cccccc;
+            margin: 10px 0;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ff6b35;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 30px 0;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{logoUrl}}" alt="eXobe" class="logo-img">
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="notification-badge">⚠️ Low Stock Alert</div>
+            
+            <h1>Low Stock Warning</h1>
+            <p class="subtitle">One or more of your products are running low on inventory.</p>
+
+            <!-- Alert Box -->
+            <div class="alert-box">
+                <p class="alert-title">Immediate Action Required</p>
+                <p class="alert-text">The following product{{#if multiple}}s{{/if}} {{#if multiple}}have{{/if}}{{#if single}}has{{/if}} reached or fallen below the low stock threshold. Please restock soon to avoid losing potential sales.</p>
+            </div>
+
+            <!-- Product Details -->
+            {{#if products}}
+            {{products}}
+            {{/if}}
+
+            <!-- CTA Button -->
+            <div style="text-align: center;">
+                <a href="{{dashboardUrl}}" class="cta-button">Manage Inventory</a>
+            </div>
+
+            <div class="divider"></div>
+
+            <p style="font-size: 14px; color: #666666; text-align: center;">
+                You can adjust your low stock threshold and notification preferences in your vendor dashboard settings.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                <strong>eXobe</strong> - Your Premium African Marketplace
+            </p>
+            <div class="social-links">
+                <a href="https://facebook.com/exobe" class="social-link">Facebook</a>
+                <a href="https://twitter.com/exobe" class="social-link">Twitter</a>
+                <a href="https://instagram.com/exobe" class="social-link">Instagram</a>
+                <a href="https://linkedin.com/company/exobe" class="social-link">LinkedIn</a>
+            </div>
+            <p class="footer-text">
+                © {{year}} eXobe. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

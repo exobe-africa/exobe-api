@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Update</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            color: #333333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo-img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .notification-badge {
+            background-color: #6c757d;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        .notification-badge.paid {
+            background-color: #28a745;
+        }
+        .notification-badge.cancelled {
+            background-color: #dc3545;
+        }
+        .notification-badge.refunded {
+            background-color: #ffc107;
+            color: #1a1a1a;
+        }
+        h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        .subtitle {
+            color: #666666;
+            font-size: 16px;
+            margin: 0 0 30px 0;
+        }
+        .order-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #ff6b35;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .order-number {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 10px 0;
+        }
+        .order-detail {
+            font-size: 14px;
+            color: #666666;
+            margin: 5px 0;
+        }
+        .order-detail strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        .status-change-box {
+            background-color: #fff;
+            border: 2px solid #ff6b35;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .status-change-title {
+            font-size: 16px;
+            color: #666666;
+            margin: 0 0 10px 0;
+        }
+        .status-change-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff6b35;
+            margin: 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #ff6b35;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #e55a2b;
+        }
+        .footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #cccccc;
+            margin: 10px 0;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ff6b35;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 30px 0;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{logoUrl}}" alt="eXobe" class="logo-img">
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="notification-badge {{statusClass}}">📦 Status Update</div>
+            
+            <h1>Order Status Updated</h1>
+            <p class="subtitle">The status of order #{{orderNumber}} has been updated.</p>
+
+            <!-- Order Summary -->
+            <div class="order-box">
+                <p class="order-number">Order #{{orderNumber}}</p>
+                <p class="order-detail"><strong>Date:</strong> {{orderDate}}</p>
+                <p class="order-detail"><strong>Customer:</strong> {{customerName}}</p>
+                <p class="order-detail"><strong>Total:</strong> {{total}}</p>
+            </div>
+
+            <!-- Status Change -->
+            <div class="status-change-box">
+                <p class="status-change-title">New Status</p>
+                <p class="status-change-value">{{newStatus}}</p>
+                {{#if paymentStatus}}
+                <p class="status-change-title" style="margin-top: 15px;">Payment Status</p>
+                <p class="status-change-value">{{paymentStatus}}</p>
+                {{/if}}
+            </div>
+
+            {{#if description}}
+            <p style="font-size: 14px; color: #666666; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                <strong>Note:</strong> {{description}}
+            </p>
+            {{/if}}
+
+            <!-- CTA Button -->
+            <div style="text-align: center;">
+                <a href="{{dashboardUrl}}" class="cta-button">View Order Details</a>
+            </div>
+
+            <div class="divider"></div>
+
+            <p style="font-size: 14px; color: #666666; text-align: center;">
+                This is an automated notification. You can manage your notification preferences in your vendor dashboard settings.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                <strong>eXobe</strong> - Your Premium African Marketplace
+            </p>
+            <div class="social-links">
+                <a href="https://facebook.com/exobe" class="social-link">Facebook</a>
+                <a href="https://twitter.com/exobe" class="social-link">Twitter</a>
+                <a href="https://instagram.com/exobe" class="social-link">Instagram</a>
+                <a href="https://linkedin.com/company/exobe" class="social-link">LinkedIn</a>
+            </div>
+            <p class="footer-text">
+                © {{year}} eXobe. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

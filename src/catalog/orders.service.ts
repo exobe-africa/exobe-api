@@ -211,6 +211,8 @@ export class OrdersService {
           description: 'Order updated',
         },
       });
+      // Notify vendors of status change
+      try { await this.vendorNotifs.sendOrderStatusChangeEmail(updated, 'Order updated'); } catch {}
     }
     return updated;
   }

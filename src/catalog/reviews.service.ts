@@ -1,9 +1,10 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { VendorNotificationsService } from './vendor-notifications.service';
 
 @Injectable()
 export class ReviewsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private vendorNotifs: VendorNotificationsService) {}
 
   private async userPurchasedProduct(userId: string, productId: string) {
     const customer = await (this.prisma as any).customer.findFirst({ where: { user_id: userId } });
@@ -22,7 +23,16 @@ export class ReviewsService {
   async createReview(userId: string, input: { product_id: string; rating: number; comment: string }) {
     const ok = await this.userPurchasedProduct(userId, input.product_id);
     if (!ok) throw new ForbiddenException('You must have purchased and received this product');
-    return (this.prisma as any).review.create({ data: { user_id: userId, product_id: input.product_id, rating: input.rating, comment: input.comment } });
+    const review = await (this.prisma as any).review.create({ 
+      data: { user_id: userId, product_id: input.product_id, rating: input.rating, comment: input.comment },
+      include: { user: true }
+    });
+    // Notify vendor of new review
+    const product = await (this.prisma as any).catalogProduct.findUnique({ where: { id: input.product_id } });
+    if (product && product.vendor_id) {
+      try { await this.vendorNotifs.sendReviewReceivedEmail(product.vendor_id, review, product); } catch {}
+    }
+    return review;
   }
 
   async updateReview(userId: string, input: { product_id: string; rating?: number; comment?: string }) {

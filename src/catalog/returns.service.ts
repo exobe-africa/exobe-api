@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { VendorNotificationsService } from './vendor-notifications.service';
 
 @Injectable()
 export class ReturnsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private vendorNotifs: VendorNotificationsService) {}
 
   async requestReturn(params: {
     userId: string;
@@ -45,6 +46,8 @@ export class ReturnsService {
       });
       return created;
     });
+    // Notify vendors of return request
+    try { await this.vendorNotifs.sendReturnRequestEmail(rr); } catch {}
     return rr;
   }
 

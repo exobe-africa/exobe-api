@@ -16,9 +16,10 @@ import { CollectionsService } from './collections.service';
 import { VendorNotificationsService } from './vendor-notifications.service';
 import { EmailModule } from '../email/email.module';
 import { StorageModule } from '../storage/storage.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [PrismaModule, EmailModule, StorageModule],
+  imports: [PrismaModule, EmailModule, StorageModule, UsersModule],
   providers: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService],
   exports: [VendorsService, CategoriesService, ProductsService, VariantsService, InventoryService, OptionsService, OrdersService, ReturnsService, WishlistsService, ReviewsService, GiftCardsService, DiscountsService, CollectionsService, VendorNotificationsService],
 })

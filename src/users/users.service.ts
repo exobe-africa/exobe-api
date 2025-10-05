@@ -1,11 +1,12 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CustomerNotificationsService } from './customer-notifications.service';
 import * as bcrypt from 'bcrypt';
 import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private customerNotifs: CustomerNotificationsService) {}
 
   findByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email } });
@@ -49,7 +50,6 @@ export class UsersService {
         },
       });
 
-      // Link existing guest customer (same email, no user linked) to this new user
       const existingGuestCustomer = await (tx as any).customer.findFirst({
         where: { email: data.email, user_id: null },
         orderBy: { created_at: 'desc' },
@@ -59,7 +59,6 @@ export class UsersService {
           where: { id: existingGuestCustomer.id },
           data: {
             user_id: user.id,
-            // Preserve existing values; fill from registration if missing
             first_name: existingGuestCustomer.first_name || (data.firstName ?? ''),
             last_name: existingGuestCustomer.last_name || (data.lastName ?? ''),
             phone: existingGuestCustomer.phone || data.phone,
@@ -147,16 +146,10 @@ export class UsersService {
   }
 
   async getNotificationSettings(userId: string) {
-    const existing = await (this.prisma as any).customerNotificationSettings.findFirst({ where: { user_id: userId } });
-    if (existing) return existing;
-    return (this.prisma as any).customerNotificationSettings.create({ data: { user_id: userId } });
+    return this.customerNotifs.getSettings(userId);
   }
 
   async updateNotificationSettings(userId: string, input: any) {
-    const existing = await (this.prisma as any).customerNotificationSettings.findFirst({ where: { user_id: userId } });
-    if (!existing) {
-      return (this.prisma as any).customerNotificationSettings.create({ data: { user_id: userId, ...input } });
-    }
-    return (this.prisma as any).customerNotificationSettings.update({ where: { id: existing.id }, data: input });
+    return this.customerNotifs.updateSettings(userId, input);
   }
 }

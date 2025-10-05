@@ -3,10 +3,17 @@ import { PrismaService } from '../prisma/prisma.service';
 import { GiftCardsService } from './gift-cards.service';
 import { DiscountsService } from './discounts.service';
 import { VendorNotificationsService } from './vendor-notifications.service';
+import { CustomerNotificationsService } from '../users/customer-notifications.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService, private giftcards: GiftCardsService, private discounts: DiscountsService, private vendorNotifs: VendorNotificationsService) {}
+  constructor(
+    private prisma: PrismaService, 
+    private giftcards: GiftCardsService, 
+    private discounts: DiscountsService, 
+    private vendorNotifs: VendorNotificationsService,
+    private customerNotifs: CustomerNotificationsService
+  ) {}
 
   private generateOrderNumber() {
     return `EX-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
@@ -178,8 +185,9 @@ export class OrdersService {
       }
       return order;
     });
-    // Notify vendors (fire & forget)
+    // Notify vendors and customer (fire & forget)
     try { await this.vendorNotifs.sendNewOrderEmailsForVendors(result as any); } catch {}
+    try { await this.customerNotifs.sendOrderConfirmationEmail(result as any); } catch {}
     return result;
   }
 
@@ -213,6 +221,16 @@ export class OrdersService {
       });
       // Notify vendors of status change
       try { await this.vendorNotifs.sendOrderStatusChangeEmail(updated, 'Order updated'); } catch {}
+      
+      // Notify customer of shipping update when status changes to SHIPPED
+      if (input.status === 'SHIPPED') {
+        try { await this.customerNotifs.sendShippingUpdateEmail(updated); } catch {}
+      }
+      
+      // Notify customer of delivery when status changes to FULFILLED
+      if (input.status === 'FULFILLED') {
+        try { await this.customerNotifs.sendDeliveryNotificationEmail(updated); } catch {}
+      }
     }
     return updated;
   }

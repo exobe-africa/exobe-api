@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Notification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            color: #333333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo-img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .success-badge {
+            background-color: #28a745;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        .subtitle {
+            color: #666666;
+            font-size: 16px;
+            margin: 0 0 30px 0;
+        }
+        .celebration-icon {
+            font-size: 64px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .order-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .order-detail {
+            font-size: 14px;
+            color: #666666;
+            margin: 5px 0;
+        }
+        .order-detail strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #ff6b35;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 10px 5px;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #e55a2b;
+        }
+        .cta-button.secondary {
+            background-color: #6c757d;
+        }
+        .cta-button.secondary:hover {
+            background-color: #5a6268;
+        }
+        .info-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-text {
+            font-size: 14px;
+            color: #856404;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #cccccc;
+            margin: 10px 0;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ff6b35;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 30px 0;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .cta-button {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{logoUrl}}" alt="eXobe" class="logo-img">
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="success-badge">✓ Delivered</div>
+            
+            <div class="celebration-icon">🎉</div>
+            
+            <h1>Your order has been delivered!</h1>
+            <p class="subtitle">Great news! Your order has been successfully delivered to your address.</p>
+
+            <!-- Order Info -->
+            <div class="order-box">
+                <p class="order-detail"><strong>Order Number:</strong> {{orderNumber}}</p>
+                <p class="order-detail"><strong>Delivered On:</strong> {{deliveredDate}}</p>
+                {{#if deliveredTo}}
+                <p class="order-detail"><strong>Received By:</strong> {{deliveredTo}}</p>
+                {{/if}}
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <p class="info-text">
+                    <strong>How was your experience?</strong><br>
+                    We'd love to hear your feedback! Share your thoughts about the products you received.
+                </p>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div style="text-align: center;">
+                <a href="{{reviewUrl}}" class="cta-button">Write a Review</a>
+                <a href="{{orderUrl}}" class="cta-button secondary">View Order</a>
+            </div>
+
+            <div class="divider"></div>
+
+            <p style="font-size: 14px; color: #666666; text-align: center;">
+                If you have any issues with your order, please contact our support team within 7 days of delivery.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                <strong>eXobe</strong> - Your Premium African Marketplace
+            </p>
+            <div class="social-links">
+                <a href="https://facebook.com/exobe" class="social-link">Facebook</a>
+                <a href="https://twitter.com/exobe" class="social-link">Twitter</a>
+                <a href="https://instagram.com/exobe" class="social-link">Instagram</a>
+                <a href="https://linkedin.com/company/exobe" class="social-link">LinkedIn</a>
+            </div>
+            <p class="footer-text">
+                © {{year}} eXobe. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

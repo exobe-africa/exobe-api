@@ -937,7 +937,6 @@ enum RootCategory {
   BUNDLES
 }
 
-/// Analytics: granular user event tracking for personalization
 model AnalyticsEvent {
   id            String   @id @default(cuid()) @db.VarChar(25)
   user_id       String?  @db.VarChar(25)
@@ -967,7 +966,6 @@ model AnalyticsEvent {
   @@map("analytics_events")
 }
 
-/// Engagement rollups and streak tracking per user
 model UserEngagementStats {
   id                  String   @id @default(cuid()) @db.VarChar(25)
   user_id             String   @unique @db.VarChar(25)
@@ -983,7 +981,6 @@ model UserEngagementStats {
   @@map("user_engagement_stats")
 }
 
-/// Daily activity summary per user (UTC date)
 model UserDailyActive {
   id            String   @id @default(cuid()) @db.VarChar(25)
   user_id       String   @db.VarChar(25)

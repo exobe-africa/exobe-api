@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface RecordEventParams {
@@ -51,7 +52,7 @@ export class AnalyticsService {
         search_query: params.searchQuery ?? null,
         duration_ms: params.durationMs ?? null,
         scroll_depth: params.scrollDepth ?? null,
-        attributes: params.attributes ?? null,
+        attributes: params.attributes ?? Prisma.DbNull,
         user_agent: params.userAgent ?? null,
         ip: params.ip ?? null,
         created_at: now,
@@ -69,7 +70,6 @@ export class AnalyticsService {
   async updateDailyStatsAndStreak(userId: string, at: Date, isNewSession: boolean): Promise<void> {
     const day = startOfUtcDay(at);
 
-    // Upsert daily activity
     await this.prisma.userDailyActive.upsert({
       where: { user_id_date: { user_id: userId, date: day } },
       update: {
@@ -101,7 +101,6 @@ export class AnalyticsService {
 
     const deltaDays = daysBetweenUtc(stats.last_active_date, day);
     if (deltaDays === 0) {
-      // Same day, do not change streak or days_active_count
       return;
     }
 
@@ -120,7 +119,6 @@ export class AnalyticsService {
       return;
     }
 
-    // Gap > 1 day: reset current streak to 1
     await this.prisma.userEngagementStats.update({
       where: { user_id: userId },
       data: {

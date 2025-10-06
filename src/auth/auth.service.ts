@@ -69,6 +69,10 @@ export class AuthService {
       await this.setAuthCookies(reply, { id: user.id, email: user.email, role: user.role });
       return true;
     } catch (e) {
+      try {
+        reply?.clearCookie?.('access_token', { path: '/' });
+        reply?.clearCookie?.('refresh_token', { path: '/' });
+      } catch (_) { }
       throw new ForbiddenException('Invalid refresh token');
     }
   }

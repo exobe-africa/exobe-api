@@ -1,98 +1,200 @@
+# eXobe E-Commerce Platform API
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <img src="../public/eXobe Main Logo - Red & Black.png" width="200" alt="eXobe Logo" />
 </p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The eXobe E-Commerce Platform API is a robust, scalable backend solution built with NestJS and GraphQL. This API powers a comprehensive multi-vendor e-commerce marketplace with advanced features for product management, order processing, vendor operations, and customer engagement.
 
-## Project setup
+## Features
+
+### Core Functionality
+- **Multi-Vendor Support**: Complete vendor management system with applications, profiles, and account management
+- **Product Catalog**: Advanced product management with categories, collections, variants, specifications, and inventory tracking
+- **Order Management**: Full order lifecycle management with support for multiple fulfillment methods
+- **Customer Portal**: User accounts, wishlists, reviews, and order history
+- **Secure Authentication**: JWT-based authentication with role-based access control (RBAC)
+
+### Advanced Features
+- **GraphQL API**: Type-safe, efficient data fetching with Apollo Server
+- **Analytics**: Comprehensive event tracking and user engagement metrics
+- **Email Notifications**: Automated transactional emails with Postmark integration
+- **Document Generation**: Dynamic PDF generation for invoices, receipts, and shipping labels
+- **File Storage**: Integrated with Supabase for secure file management
+- **News & Content Management**: CMS features for blogs, articles, and announcements
+- **Contact & Applications**: Customer support and vendor application processing
+
+### Technical Features
+- **Database**: PostgreSQL with Prisma ORM for type-safe database access
+- **Performance**: Built on Fastify for superior performance
+- **Security**: Rate limiting, Helmet integration, and secure password hashing with bcrypt
+- **Validation**: Input validation with class-validator and Zod
+- **Type Safety**: Full TypeScript implementation with strict typing
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL database
+- Yarn package manager
+- Supabase account (for file storage)
+- Postmark account (for email notifications)
+
+## Project Setup
+
+### 1. Install Dependencies
 
 ```bash
-$ pnpm install
+$ yarn install
 ```
 
-## Compile and run the project
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/exobe"
+DIRECT_URL="postgresql://user:password@localhost:5432/exobe"
+
+# JWT Authentication
+JWT_SECRET="your-secret-key"
+JWT_EXPIRES_IN="7d"
+
+# Supabase Storage
+SUPABASE_URL="your-supabase-url"
+SUPABASE_KEY="your-supabase-key"
+SUPABASE_BUCKET="your-bucket-name"
+
+# Email (Postmark)
+POSTMARK_API_KEY="your-postmark-api-key"
+POSTMARK_FROM_EMAIL="noreply@yourdomain.com"
+
+# Application
+PORT=4000
+NODE_ENV="development"
+```
+
+### 3. Database Setup
 
 ```bash
-# development
-$ pnpm run start
+# Generate Prisma client
+$ yarn prisma generate
 
-# watch mode
-$ pnpm run start:dev
+# Run database migrations
+$ yarn prisma migrate deploy
 
-# production mode
-$ pnpm run start:prod
+# (Optional) Seed database with initial data
+$ yarn prisma db seed
 ```
 
-## Run tests
+## Running the Application
 
 ```bash
-# unit tests
-$ pnpm run test
+# Development mode with hot-reload
+$ yarn start:dev
 
-# e2e tests
-$ pnpm run test:e2e
+# Production mode
+$ yarn start:prod
 
-# test coverage
-$ pnpm run test:cov
+# Debug mode
+$ yarn start:debug
 ```
+
+The GraphQL playground will be available at `http://localhost:4000/graphql`
+
+## Database Management
+
+```bash
+# Open Prisma Studio (Database GUI)
+$ yarn prisma studio
+
+# Create a new migration
+$ yarn prisma migrate dev --name migration_name
+
+# Reset database (⚠️ Warning: This will delete all data)
+$ yarn prisma migrate reset
+```
+
+## Testing
+
+```bash
+# Unit tests
+$ yarn test
+
+# E2E tests
+$ yarn test:e2e
+
+# Test coverage
+$ yarn test:cov
+
+# Watch mode
+$ yarn test:watch
+```
+
+## API Documentation
+
+The API uses GraphQL. Once the server is running, you can access:
+
+- **GraphQL Playground**: `http://localhost:4000/graphql`
+- **GraphQL Schema**: Auto-generated at `src/schema.gql`
+
+## Project Structure
+
+```
+api/
+├── prisma/
+│   ├── schema.prisma          # Database schema
+│   └── migrations/            # Database migrations
+├── src/
+│   ├── analytics/             # Analytics and tracking
+│   ├── applications/          # Vendor applications
+│   ├── auth/                  # Authentication & authorization
+│   ├── catalog/               # Product catalog management
+│   ├── contact/               # Contact forms & inquiries
+│   ├── email/                 # Email service & templates
+│   ├── graphql/               # GraphQL resolvers & DTOs
+│   ├── news/                  # News & content management
+│   ├── prisma/                # Prisma service
+│   ├── storage/               # File storage service
+│   ├── users/                 # User management
+│   └── main.ts                # Application entry point
+└── dist/                      # Compiled output
+```
+
+## Key Technologies
+
+- **[NestJS](https://nestjs.com/)** - Progressive Node.js framework
+- **[GraphQL](https://graphql.org/)** - Query language for APIs
+- **[Apollo Server](https://www.apollographql.com/)** - GraphQL server
+- **[Prisma](https://www.prisma.io/)** - Next-generation ORM
+- **[PostgreSQL](https://www.postgresql.org/)** - Relational database
+- **[Fastify](https://www.fastify.io/)** - High-performance web framework
+- **[Supabase](https://supabase.com/)** - File storage and backend services
+- **[Postmark](https://postmarkapp.com/)** - Transactional email delivery
+- **[JWT](https://jwt.io/)** - Secure authentication tokens
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+This application is deployed on [Vercel](https://vercel.com/) with the configuration specified in `vercel.json`.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Deploy to Production
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+1. Ensure all environment variables are set in your hosting platform
+2. Build the application:
+   ```bash
+   $ yarn build
+   ```
+3. Start the production server:
+   ```bash
+   $ yarn start:prod
+   ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Author
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **Alex Sexwale**
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED - Private and proprietary code.

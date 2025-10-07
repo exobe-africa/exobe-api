@@ -3,6 +3,7 @@ import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
 import { UserType } from '../users/user.type';
 import { LoginInput } from './dto/login.input';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -56,6 +57,21 @@ export class AuthResolver {
       return false;
     }
     await this.users.update(user.userId, { password: input.newPassword });
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async requestPasswordReset(@Args('email') email: string) {
+    await this.auth.requestPasswordReset(email);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async resetPassword(
+    @Args('token') token: string,
+    @Args('newPassword') newPassword: string,
+  ) {
+    await this.auth.resetPassword(token, newPassword);
     return true;
   }
 }

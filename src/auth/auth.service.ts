@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -29,6 +30,14 @@ export class AuthService {
   signRefreshToken(user: { id: string }) {
     const expiresIn = this.config.get<string>('JWT_REFRESH_EXPIRES_IN');
     return this.jwt.sign({ sub: user.id, type: 'refresh' }, { expiresIn });
+  }
+
+  signPasswordResetToken(user: { id: string; email: string }) {
+    const secret = this.config.get<string>('JWT_SECRET');
+    return this.jwt.sign(
+      { sub: user.id, email: user.email, type: 'reset' },
+      { secret, expiresIn: '30m' },
+    );
   }
 
   async setAuthCookies(reply: any, user: { id: string; email: string; role: string }) {
@@ -121,6 +130,39 @@ export class AuthService {
         reply?.clearCookie?.('refresh_token', { path: '/' });
       } catch (_) { }
       throw new ForbiddenException('Invalid refresh token');
+    }
+  }
+
+  async requestPasswordReset(email: string) {
+    const user = await this.users.findByEmail(email);
+    if (!user) return; // do not reveal existence
+    const token = this.signPasswordResetToken({ id: user.id, email: user.email });
+    const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const resetUrl = `${frontendUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
+
+    const emailService = new EmailService();
+    await emailService.sendTemplatedEmail({
+      to: user.email,
+      subject: 'Reset your eXobe password',
+      template: 'auth/reset-password',
+      variables: {
+        logoUrl: `${frontendUrl}/apple-touch-icon.png`,
+        name: user.name || user.email,
+        resetUrl,
+        year: new Date().getFullYear().toString(),
+      },
+    });
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const payload = this.jwt.verify(token, {
+        secret: this.config.get<string>('JWT_SECRET'),
+      }) as any;
+      if (payload.type !== 'reset') throw new ForbiddenException('Invalid token');
+      await this.users.update(payload.sub, { password: newPassword });
+    } catch (e) {
+      throw new ForbiddenException('Invalid or expired token');
     }
   }
 }

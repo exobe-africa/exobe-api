@@ -19,7 +19,6 @@ async function bootstrap() {
 
   await app.register(helmet as any, { contentSecurityPolicy: false } as any);
 
-  // Ensure cookie plugin is registered before GraphQL module uses reply
   await app.register(fastifyCookie as any, {
     secret: process.env.COOKIE_SECRET || 'dev-cookie-secret',
   } as any);
@@ -34,7 +33,6 @@ async function bootstrap() {
     prefix: '/',
   });
 
-  // Flexible CORS for local and Vercel domains
   const rawOrigins = process.env.CORS_ORIGIN?.split(',').map((s) => s.trim()).filter(Boolean) || [
     'http://localhost:3000',
     'https://exobe-ecommerce.vercel.app',

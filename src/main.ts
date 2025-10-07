@@ -19,7 +19,10 @@ async function bootstrap() {
 
   await app.register(helmet as any, { contentSecurityPolicy: false } as any);
 
-  await app.register(fastifyCookie as any);
+  // Ensure cookie plugin is registered before GraphQL module uses reply
+  await app.register(fastifyCookie as any, {
+    secret: process.env.COOKIE_SECRET || 'dev-cookie-secret',
+  } as any);
 
   await app.register(rateLimit as any, {
     max: 100,

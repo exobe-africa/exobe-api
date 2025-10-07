@@ -25,10 +25,12 @@ import { AnalyticsResolver } from './analytics.resolver';
       playground: process.env.NODE_ENV !== 'production',
       csrfPrevention: true,
       cache: 'bounded',
-      context: ({ req, request, res, reply }) => ({
-        req: req || request,
-        reply: reply || res,
-      }),
+      // Force Fastify objects to be present on context in a consistent way
+      context: (ctx: any) => {
+        const request = ctx.req || ctx.request;
+        const reply = ctx.reply || ctx.res || ctx.response;
+        return { req: request, reply };
+      },
     }),
     UsersModule,
     AuthModule,

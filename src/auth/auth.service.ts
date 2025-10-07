@@ -36,19 +36,66 @@ export class AuthService {
     const refresh = this.signRefreshToken(user);
     const isProd = this.config.get('NODE_ENV') === 'production';
 
-    reply.setCookie('access_token', access, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: isProd,
-      path: '/',
-      maxAge: 60 * 15,
-    });
-    reply.setCookie('refresh_token', refresh, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: isProd,
-      path: '/',
-    });
+    if (reply?.setCookie) {
+      reply.setCookie('access_token', access, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProd,
+        path: '/',
+        maxAge: 60 * 15,
+      });
+      reply.setCookie('refresh_token', refresh, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProd,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      return;
+    }
+
+    const buildCookie = (
+      name: string,
+      value: string,
+      opts: { httpOnly?: boolean; sameSite?: 'lax' | 'strict' | 'none'; secure?: boolean; path?: string; maxAge?: number },
+    ) => {
+      const parts = [`${name}=${value}`];
+      if (opts.path) parts.push(`Path=${opts.path}`);
+      if (opts.maxAge) parts.push(`Max-Age=${opts.maxAge}`);
+      if (opts.sameSite) parts.push(`SameSite=${opts.sameSite.charAt(0).toUpperCase() + opts.sameSite.slice(1)}`);
+      if (opts.secure) parts.push('Secure');
+      if (opts.httpOnly) parts.push('HttpOnly');
+      return parts.join('; ');
+    };
+
+    if (reply?.header) {
+      const cookies = [
+        buildCookie('access_token', access, { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: 60 * 15 }),
+        buildCookie('refresh_token', refresh, { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: 60 * 60 * 24 * 7 }),
+      ];
+      reply.header('Set-Cookie', cookies);
+      return;
+    }
+
+    if (reply?.setHeader) {
+      const cookies = [
+        buildCookie('access_token', access, { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: 60 * 15 }),
+        buildCookie('refresh_token', refresh, { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: 60 * 60 * 24 * 7 }),
+      ];
+      reply.setHeader('Set-Cookie', cookies);
+      return;
+    }
+
+    if (reply?.raw?.setHeader) {
+      const cookies = [
+        buildCookie('access_token', access, { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: 60 * 15 }),
+        buildCookie('refresh_token', refresh, { httpOnly: true, sameSite: 'lax', secure: isProd, path: '/', maxAge: 60 * 60 * 24 * 7 }),
+      ];
+      reply.raw.setHeader('Set-Cookie', cookies);
+      return;
+    }
+
+    throw new Error('Invalid reply object for setting cookies');
   }
 
   async clearAuthCookies(reply: any) {

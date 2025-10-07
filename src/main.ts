@@ -44,6 +44,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3001, '0.0.0.0');
+  await app.listen(4000, '0.0.0.0');
 }
 bootstrap();

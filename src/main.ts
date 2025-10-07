@@ -34,9 +34,33 @@ async function bootstrap() {
     prefix: '/',
   });
 
+  // Flexible CORS for local and Vercel domains
+  const rawOrigins = process.env.CORS_ORIGIN?.split(',').map((s) => s.trim()).filter(Boolean) || [
+    'http://localhost:3000',
+    'https://exobe-ecommerce.vercel.app',
+    'https://exobe-api.vercel.app',
+  ];
+
+  const toMatcher = (o: string) => {
+    if (o.includes('*')) {
+      const pattern = o.replace(/[.+?^${}()|[\\]\\]/g, '\\$&').replace(/\\\*/g, '.*');
+      return new RegExp(`^${pattern}$`);
+    }
+    return o;
+  };
+  const originMatchers = rawOrigins.map(toMatcher);
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'] || ['https://exobe-ecommerce.vercel.app'],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowed = originMatchers.some((m) => (m instanceof RegExp ? m.test(origin) : m === origin));
+      callback(allowed ? null : new Error('Not allowed by CORS'), allowed);
+    },
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['set-cookie'],
     credentials: true,
+    maxAge: 86400,
   });
 
   app.useGlobalPipes(

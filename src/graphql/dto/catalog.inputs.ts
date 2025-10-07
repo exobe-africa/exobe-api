@@ -256,8 +256,8 @@ export class BulkCreateVariantsInput {
 
 @InputType()
 export class CreateUserAddressInput {
-  @Field()
-  userId: string;
+  @Field({ nullable: true })
+  userId?: string;
   @Field()
   type: string;
   @Field()

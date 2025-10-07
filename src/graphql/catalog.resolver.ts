@@ -17,7 +17,7 @@ import { DiscountsService } from '../catalog/discounts.service';
 import { CollectionsService } from '../catalog/collections.service';
 import { VendorNotificationsService } from '../catalog/vendor-notifications.service';
 import { DocumentsService } from '../catalog/documents.service';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, BadRequestException } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -242,18 +242,51 @@ export class CatalogResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => UserAddressType)
-  createUserAddress(@Args('input') input: CreateUserAddressInput, @Context() ctx: any) {
-    return this.users.createAddress(input, ctx.req.user.userId);
+  async createUserAddress(@Args('input') input: CreateUserAddressInput, @Context() ctx: any) {
+    const currentUserId = ctx.req.user.userId as string;
+    const sanitized: CreateUserAddressInput = {
+      userId: input.userId,
+      type: input.type,
+      addressLine1: input.addressLine1,
+      addressLine2: input.addressLine2,
+      city: input.city,
+      province: input.province,
+      country: input.country,
+      postalCode: input.postalCode,
+    };
+    // eslint-disable-next-line no-console
+    console.log('[resolver.createUserAddress]', { currentUserId, input: sanitized });
+    try {
+      return await this.users.createAddress(sanitized as any, currentUserId);
+    } catch (e: any) {
+      throw new BadRequestException(e?.message || 'Invalid address input');
+    }
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => UserAddressType)
-  updateUserAddress(
+  async updateUserAddress(
     @Args('id') id: string,
     @Args('input') input: UpdateUserAddressInput,
     @Context() ctx: any,
   ) {
-    return this.users.updateAddress(id, input, ctx.req.user.userId);
+    const currentUserId = ctx.req.user.userId as string;
+    const sanitized: UpdateUserAddressInput = {
+      type: input.type,
+      addressLine1: input.addressLine1,
+      addressLine2: input.addressLine2,
+      city: input.city,
+      province: input.province,
+      country: input.country,
+      postalCode: input.postalCode,
+    };
+    // eslint-disable-next-line no-console
+    console.log('[resolver.updateUserAddress]', { currentUserId, id, input: sanitized });
+    try {
+      return await this.users.updateAddress(id, sanitized as any, currentUserId);
+    } catch (e: any) {
+      throw new BadRequestException(e?.message || 'Invalid address input');
+    }
   }
 
   @UseGuards(GqlAuthGuard)

@@ -112,12 +112,52 @@ export class UsersService {
     return this.prisma.user.delete({ where: { id } });
   }
 
-  async createAddress(data: any, currentUserId: string) {
-    if (data.user_id !== currentUserId) {
+  private normalizeAddressType(type?: string): string {
+    if (!type) return 'BUSINESS';
+    const t = String(type).toLowerCase();
+    if (t === 'home' || t === 'personal') return 'PERSONAL';
+    if (t === 'work' || t === 'business') return 'BUSINESS';
+    if (t === 'billing') return 'BILLING';
+    if (t === 'shipping' || t === 'other') return 'SHIPPING';
+    return 'BUSINESS';
+  }
+
+  async createAddress(input: any, currentUserId: string) {
+    const ownerId = input.userId || input.user_id || currentUserId;
+    if (ownerId !== currentUserId) {
       const user = await this.prisma.user.findUnique({ where: { id: currentUserId } });
       if (user?.role !== 'ADMIN') throw new ForbiddenException('Not authorized');
     }
-    return (this.prisma as any).userAddress.create({ data });
+
+    const data = {
+      user_id: ownerId,
+      type: this.normalizeAddressType(input.type),
+      address_line1: input.addressLine1 ?? input.address_line1,
+      address_line2: input.addressLine2 ?? input.address_line2 ?? undefined,
+      city: input.city,
+      province: input.province ?? undefined,
+      country: input.country ?? 'South Africa',
+      postal_code: input.postalCode ?? input.postal_code,
+    };
+
+    // Basic guards for required fields to return clear messages
+    const required = ['user_id','type','address_line1','city','country','postal_code'] as const;
+    for (const key of required) {
+      if (!(data as any)[key] || String((data as any)[key]).trim() === '') {
+        throw new (require('@nestjs/common').BadRequestException)(`Missing required field: ${key}`);
+      }
+    }
+
+    // Debug log for visibility
+    // eslint-disable-next-line no-console
+    console.log('[createAddress] ownerId=', ownerId, 'payload=', data);
+
+    try {
+      return await (this.prisma as any).userAddress.create({ data });
+    } catch (e: any) {
+      // Surface a clearer error upstream for debugging/client messaging
+      throw new (require('@nestjs/common').BadRequestException)(e?.message || 'Invalid address input');
+    }
   }
 
   async updateAddress(id: string, data: any, currentUserId: string) {
@@ -127,7 +167,16 @@ export class UsersService {
       const user = await this.prisma.user.findUnique({ where: { id: currentUserId } });
       if (user?.role !== 'ADMIN') throw new ForbiddenException('Not authorized');
     }
-    return (this.prisma as any).userAddress.update({ where: { id }, data });
+    const updateData: any = {};
+    if (data.type) updateData.type = this.normalizeAddressType(data.type);
+    if (data.addressLine1 ?? data.address_line1) updateData.address_line1 = data.addressLine1 ?? data.address_line1;
+    if (data.addressLine2 ?? data.address_line2) updateData.address_line2 = data.addressLine2 ?? data.address_line2;
+    if (data.city) updateData.city = data.city;
+    if (data.province !== undefined) updateData.province = data.province;
+    if (data.country) updateData.country = data.country;
+    if (data.postalCode ?? data.postal_code) updateData.postal_code = data.postalCode ?? data.postal_code;
+
+    return (this.prisma as any).userAddress.update({ where: { id }, data: updateData });
   }
 
   async deleteAddress(id: string, currentUserId: string) {

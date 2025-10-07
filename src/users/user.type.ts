@@ -31,4 +31,7 @@ export class UserType {
 
   @Field(() => Role)
   role: Role;
+
+  @Field({ nullable: true })
+  token?: string;
 }

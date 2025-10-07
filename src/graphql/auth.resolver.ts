@@ -20,19 +20,10 @@ export class AuthResolver {
     @Args('input') input: LoginInput,
     @Context() ctx: any,
   ) {
-    try {
-      // Debug: inspect context shape in runtime
-      // eslint-disable-next-line no-console
-      console.log('GraphQL ctx keys:', Object.keys(ctx || {}));
-    } catch (_) {}
     const user = await this.auth.validateUser(input.email, input.password);
-    const reply = ctx.reply ?? ctx.res ?? ctx.raw?.res ?? ctx.request?.raw?.res ?? ctx;
-    await this.auth.setAuthCookies(reply, {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
-    return user;
+    // Temporary: return token inline instead of setting cookie to unblock frontend
+    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role });
+    return { ...user, token } as any;
   }
 
   @Mutation(() => Boolean)

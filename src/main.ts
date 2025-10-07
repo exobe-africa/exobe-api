@@ -35,7 +35,7 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'] || ['https://exobe-ecommerce.vercel.app'],
     credentials: true,
   });
 

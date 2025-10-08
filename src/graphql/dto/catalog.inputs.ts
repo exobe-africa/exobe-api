@@ -568,6 +568,11 @@ export class UpdatePasswordInput {
 }
 
 @InputType()
+export class CheckEmailExistsInput {
+  @Field() email: string;
+}
+
+@InputType()
 export class CreateProductOptionInput {
   @Field()
   productId: string;

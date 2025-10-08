@@ -108,6 +108,22 @@ export class UsersService {
     return true;
   }
 
+  async anonymizeUser(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        email: `deleted-${userId}@deleted.exobe.africa`,
+        name: `Deleted User ${userId.slice(0, 8)}`,
+        first_name: null,
+        last_name: null,
+        phone: null,
+        date_of_birth: null,
+        is_active: false,
+      }
+    });
+    return true;
+  }
+
   delete(id: string) {
     return this.prisma.user.delete({ where: { id } });
   }

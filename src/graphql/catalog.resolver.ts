@@ -8,7 +8,7 @@ import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
 import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, CustomerNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType } from './types/catalog.types';
-import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
+import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CheckEmailExistsInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
 import { ReviewsService } from '../catalog/reviews.service';
@@ -416,6 +416,20 @@ export class CatalogResolver {
   @Mutation(() => Boolean)
   updateMyPassword(@Args('input') input: UpdatePasswordInput, @Context() ctx: any) {
     return this.users.updatePassword(ctx.req.user.userId, input.current_password, input.new_password);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Boolean)
+  checkEmailExists(@Args('input') input: CheckEmailExistsInput, @Context() ctx: any) {
+    return this.users.findByEmail(input.email).then(user => !!user && user.id !== ctx.req.user.userId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Boolean)
+  deleteMyAccount(@Context() ctx: any) {
+    // Instead of deleting the user, we'll anonymize the data
+    // This preserves order history, returns, etc. but removes personal information
+    return this.users.anonymizeUser(ctx.req.user.userId);
   }
 
   // Reviews

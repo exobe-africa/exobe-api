@@ -39,7 +39,11 @@ export class EmailService {
     variables: Record<string, any>;
     replyTo?: string;
   }) {
-    const templatePath = path.join(__dirname, 'templates', `${params.template}.html`);
+    // Use src directory for templates - when running in dev, __dirname is in dist, so go up 2 levels
+    const isDev = process.env.NODE_ENV !== 'production';
+    const templatePath = isDev
+      ? path.join(__dirname, '..', '..', 'src', 'email', 'templates', `${params.template}.html`)
+      : path.join(__dirname, 'templates', `${params.template}.html`);
     let htmlBody = fs.readFileSync(templatePath, 'utf-8');
 
     for (const [key, value] of Object.entries(params.variables)) {

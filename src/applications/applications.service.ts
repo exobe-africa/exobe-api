@@ -1,15 +1,130 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
+import { SellerApplicationInput } from '../graphql/dto/seller-application.input';
 
 @Injectable()
 export class ApplicationsService {
   constructor(private prisma: PrismaService) {}
 
-  applySeller(data: any, sellerRole: Role) {
-    return this.prisma.sellerApplication.create({
-      data: { ...data, sellerRole },
-    });
+  async applySeller(input: SellerApplicationInput, sellerRole: Role) {
+    // Validate required fields before processing
+    if (!input.firstName || !input.lastName || !input.email || !input.phone) {
+      throw new BadRequestException('Required contact information is missing');
+    }
+
+    if (!input.businessName || !input.address || !input.city || !input.province || !input.postalCode) {
+      throw new BadRequestException('Required business information is missing');
+    }
+
+    if (!input.primaryCategory || !input.stockType || !input.productDescription) {
+      throw new BadRequestException('Required product information is missing');
+    }
+
+    if (!input.businessSummary || !input.howDidYouHear) {
+      throw new BadRequestException('Required business summary information is missing');
+    }
+
+    if (!input.agreeToTerms) {
+      throw new BadRequestException('You must agree to the terms and conditions');
+    }
+
+    // Map camelCase input to snake_case database fields
+    const data = {
+      seller_role: sellerRole,
+      business_type: input.businessType,
+      applicant_type: input.applicantType,
+      first_name: input.firstName,
+      last_name: input.lastName,
+      email: input.email,
+      phone: input.phone,
+      landline: input.landline,
+      identification_type: input.identificationType,
+      business_name: input.businessName,
+      business_registration: input.businessRegistration,
+      sa_id_number: input.saIdNumber,
+      vat_registered: input.vatRegistered,
+      vat_number: input.vatNumber,
+      monthly_revenue: input.monthlyRevenue,
+      physical_stores: input.physicalStores,
+      number_of_stores: input.numberOfStores,
+      supplier_to_retailers: input.supplierToRetailers,
+      other_marketplaces: input.otherMarketplaces,
+      address: input.address,
+      city: input.city,
+      province: input.province,
+      postal_code: input.postalCode,
+      unique_products: input.uniqueProducts,
+      primary_category: input.primaryCategory,
+      stock_type: input.stockType,
+      product_description: input.productDescription,
+      owned_brands: input.ownedBrands,
+      reseller_brands: input.resellerBrands,
+      website: input.website,
+      social_media: input.socialMedia,
+      business_summary: input.businessSummary,
+      how_did_you_hear: input.howDidYouHear,
+      agree_to_terms: input.agreeToTerms,
+    };
+
+    try {
+      console.log('Creating seller application with data:', JSON.stringify(data, null, 2));
+      return await this.prisma.sellerApplication.create({ data });
+    } catch (error) {
+      console.error('Error creating seller application:', error);
+      console.error('Error details:', {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+        meta: error?.meta,
+        stack: error?.stack
+      });
+
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new BadRequestException('A similar application already exists. Please use a different value.');
+        }
+        if (error.code === 'P2003') {
+          throw new BadRequestException('One of the provided values is invalid. Please review your input.');
+        }
+      }
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw new BadRequestException('Some fields are invalid or missing. Please review highlighted fields.');
+      }
+
+      if (error?.message?.includes('vat_registered')) {
+        throw new BadRequestException('VAT registration status must be either "yes" or "no".');
+      }
+      if (error?.message?.includes('identification_type')) {
+        throw new BadRequestException('Identification type must be either "sa-id" or "passport".');
+      }
+      if (error?.message?.includes('applicant_type')) {
+        throw new BadRequestException('Applicant type must be either "individual" or "company".');
+      }
+      if (error?.message?.includes('business_type')) {
+        throw new BadRequestException('Business type must be either "retailer" or "wholesaler".');
+      }
+      if (error?.message?.includes('stock_type')) {
+        throw new BadRequestException('Stock type must be either "manufactured-locally", "mixture", or "imported".');
+      }
+      if (error?.message?.includes('primary_category')) {
+        throw new BadRequestException('Please select a valid primary category from the dropdown.');
+      }
+      if (error?.message?.includes('province')) {
+        throw new BadRequestException('Please select a valid province from the dropdown.');
+      }
+      if (error?.message?.includes('email')) {
+        throw new BadRequestException('Please enter a valid email address.');
+      }
+      if (error?.message?.includes('phone')) {
+        throw new BadRequestException('Please enter a valid phone number.');
+      }
+      if (error?.message?.includes('postal_code')) {
+        throw new BadRequestException('Please enter a valid postal code.');
+      }
+
+      throw new BadRequestException((error as any)?.message || 'Failed to submit application. Please check all required fields are filled correctly.');
+    }
   }
 
   applyServiceProvider(data: any) {

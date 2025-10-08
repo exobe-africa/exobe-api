@@ -376,7 +376,6 @@ model Payment {
   @@map("payments")
 }
 
-// Returns
 enum ReturnStatus {
   REQUESTED
   APPROVED
@@ -543,7 +542,6 @@ model DiscountCollection {
   @@map("discount_collections")
 }
 
-// Vendor Notifications
 model VendorNotificationSettings {
   id                          String   @id @default(cuid()) @db.VarChar(25)
   vendor_id                   String   @unique @db.VarChar(25)
@@ -994,4 +992,14 @@ model UserDailyActive {
   @@unique([user_id, date])
   @@index([date])
   @@map("user_daily_active")
+}
+
+model EmailSubscription {
+  id         String   @id @default(cuid()) @db.VarChar(25)
+  email      String   @unique @db.VarChar(254)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("email_subscriptions")
 }

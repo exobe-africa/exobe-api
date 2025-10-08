@@ -15,6 +15,8 @@ import { CatalogModule } from '../catalog/catalog.module';
 import { CatalogResolver } from './catalog.resolver.js';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { AnalyticsResolver } from './analytics.resolver';
+import { EmailSubscriptionModule } from '../email-subscription/email-subscription.module';
+import { EmailSubscriptionResolver } from './email-subscription.resolver';
 
 @Module({
   imports: [
@@ -25,7 +27,6 @@ import { AnalyticsResolver } from './analytics.resolver';
       playground: process.env.NODE_ENV !== 'production',
       csrfPrevention: true,
       cache: 'bounded',
-      // Force Fastify objects to be present on context in a consistent way
       context: (ctx: any) => {
         const request = ctx.req || ctx.request;
         const reply = ctx.reply || ctx.res || ctx.response;
@@ -39,7 +40,8 @@ import { AnalyticsResolver } from './analytics.resolver';
     NewsModule,
     CatalogModule,
     AnalyticsModule,
+    EmailSubscriptionModule,
   ],
-  providers: [UsersResolver, AuthResolver, ApplicationsResolver, ContactResolver, NewsResolver, CatalogResolver, AnalyticsResolver],
+  providers: [UsersResolver, AuthResolver, ApplicationsResolver, ContactResolver, NewsResolver, CatalogResolver, AnalyticsResolver, EmailSubscriptionResolver],
 })
 export class GraphqlModule {}

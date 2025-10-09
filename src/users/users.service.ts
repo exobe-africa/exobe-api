@@ -72,6 +72,8 @@ export class UsersService {
         });
       }
 
+      await this.customerNotifs.getSettings(user.id, tx);
+
       this.sendWelcomeEmail(user).catch(err => {
         console.error('Failed to send welcome email:', err);
       });
@@ -245,7 +247,7 @@ export class UsersService {
     return this.customerNotifs.getSettings(userId);
   }
 
-  async updateNotificationSettings(userId: string, input: any) {
-    return this.customerNotifs.updateSettings(userId, input);
+  async updateNotificationSettings(userId: string, input: any, tx?: any) {
+    return this.customerNotifs.updateSettings(userId, input, tx);
   }
 }

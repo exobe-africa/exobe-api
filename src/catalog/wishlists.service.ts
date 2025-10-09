@@ -19,10 +19,10 @@ export class WishlistsService {
     await this.ensureWishlist(userId);
     const wl = await (this.prisma as any).wishlist.findFirst({ where: { user_id: userId } });
     if (!wl) throw new ForbiddenException('Wishlist not available');
-    // Validate product exists
+
     const product = await this.prisma.catalogProduct.findUnique({ where: { id: input.product_id } });
     if (!product) throw new NotFoundException('Product not found');
-    // Optional variant exists check
+
     if (input.product_variant_id) {
       const variant = await this.prisma.productVariant.findUnique({ where: { id: input.product_variant_id } });
       if (!variant) throw new NotFoundException('Variant not found');

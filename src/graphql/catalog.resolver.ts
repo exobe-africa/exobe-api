@@ -402,7 +402,19 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => CustomerNotificationSettingsType)
   updateMyNotificationSettings(@Args('input') input: UpdateNotificationSettingsInput, @Context() ctx: any) {
-    return this.users.updateNotificationSettings(ctx.req.user.userId, input);
+    // Ensure all required fields are present with defaults
+    const sanitizedInput = {
+      order_confirmations: input.order_confirmations ?? true,
+      shipping_updates: input.shipping_updates ?? true,
+      delivery_notifications: input.delivery_notifications ?? true,
+      product_recommendations: input.product_recommendations ?? false,
+      exclusive_deals: input.exclusive_deals ?? false,
+      wishlist_updates: input.wishlist_updates ?? false,
+      shopping_insights: input.shopping_insights ?? false,
+      login_alerts: input.login_alerts ?? true,
+      password_changes: input.password_changes ?? true,
+    };
+    return this.users.updateNotificationSettings(ctx.req.user.userId, sanitizedInput);
   }
 
   // Settings Tab: profile & password

@@ -6,16 +6,18 @@ import { EmailService } from '../email/email.service';
 export class CustomerNotificationsService {
   constructor(private prisma: PrismaService, private email: EmailService) {}
 
-  async getSettings(user_id: string) {
-    const existing = await (this.prisma as any).customerNotificationSettings.findFirst({ where: { user_id } });
+  async getSettings(user_id: string, tx?: any) {
+    const prisma = tx || this.prisma;
+    const existing = await (prisma as any).customerNotificationSettings.findFirst({ where: { user_id } });
     if (existing) return existing;
-    return (this.prisma as any).customerNotificationSettings.create({ data: { user_id } });
+    return (prisma as any).customerNotificationSettings.create({ data: { user_id } });
   }
 
-  async updateSettings(user_id: string, input: any) {
-    const existing = await (this.prisma as any).customerNotificationSettings.findFirst({ where: { user_id } });
-    if (!existing) return (this.prisma as any).customerNotificationSettings.create({ data: { user_id, ...input } });
-    return (this.prisma as any).customerNotificationSettings.update({ where: { id: existing.id }, data: input });
+  async updateSettings(user_id: string, input: any, tx?: any) {
+    const prisma = tx || this.prisma;
+    const existing = await (prisma as any).customerNotificationSettings.findFirst({ where: { user_id } });
+    if (!existing) return (prisma as any).customerNotificationSettings.create({ data: { user_id, ...input } });
+    return (prisma as any).customerNotificationSettings.update({ where: { id: existing.id }, data: input });
   }
 
   private formatCurrency(cents: number): string {

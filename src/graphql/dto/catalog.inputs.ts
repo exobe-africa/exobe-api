@@ -545,15 +545,15 @@ export class UpdateReviewInput {
 
 @InputType()
 export class UpdateNotificationSettingsInput {
-  @Field({ nullable: true }) order_confirmations?: boolean;
-  @Field({ nullable: true }) shipping_updates?: boolean;
-  @Field({ nullable: true }) delivery_notifications?: boolean;
-  @Field({ nullable: true }) product_recommendations?: boolean;
-  @Field({ nullable: true }) exclusive_deals?: boolean;
-  @Field({ nullable: true }) wishlist_updates?: boolean;
-  @Field({ nullable: true }) shopping_insights?: boolean;
-  @Field({ nullable: true }) login_alerts?: boolean;
-  @Field({ nullable: true }) password_changes?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() order_confirmations?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() shipping_updates?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() delivery_notifications?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() product_recommendations?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() exclusive_deals?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() wishlist_updates?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() shopping_insights?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() login_alerts?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() password_changes?: boolean;
 }
 
 @InputType()

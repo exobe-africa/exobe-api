@@ -1,5 +1,5 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
-import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType()
@@ -510,8 +510,12 @@ export class RequestReturnInput {
 @InputType()
 export class WishlistItemInput {
   @Field()
+  @IsString()
+  @IsNotEmpty()
   product_id: string;
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   product_variant_id?: string;
 }
 

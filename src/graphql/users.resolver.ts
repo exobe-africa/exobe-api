@@ -4,12 +4,16 @@ import { UsersService } from '../users/users.service';
 import { UserType } from '../users/user.type';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { AuthService } from '../auth/auth.service';
 import { RegisterInput } from './dto/register.input.js';
 import { CustomerRegisterInput } from './dto/customer-register.input.js';
 
 @Resolver(() => UserType)
 export class UsersResolver {
-  constructor(private users: UsersService) {}
+  constructor(
+    private users: UsersService,
+    private auth: AuthService,
+  ) {}
 
   @Query(() => UserType, { nullable: true })
   userByEmail(@Args('email') email: string) {
@@ -21,7 +25,7 @@ export class UsersResolver {
     if (input.password !== input.confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
-    return this.users.register({
+    const user = await this.users.register({
       email: input.email,
       password: input.password,
       firstName: input.firstName,
@@ -30,6 +34,9 @@ export class UsersResolver {
       agreeToTerms: input.agreeToTerms,
       subscribeNewsletter: input.subscribeNewsletter,
     });
+    
+    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role });
+    return { ...user, token } as any;
   }
 
   @Mutation(() => UserType)
@@ -37,7 +44,7 @@ export class UsersResolver {
     if (input.password !== input.confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }
-    return this.users.registerCustomer({
+    const user = await this.users.registerCustomer({
       email: input.email,
       password: input.password,
       firstName: input.firstName,
@@ -46,6 +53,9 @@ export class UsersResolver {
       agreeToTerms: input.agreeToTerms,
       subscribeNewsletter: input.subscribeNewsletter,
     });
+    
+    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role });
+    return { ...user, token } as any;
   }
 
   @UseGuards(GqlAuthGuard)

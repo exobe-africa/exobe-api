@@ -1,12 +1,18 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CustomerNotificationsService } from './customer-notifications.service';
+import { EmailService } from '../email/email.service';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private customerNotifs: CustomerNotificationsService) {}
+  constructor(
+    private prisma: PrismaService,
+    private customerNotifs: CustomerNotificationsService,
+    private config: ConfigService,
+  ) {}
 
   findByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email } });
@@ -66,8 +72,33 @@ export class UsersService {
         });
       }
 
+      this.sendWelcomeEmail(user).catch(err => {
+        console.error('Failed to send welcome email:', err);
+      });
+
       return user;
     });
+  }
+
+  private async sendWelcomeEmail(user: { email: string; first_name?: string | null; last_name?: string | null; name?: string | null }) {
+    try {
+      const emailService = new EmailService();
+      const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+      const firstName = user.first_name || user.name?.split(' ')[0] || 'there';
+
+      await emailService.sendTemplatedEmail({
+        to: user.email,
+        subject: 'Welcome to eXobe - Start Your Shopping Journey! 🎉',
+        template: 'customer/welcome',
+        variables: {
+          firstName,
+          websiteUrl: frontendUrl,
+          year: new Date().getFullYear().toString(),
+        },
+      });
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+    }
   }
 
   async registerCustomer(data: {

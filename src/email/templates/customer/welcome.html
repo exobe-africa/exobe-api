@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to eXobe</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #C8102E 0%, #A00E26 100%);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .welcome-message h2 {
+            color: #C8102E;
+            font-size: 28px;
+            margin: 0 0 15px 0;
+        }
+        .welcome-message p {
+            font-size: 18px;
+            color: #666666;
+            margin: 0;
+        }
+        .user-name {
+            color: #C8102E;
+            font-weight: 600;
+        }
+        .benefits {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .benefits h3 {
+            color: #333333;
+            font-size: 22px;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            border-left: 4px solid #C8102E;
+        }
+        .benefit-item:last-child {
+            margin-bottom: 0;
+        }
+        .benefit-icon {
+            font-size: 32px;
+            margin-right: 15px;
+            min-width: 40px;
+        }
+        .benefit-content h4 {
+            color: #333333;
+            font-size: 16px;
+            margin: 0 0 5px 0;
+            font-weight: 600;
+        }
+        .benefit-content p {
+            color: #666666;
+            font-size: 14px;
+            margin: 0;
+        }
+        .cta-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #C8102E;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #A00E26;
+        }
+        .discount-banner {
+            background: linear-gradient(135deg, #C8102E 0%, #A00E26 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        .discount-banner h3 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .discount-code {
+            background-color: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            border: 2px dashed #ffffff;
+        }
+        .discount-banner p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .categories {
+            margin: 30px 0;
+        }
+        .categories h3 {
+            color: #333333;
+            font-size: 20px;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .category-item {
+            text-align: center;
+            padding: 20px 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333333;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .category-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .category-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .category-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .social-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+        }
+        .social-section h3 {
+            color: #333333;
+            font-size: 18px;
+            margin: 0 0 15px 0;
+        }
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .social-link {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: #C8102E;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50%;
+            line-height: 40px;
+            font-size: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .social-link:hover {
+            background-color: #A00E26;
+        }
+        .footer {
+            background-color: #333333;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .footer p {
+            margin: 5px 0;
+            opacity: 0.8;
+        }
+        .footer a {
+            color: #C8102E;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .discount-code {
+                font-size: 20px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>eXobe</h1>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-message">
+                <h2>Welcome to eXobe, <span class="user-name">{{firstName}}!</span></h2>
+                <p>We're thrilled to have you join our community of smart shoppers!</p>
+            </div>
+
+            <p style="font-size: 16px; color: #666666; margin-bottom: 25px;">
+                Thank you for creating your account with eXobe. You've just unlocked access to South Africa's premier marketplace, where quality meets convenience.
+            </p>
+
+            <div class="discount-banner">
+                <h3>🎉 Your Welcome Gift</h3>
+                <p>Enjoy 10% OFF your first order!</p>
+                <div class="discount-code">WELCOME10</div>
+                <p>Use this code at checkout. Valid for 30 days.</p>
+            </div>
+
+            <div class="benefits">
+                <h3>What You Can Enjoy</h3>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🛍️</div>
+                    <div class="benefit-content">
+                        <h4>Thousands of Products</h4>
+                        <p>From electronics to fashion, home goods to sports equipment - find everything you need in one place.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🚚</div>
+                    <div class="benefit-content">
+                        <h4>Fast & Free Shipping</h4>
+                        <p>Free delivery on orders over R499. Track your orders in real-time and receive updates every step of the way.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">💎</div>
+                    <div class="benefit-content">
+                        <h4>Quality Guaranteed</h4>
+                        <p>Shop with confidence knowing every product comes with our quality guarantee and easy returns policy.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎯</div>
+                    <div class="benefit-content">
+                        <h4>Personalized Experience</h4>
+                        <p>Get tailored recommendations, save your favorites, and enjoy exclusive deals just for you.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🔒</div>
+                    <div class="benefit-content">
+                        <h4>Secure Shopping</h4>
+                        <p>Your data is protected with industry-leading security. Shop safely with multiple payment options.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <a href="{{websiteUrl}}" class="cta-button">Start Shopping Now</a>
+            </div>
+
+            <div class="categories">
+                <h3>Explore Our Popular Categories</h3>
+                <div class="category-grid">
+                    <a href="{{websiteUrl}}/category/electronics" class="category-item">
+                        <div class="category-icon">📱</div>
+                        <div class="category-name">Electronics</div>
+                    </a>
+                    <a href="{{websiteUrl}}/category/fashion" class="category-item">
+                        <div class="category-icon">👗</div>
+                        <div class="category-name">Fashion</div>
+                    </a>
+                    <a href="{{websiteUrl}}/category/home-garden" class="category-item">
+                        <div class="category-icon">🏡</div>
+                        <div class="category-name">Home & Garden</div>
+                    </a>
+                    <a href="{{websiteUrl}}/category/sports" class="category-item">
+                        <div class="category-icon">⚽</div>
+                        <div class="category-name">Sports</div>
+                    </a>
+                    <a href="{{websiteUrl}}/category/health-beauty" class="category-item">
+                        <div class="category-icon">💄</div>
+                        <div class="category-name">Health & Beauty</div>
+                    </a>
+                    <a href="{{websiteUrl}}/category/toys-games" class="category-item">
+                        <div class="category-icon">🎮</div>
+                        <div class="category-name">Toys & Games</div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="social-section">
+                <h3>Stay Connected With Us</h3>
+                <p style="margin-bottom: 20px; color: #666666;">Follow us for exclusive deals, new arrivals, and shopping inspiration!</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" title="Facebook">f</a>
+                    <a href="#" class="social-link" title="Twitter">𝕏</a>
+                    <a href="#" class="social-link" title="Instagram">📷</a>
+                    <a href="#" class="social-link" title="LinkedIn">in</a>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: #666666; font-size: 14px; margin-top: 30px;">
+                Need help getting started? Visit our <a href="{{websiteUrl}}/help-center" style="color: #C8102E;">Help Center</a> or <a href="{{websiteUrl}}/contact" style="color: #C8102E;">contact our support team</a>. We're here to help!
+            </p>
+        </div>
+
+        <div class="footer">
+            <p><strong>eXobe</strong> - Your Premier Shopping Destination</p>
+            <p>South Africa</p>
+            <p style="margin-top: 20px;">
+                <a href="{{websiteUrl}}/terms-and-conditions">Terms & Conditions</a> | 
+                <a href="{{websiteUrl}}/privacy-policy">Privacy Policy</a> | 
+                <a href="{{websiteUrl}}/contact">Contact Us</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px;">
+                You're receiving this email because you created an account at eXobe.<br>
+                © {{year}} eXobe. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -567,8 +567,14 @@ export class UpdateProfileInput {
 
 @InputType()
 export class UpdatePasswordInput {
-  @Field() current_password: string;
-  @Field() new_password: string;
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  current_password: string;
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  new_password: string;
 }
 
 @InputType()

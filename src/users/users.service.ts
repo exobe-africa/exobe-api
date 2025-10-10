@@ -131,13 +131,25 @@ export class UsersService {
     return this.prisma.user.update({ where: { id: userId }, data: { ...data, name } as any });
   }
 
-  async updatePassword(userId: string, current_password: string, new_password: string) {
+  async updatePassword(
+    userId: string,
+    current_password: string,
+    new_password: string,
+    opts?: { ipAddress?: string; location?: string },
+  ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
     const ok = await bcrypt.compare(current_password, user.password);
     if (!ok) throw new ForbiddenException('Current password is incorrect');
     const hashed = await bcrypt.hash(new_password, 12);
     await this.prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+    try {
+      const ip = opts?.ipAddress || 'Unknown';
+      await this.customerNotifs.sendPasswordChangedEmail(userId, ip, opts?.location);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to send password-changed email:', err);
+    }
     return true;
   }
 

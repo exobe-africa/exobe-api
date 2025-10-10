@@ -135,7 +135,7 @@ export class AuthService {
 
   async requestPasswordReset(email: string) {
     const user = await this.users.findByEmail(email);
-    if (!user) return; // do not reveal existence
+    if (!user) return;
     const token = this.signPasswordResetToken({ id: user.id, email: user.email });
     const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
     const resetUrl = `${frontendUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
@@ -154,13 +154,21 @@ export class AuthService {
     });
   }
 
-  async resetPassword(token: string, newPassword: string) {
+  async resetPassword(token: string, newPassword: string, ipAddressForNotify?: string) {
     try {
       const payload = this.jwt.verify(token, {
         secret: this.config.get<string>('JWT_SECRET'),
       }) as any;
       if (payload.type !== 'reset') throw new ForbiddenException('Invalid token');
       await this.users.update(payload.sub, { password: newPassword });
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { CustomerNotificationsService } = require('../users/customer-notifications.service');
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { EmailService } = require('../email/email.service');
+        const notifs = new CustomerNotificationsService(this.prisma, new EmailService());
+        await notifs.sendPasswordChangedEmail(payload.sub, ipAddressForNotify || 'unknown');
+      } catch (_) {}
     } catch (e) {
       throw new ForbiddenException('Invalid or expired token');
     }

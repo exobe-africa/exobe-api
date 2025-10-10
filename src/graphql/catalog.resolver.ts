@@ -427,7 +427,9 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   updateMyPassword(@Args('input') input: UpdatePasswordInput, @Context() ctx: any) {
-    return this.users.updatePassword(ctx.req.user.userId, input.current_password, input.new_password);
+    const req = ctx?.req;
+    const ip = (req?.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req?.ip || req?.socket?.remoteAddress || undefined;
+    return this.users.updatePassword(ctx.req.user.userId, input.current_password, input.new_password, { ipAddress: ip });
   }
 
   @UseGuards(GqlAuthGuard)

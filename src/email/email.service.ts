@@ -41,9 +41,25 @@ export class EmailService {
   }) {
     // Use src directory for templates - when running in dev, __dirname is in dist, so go up 2 levels
     const isDev = process.env.NODE_ENV !== 'production';
-    const templatePath = isDev
-      ? path.join(__dirname, '..', '..', 'src', 'email', 'templates', `${params.template}.html`)
-      : path.join(__dirname, 'templates', `${params.template}.html`);
+    
+    let templatePath: string;
+    if (isDev) {
+      if (params.template.includes('/')) {
+        const [moduleName, ...templateParts] = params.template.split('/');
+        templatePath = path.join(__dirname, '..', '..', 'src', moduleName, 'templates', ...templateParts) + '.html';
+      } else {
+        templatePath = path.join(__dirname, '..', '..', 'src', 'email', 'templates', `${params.template}.html`);
+      }
+    } else {
+      // In production, templates should be in the email module
+      if (params.template.includes('/')) {
+        const [moduleName, ...templateParts] = params.template.split('/');
+        templatePath = path.join(__dirname, '..', moduleName, 'templates', ...templateParts) + '.html';
+      } else {
+        templatePath = path.join(__dirname, 'templates', `${params.template}.html`);
+      }
+    }
+    
     let htmlBody = fs.readFileSync(templatePath, 'utf-8');
 
     for (const [key, value] of Object.entries(params.variables)) {

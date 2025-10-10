@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Received - eXobe</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #C8102E 0%, #A00E26 100%);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .success-icon {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .success-icon-circle {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            line-height: 80px;
+            font-size: 48px;
+            color: #ffffff;
+        }
+        .greeting h2 {
+            color: #C8102E;
+            font-size: 28px;
+            margin: 0 0 15px 0;
+            text-align: center;
+        }
+        .greeting p {
+            font-size: 18px;
+            color: #666666;
+            text-align: center;
+            margin: 0 0 30px 0;
+        }
+        .application-details {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .application-details h3 {
+            color: #333333;
+            font-size: 20px;
+            margin: 0 0 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #333333;
+            width: 150px;
+            flex-shrink: 0;
+        }
+        .detail-value {
+            color: #666666;
+            flex-grow: 1;
+        }
+        .next-steps {
+            background-color: #fff4f4;
+            border-left: 4px solid #C8102E;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .next-steps h3 {
+            color: #C8102E;
+            font-size: 20px;
+            margin: 0 0 15px 0;
+        }
+        .next-steps ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .next-steps li {
+            color: #666666;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .timeline {
+            margin: 30px 0;
+        }
+        .timeline h3 {
+            color: #333333;
+            font-size: 20px;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .timeline-icon {
+            font-size: 28px;
+            margin-right: 15px;
+            min-width: 40px;
+        }
+        .timeline-content h4 {
+            color: #333333;
+            font-size: 16px;
+            margin: 0 0 5px 0;
+            font-weight: 600;
+        }
+        .timeline-content p {
+            color: #666666;
+            font-size: 14px;
+            margin: 0;
+        }
+        .contact-section {
+            background: linear-gradient(135deg, #C8102E 0%, #A00E26 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        .contact-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 22px;
+        }
+        .contact-section p {
+            margin: 10px 0;
+            font-size: 15px;
+            opacity: 0.95;
+        }
+        .contact-button {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #C8102E;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 15px;
+            margin-top: 15px;
+            transition: transform 0.3s ease;
+        }
+        .contact-button:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            background-color: #333333;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .footer p {
+            margin: 5px 0;
+            opacity: 0.8;
+        }
+        .footer a {
+            color: #C8102E;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .detail-row {
+                flex-direction: column;
+            }
+            .detail-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>eXobe</h1>
+        </div>
+        
+        <div class="content">
+            <div class="success-icon">
+                <div class="success-icon-circle">✓</div>
+            </div>
+
+            <div class="greeting">
+                <h2>Application Received Successfully!</h2>
+                <p>Thank you for your interest in joining the eXobe marketplace</p>
+            </div>
+
+            <p style="font-size: 16px; color: #666666; margin-bottom: 25px;">
+                Dear <strong>{{firstName}} {{lastName}}</strong>,
+            </p>
+
+            <p style="font-size: 16px; color: #666666; margin-bottom: 25px;">
+                We're excited to inform you that we've successfully received your {{sellerType}} application for <strong>{{businessName}}</strong>. Your application is now under review by our team.
+            </p>
+
+            <div class="application-details">
+                <h3>📋 Application Summary</h3>
+                <div class="detail-row">
+                    <span class="detail-label">Business Name:</span>
+                    <span class="detail-value">{{businessName}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Application Type:</span>
+                    <span class="detail-value">{{sellerType}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Primary Category:</span>
+                    <span class="detail-value">{{primaryCategory}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Location:</span>
+                    <span class="detail-value">{{city}}, {{province}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Submitted:</span>
+                    <span class="detail-value">{{submittedDate}}</span>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h3>🎯 What Happens Next?</h3>
+                <ul>
+                    <li><strong>Application Review:</strong> Our team will carefully review your application and supporting information within 3-5 business days.</li>
+                    <li><strong>Verification Process:</strong> We may reach out if we need any additional information or documentation.</li>
+                    <li><strong>Decision Notification:</strong> You'll receive an email with our decision and next steps.</li>
+                    <li><strong>Onboarding:</strong> If approved, we'll guide you through setting up your seller account and listing your first products.</li>
+                </ul>
+            </div>
+
+            <div class="timeline">
+                <h3>⏱️ Typical Timeline</h3>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon">📝</div>
+                    <div class="timeline-content">
+                        <h4>Day 1-2: Initial Review</h4>
+                        <p>Our team reviews your application details and business information for completeness.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">🔍</div>
+                    <div class="timeline-content">
+                        <h4>Day 3-4: Verification</h4>
+                        <p>We verify your business credentials and may request additional documentation if needed.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">✅</div>
+                    <div class="timeline-content">
+                        <h4>Day 5: Decision</h4>
+                        <p>Final decision is made and communicated to you via email with detailed next steps.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p style="font-size: 16px; color: #666666; margin: 30px 0; text-align: center;">
+                <strong>Important:</strong> Please keep an eye on your email (including spam/junk folders) for any updates or requests from our team.
+            </p>
+
+            <div class="contact-section">
+                <h3>💬 Questions or Need Assistance?</h3>
+                <p>Our team is here to help you throughout the application process.</p>
+                <p><strong>Email:</strong> sellers@exobe.africa</p>
+                <p><strong>Phone:</strong> +27 (0) 123 456 7890</p>
+                <p><strong>Business Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM SAST</p>
+                <a href="{{websiteUrl}}/contact" class="contact-button">Contact Support</a>
+            </div>
+
+            <p style="text-align: center; color: #666666; font-size: 14px; margin-top: 30px;">
+                We appreciate your interest in partnering with eXobe and look forward to potentially welcoming you to our marketplace community!
+            </p>
+        </div>
+
+        <div class="footer">
+            <p><strong>eXobe</strong> - Empowering South African Businesses</p>
+            <p>South Africa</p>
+            <p style="margin-top: 20px;">
+                <a href="{{websiteUrl}}/terms-and-conditions">Terms & Conditions</a> | 
+                <a href="{{websiteUrl}}/privacy-policy">Privacy Policy</a> | 
+                <a href="{{websiteUrl}}/seller-faqs">Seller FAQs</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px;">
+                You're receiving this email because you submitted a seller application at eXobe.<br>
+                © {{year}} eXobe. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

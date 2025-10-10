@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { Prisma, Role } from '@prisma/client';
 import { SellerApplicationInput } from '../graphql/dto/seller-application.input';
 
 @Injectable()
 export class ApplicationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private email: EmailService,
+  ) {}
 
   async applySeller(input: SellerApplicationInput, sellerRole: Role) {
     // Validate required fields before processing
@@ -69,7 +73,14 @@ export class ApplicationsService {
 
     try {
       console.log('Creating seller application with data:', JSON.stringify(data, null, 2));
-      return await this.prisma.sellerApplication.create({ data });
+      const application = await this.prisma.sellerApplication.create({ data });
+      
+      // Send confirmation email (non-blocking)
+      this.sendApplicationConfirmationEmail(application, input).catch(err => {
+        console.error('Failed to send application confirmation email:', err);
+      });
+      
+      return application;
     } catch (error) {
       console.error('Error creating seller application:', error);
       console.error('Error details:', {
@@ -197,6 +208,40 @@ export class ApplicationsService {
       await (this.prisma as any).wholesalerAccount.create({ data: { vendor_id: vendor.id } });
     }
     return vendor;
+  }
+
+  private async sendApplicationConfirmationEmail(application: any, input: SellerApplicationInput) {
+    try {
+      const frontendUrl = process.env.FRONTEND_URL || 'https://exobe.africa';
+      const sellerType = application.seller_role === 'RETAILER' ? 'Retailer' : 'Wholesaler';
+      
+      await this.email.sendTemplatedEmail({
+        to: application.email,
+        subject: `Application Received - ${application.business_name}`,
+        template: 'applications/seller-application-confirmation',
+        variables: {
+          firstName: application.first_name,
+          lastName: application.last_name,
+          businessName: application.business_name,
+          sellerType,
+          primaryCategory: application.primary_category,
+          city: application.city,
+          province: application.province,
+          submittedDate: new Date(application.created_at).toLocaleDateString('en-ZA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+          websiteUrl: frontendUrl,
+          year: new Date().getFullYear().toString(),
+        },
+      });
+      
+      console.log(`Application confirmation email sent to ${application.email}`);
+    } catch (error) {
+      console.error('Error sending application confirmation email:', error);
+      throw error;
+    }
   }
 }
 

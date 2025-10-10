@@ -261,6 +261,8 @@ export class CreateUserAddressInput {
   @Field() @IsString()
   type: string;
   @Field() @IsString()
+  addressName: string;
+  @Field() @IsString()
   addressLine1: string;
   @Field({ nullable: true }) @IsOptional() @IsString()
   addressLine2?: string;
@@ -272,12 +274,16 @@ export class CreateUserAddressInput {
   country: string;
   @Field() @IsString()
   postalCode: string;
+  @Field({ nullable: true }) @IsOptional()
+  defaultAddress?: boolean;
 }
 
 @InputType()
 export class UpdateUserAddressInput {
   @Field({ nullable: true }) @IsOptional() @IsString()
   type?: string;
+  @Field({ nullable: true }) @IsOptional() @IsString()
+  addressName?: string;
   @Field({ nullable: true }) @IsOptional() @IsString()
   addressLine1?: string;
   @Field({ nullable: true }) @IsOptional() @IsString()
@@ -290,6 +296,8 @@ export class UpdateUserAddressInput {
   country?: string;
   @Field({ nullable: true }) @IsOptional() @IsString()
   postalCode?: string;
+  @Field({ nullable: true }) @IsOptional()
+  defaultAddress?: boolean;
 }
 
 @InputType()

@@ -237,12 +237,14 @@ model UserAddress {
   user_id       String      @db.VarChar(25)
   user          User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   type          AddressType @default(BUSINESS)
+  address_name  String      @db.VarChar(255)
   address_line1 String      @db.VarChar(255)
   address_line2 String?     @db.VarChar(255)
   city          String      @db.VarChar(100)
   province      String?     @db.VarChar(100)
   country       String      @db.VarChar(100)
   postal_code   String      @db.VarChar(20)
+  default_address Boolean   @default(false)
   created_at    DateTime    @default(now())
   updated_at    DateTime    @updatedAt
 

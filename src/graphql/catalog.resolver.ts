@@ -48,12 +48,14 @@ export class CatalogResolver {
     return {
       id: record.id,
       type: record.type,
+      addressName: record.addressName ?? record.address_name,
       addressLine1: record.addressLine1 ?? record.address_line1,
       addressLine2: record.addressLine2 ?? record.address_line2 ?? null,
       city: record.city,
       province: record.province ?? null,
       country: record.country,
       postalCode: record.postalCode ?? record.postal_code,
+      defaultAddress: !!(record.defaultAddress ?? record.default_address),
     } as unknown as UserAddressType;
   }
 
@@ -261,12 +263,14 @@ export class CatalogResolver {
     const sanitized: CreateUserAddressInput = {
       userId: input.userId,
       type: input.type,
+      addressName: input.addressName,
       addressLine1: input.addressLine1,
       addressLine2: input.addressLine2,
       city: input.city,
       province: input.province,
       country: input.country,
       postalCode: input.postalCode,
+      defaultAddress: input.defaultAddress,
     };
     // eslint-disable-next-line no-console
     console.log('[resolver.createUserAddress]', { currentUserId, input: sanitized });

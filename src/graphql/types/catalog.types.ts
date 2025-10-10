@@ -146,6 +146,8 @@ export class UserAddressType {
   @Field()
   type: string;
   @Field()
+  addressName: string;
+  @Field()
   addressLine1: string;
   @Field({ nullable: true })
   addressLine2?: string;
@@ -157,6 +159,8 @@ export class UserAddressType {
   country: string;
   @Field()
   postalCode: string;
+  @Field()
+  defaultAddress: boolean;
 }
 
 @ObjectType()

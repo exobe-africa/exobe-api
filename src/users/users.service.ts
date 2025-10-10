@@ -193,16 +193,18 @@ export class UsersService {
     const data = {
       user_id: ownerId,
       type: this.normalizeAddressType(input.type),
+      address_name: input.addressName ?? input.address_name ?? '',
       address_line1: input.addressLine1 ?? input.address_line1,
       address_line2: input.addressLine2 ?? input.address_line2 ?? undefined,
       city: input.city,
       province: input.province ?? undefined,
       country: input.country ?? 'South Africa',
       postal_code: input.postalCode ?? input.postal_code,
+      default_address: !!(input.defaultAddress ?? input.default_address),
     };
 
     // Basic guards for required fields to return clear messages
-    const required = ['user_id','type','address_line1','city','country','postal_code'] as const;
+    const required = ['user_id','type','address_name','address_line1','city','country','postal_code'] as const;
     for (const key of required) {
       if (!(data as any)[key] || String((data as any)[key]).trim() === '') {
         throw new (require('@nestjs/common').BadRequestException)(`Missing required field: ${key}`);
@@ -214,7 +216,13 @@ export class UsersService {
     console.log('[createAddress] ownerId=', ownerId, 'payload=', data);
 
     try {
-      return await (this.prisma as any).userAddress.create({ data });
+      return await this.prisma.$transaction(async (tx: any) => {
+        // If setting as default, unset previous defaults for this user
+        if (data.default_address) {
+          await tx.userAddress.updateMany({ where: { user_id: ownerId }, data: { default_address: false } });
+        }
+        return await tx.userAddress.create({ data });
+      });
     } catch (e: any) {
       // Surface a clearer error upstream for debugging/client messaging
       throw new (require('@nestjs/common').BadRequestException)(e?.message || 'Invalid address input');
@@ -230,6 +238,7 @@ export class UsersService {
     }
     const updateData: any = {};
     if (data.type) updateData.type = this.normalizeAddressType(data.type);
+    if (data.addressName ?? data.address_name) updateData.address_name = data.addressName ?? data.address_name;
     if (data.addressLine1 ?? data.address_line1) updateData.address_line1 = data.addressLine1 ?? data.address_line1;
     if (data.addressLine2 ?? data.address_line2) updateData.address_line2 = data.addressLine2 ?? data.address_line2;
     if (data.city) updateData.city = data.city;
@@ -237,7 +246,14 @@ export class UsersService {
     if (data.country) updateData.country = data.country;
     if (data.postalCode ?? data.postal_code) updateData.postal_code = data.postalCode ?? data.postal_code;
 
-    return (this.prisma as any).userAddress.update({ where: { id }, data: updateData });
+    const setDefault = !!(data.defaultAddress ?? data.default_address);
+    return await (this.prisma as any).$transaction(async (tx: any) => {
+      if (setDefault) {
+        await tx.userAddress.updateMany({ where: { user_id: currentUserId }, data: { default_address: false } });
+        updateData.default_address = true;
+      }
+      return tx.userAddress.update({ where: { id }, data: updateData });
+    });
   }
 
   async deleteAddress(id: string, currentUserId: string) {

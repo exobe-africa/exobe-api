@@ -34,4 +34,7 @@ export class UserType {
 
   @Field({ nullable: true })
   token?: string;
+
+  @Field()
+  created_at: Date;
 }

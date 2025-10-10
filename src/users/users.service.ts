@@ -56,6 +56,14 @@ export class UsersService {
         },
       });
 
+      if (data.subscribeNewsletter) {
+        await (tx as any).emailSubscription.upsert({
+          where: { email: data.email },
+          update: { is_active: true },
+          create: { email: data.email, is_active: true },
+        });
+      }
+
       const existingGuestCustomer = await (tx as any).customer.findFirst({
         where: { email: data.email, user_id: null },
         orderBy: { created_at: 'desc' },

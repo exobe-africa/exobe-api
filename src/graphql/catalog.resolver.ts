@@ -43,6 +43,20 @@ export class CatalogResolver {
     private documents: DocumentsService,
   ) {}
 
+  private toUserAddressType(record: any): UserAddressType {
+    if (!record) return record;
+    return {
+      id: record.id,
+      type: record.type,
+      addressLine1: record.addressLine1 ?? record.address_line1,
+      addressLine2: record.addressLine2 ?? record.address_line2 ?? null,
+      city: record.city,
+      province: record.province ?? null,
+      country: record.country,
+      postalCode: record.postalCode ?? record.postal_code,
+    } as unknown as UserAddressType;
+  }
+
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Mutation(() => VendorType)
@@ -257,7 +271,8 @@ export class CatalogResolver {
     // eslint-disable-next-line no-console
     console.log('[resolver.createUserAddress]', { currentUserId, input: sanitized });
     try {
-      return await this.users.createAddress(sanitized as any, currentUserId);
+      const created = await this.users.createAddress(sanitized as any, currentUserId);
+      return this.toUserAddressType(created);
     } catch (e: any) {
       throw new BadRequestException(e?.message || 'Invalid address input');
     }
@@ -283,7 +298,8 @@ export class CatalogResolver {
     // eslint-disable-next-line no-console
     console.log('[resolver.updateUserAddress]', { currentUserId, id, input: sanitized });
     try {
-      return await this.users.updateAddress(id, sanitized as any, currentUserId);
+      const updated = await this.users.updateAddress(id, sanitized as any, currentUserId);
+      return this.toUserAddressType(updated);
     } catch (e: any) {
       throw new BadRequestException(e?.message || 'Invalid address input');
     }
@@ -296,8 +312,9 @@ export class CatalogResolver {
   }
 
   @Query(() => [UserAddressType])
-  getUserAddresses(@Args('userId') userId: string) {
-    return this.users.getUserAddresses(userId);
+  async getUserAddresses(@Args('userId') userId: string) {
+    const rows = await this.users.getUserAddresses(userId);
+    return rows.map(r => this.toUserAddressType(r));
   }
 
   @Mutation(() => OrderType)

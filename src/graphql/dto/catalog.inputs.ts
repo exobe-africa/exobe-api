@@ -256,39 +256,39 @@ export class BulkCreateVariantsInput {
 
 @InputType()
 export class CreateUserAddressInput {
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   userId?: string;
-  @Field()
+  @Field() @IsString()
   type: string;
-  @Field()
+  @Field() @IsString()
   addressLine1: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   addressLine2?: string;
-  @Field()
+  @Field() @IsString()
   city: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   province?: string;
-  @Field()
+  @Field() @IsString()
   country: string;
-  @Field()
+  @Field() @IsString()
   postalCode: string;
 }
 
 @InputType()
 export class UpdateUserAddressInput {
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   type?: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   addressLine1?: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   addressLine2?: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   city?: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   province?: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   country?: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true }) @IsOptional() @IsString()
   postalCode?: string;
 }
 

@@ -287,4 +287,22 @@ export class UsersService {
   async updateNotificationSettings(userId: string, input: any, tx?: any) {
     return this.customerNotifs.updateSettings(userId, input, tx);
   }
+
+  async searchUsers(params: { query?: string; role?: any; isActive?: boolean; take?: number; skip?: number }) {
+    const { query, role, isActive, take = 50, skip = 0 } = params || {};
+    const where: any = {};
+    if (typeof isActive === 'boolean') where.is_active = isActive;
+    if (role) where.role = role;
+    if (query && query.trim() !== '') {
+      const q = query.trim();
+      where.OR = [
+        { name: { contains: q, mode: 'insensitive' } },
+        { email: { contains: q, mode: 'insensitive' } },
+        { phone: { contains: q, mode: 'insensitive' } },
+        { first_name: { contains: q, mode: 'insensitive' } },
+        { last_name: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+    return this.prisma.user.findMany({ where, orderBy: { created_at: 'desc' }, take, skip });
+  }
 }

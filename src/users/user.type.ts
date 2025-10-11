@@ -36,6 +36,9 @@ export class UserType {
   @Field(() => [UserRole])
   roles: UserRole[];
 
+  @Field()
+  is_active: boolean;
+
   @Field({ nullable: true })
   token?: string;
 

@@ -1,4 +1,4 @@
-import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation, Int } from '@nestjs/graphql';
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UserType } from '../users/user.type';
@@ -7,6 +7,9 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { AuthService } from '../auth/auth.service';
 import { RegisterInput } from './dto/register.input.js';
 import { CustomerRegisterInput } from './dto/customer-register.input.js';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { Role } from '@prisma/client';
 
 @Resolver(() => UserType)
 export class UsersResolver {
@@ -62,5 +65,18 @@ export class UsersResolver {
   @Query(() => UserType)
   me(@CurrentUser() user: any) {
     return this.users.findById(user.userId);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN','SUPER_ADMIN')
+  @Query(() => [UserType])
+  async searchUsers(
+    @Args('query', { type: () => String, nullable: true }) query?: string,
+    @Args('role', { type: () => Role, nullable: true }) role?: Role,
+    @Args('isActive', { type: () => Boolean, nullable: true }) isActive?: boolean,
+    @Args('take', { type: () => Int, nullable: true }) take?: number,
+    @Args('skip', { type: () => Int, nullable: true }) skip?: number,
+  ) {
+    return this.users.searchUsers({ query, role, isActive, take, skip });
   }
 }

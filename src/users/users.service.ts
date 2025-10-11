@@ -53,6 +53,7 @@ export class UsersService {
           phone: data.phone,
           agree_to_terms: data.agreeToTerms,
           subscribe_newsletter: data.subscribeNewsletter,
+          roles: ['CUSTOMER'],
         },
       });
 

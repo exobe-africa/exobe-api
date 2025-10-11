@@ -35,7 +35,7 @@ export class UsersResolver {
       subscribeNewsletter: input.subscribeNewsletter,
     });
     
-    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role });
+    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role, roles: (user as any).roles || [] });
     return { ...user, token } as any;
   }
 
@@ -54,7 +54,7 @@ export class UsersResolver {
       subscribeNewsletter: input.subscribeNewsletter,
     });
     
-    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role });
+    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role, roles: (user as any).roles || [] });
     return { ...user, token } as any;
   }
 

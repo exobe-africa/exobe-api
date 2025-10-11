@@ -22,6 +22,7 @@ model User {
   agree_to_terms        Boolean                       @default(false)
   subscribe_newsletter  Boolean                       @default(false)
   role                  Role                          @default(CUSTOMER)
+  roles                 UserRole[]                    @default([])
   is_active             Boolean                       @default(true)
   vendors               Vendor[]
   managed_vendors       Vendor[]                      @relation("VendorAccountManager")
@@ -63,6 +64,13 @@ enum Role {
   WHOLESALER
   SERVICE_PROVIDER
   ADMIN
+  SUPER_ADMIN
+}
+
+enum UserRole {
+  CUSTOMER
+  RETAILER
+  SERVICE_PROVIDER
 }
 
 model SellerApplication {

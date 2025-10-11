@@ -23,8 +23,8 @@ export class AuthService {
     return user;
   }
 
-  signAccessToken(user: { id: string; email: string; role: string }) {
-    return this.jwt.sign({ sub: user.id, email: user.email, role: user.role });
+  signAccessToken(user: { id: string; email: string; role: string; roles?: string[] }) {
+    return this.jwt.sign({ sub: user.id, email: user.email, role: user.role, roles: user.roles || [] });
   }
 
   signRefreshToken(user: { id: string }) {
@@ -40,7 +40,7 @@ export class AuthService {
     );
   }
 
-  async setAuthCookies(reply: any, user: { id: string; email: string; role: string }) {
+  async setAuthCookies(reply: any, user: { id: string; email: string; role: string; roles?: string[] }) {
     const access = this.signAccessToken(user);
     const refresh = this.signRefreshToken(user);
     const isProd = this.config.get('NODE_ENV') === 'production';
@@ -122,7 +122,7 @@ export class AuthService {
       if (payload.type !== 'refresh') throw new ForbiddenException('Invalid token');
       const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
       if (!user) throw new ForbiddenException('User not found');
-      await this.setAuthCookies(reply, { id: user.id, email: user.email, role: user.role });
+      await this.setAuthCookies(reply, { id: user.id, email: user.email, role: user.role, roles: (user as any).roles || [] });
       return true;
     } catch (e) {
       try {

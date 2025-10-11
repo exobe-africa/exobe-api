@@ -25,7 +25,7 @@ export class AuthResolver {
   ) {
     const user = await this.auth.validateUser(input.email, input.password);
     // Temporary: return token inline instead of setting cookie to unblock frontend
-    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role });
+    const token = this.auth.signAccessToken({ id: user.id, email: user.email, role: user.role, roles: (user as any).roles || [] });
     // Fire-and-forget login alert email if enabled in settings
     try {
       const ua = ctx?.req?.headers?.['user-agent'] || '';

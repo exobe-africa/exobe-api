@@ -1,4 +1,4 @@
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ApplicationsService } from '../applications/applications.service';
 import { SellerApplicationInput } from './dto/seller-application.input';
 import { Field, ObjectType } from '@nestjs/graphql';
@@ -15,6 +15,15 @@ class SellerApplicationType {
   id: string;
 
   @Field()
+  seller_role: string;
+
+  @Field()
+  business_type: string;
+
+  @Field()
+  applicant_type: string;
+
+  @Field()
   first_name: string;
 
   @Field()
@@ -23,17 +32,95 @@ class SellerApplicationType {
   @Field()
   email: string;
 
+  @Field()
+  phone: string;
+
   @Field({ nullable: true })
-  phone?: string;
+  landline?: string;
+
+  @Field()
+  identification_type: string;
 
   @Field()
   business_name: string;
+
+  @Field({ nullable: true })
+  business_registration?: string;
+
+  @Field({ nullable: true })
+  sa_id_number?: string;
+
+  @Field()
+  vat_registered: string;
+
+  @Field({ nullable: true })
+  vat_number?: string;
+
+  @Field({ nullable: true })
+  monthly_revenue?: string;
+
+  @Field({ nullable: true })
+  physical_stores?: string;
+
+  @Field({ nullable: true })
+  number_of_stores?: string;
+
+  @Field({ nullable: true })
+  supplier_to_retailers?: string;
+
+  @Field({ nullable: true })
+  other_marketplaces?: string;
+
+  @Field()
+  address: string;
+
+  @Field()
+  city: string;
+
+  @Field()
+  province: string;
+
+  @Field()
+  postal_code: string;
+
+  @Field({ nullable: true })
+  unique_products?: string;
+
+  @Field()
+  primary_category: string;
+
+  @Field()
+  stock_type: string;
+
+  @Field()
+  product_description: string;
+
+  @Field({ nullable: true })
+  owned_brands?: string;
+
+  @Field({ nullable: true })
+  reseller_brands?: string;
+
+  @Field({ nullable: true })
+  website?: string;
+
+  @Field({ nullable: true })
+  social_media?: string;
 
   @Field()
   business_summary: string;
 
   @Field()
+  how_did_you_hear: string;
+
+  @Field()
+  agree_to_terms: boolean;
+
+  @Field()
   status: string;
+
+  @Field()
+  created_at: Date;
 }
 
 @ObjectType()
@@ -151,6 +238,9 @@ class ServiceProviderApplicationType {
 
   @Field()
   status: string;
+
+  @Field()
+  created_at: Date;
 }
 
 @Resolver()
@@ -173,10 +263,42 @@ export class ApplicationsResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => [SellerApplicationType])
+  sellerApplications(
+    @Args('status', { nullable: true }) status?: string,
+    @Args('take', { type: () => Int, nullable: true }) take?: number,
+    @Args('skip', { type: () => Int, nullable: true }) skip?: number,
+  ) {
+    return this.apps.getSellerApplications({ status, take, skip });
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => [ServiceProviderApplicationType])
+  serviceProviderApplications(
+    @Args('status', { nullable: true }) status?: string,
+    @Args('take', { type: () => Int, nullable: true }) take?: number,
+    @Args('skip', { type: () => Int, nullable: true }) skip?: number,
+  ) {
+    return this.apps.getServiceProviderApplications({ status, take, skip });
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Mutation(() => Boolean)
+  rejectSellerApplication(@Args('applicationId') applicationId: string) {
+    return this.apps.rejectSellerApplication(applicationId);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => String)
-  approveSellerApplication(@Args('applicationId') applicationId: string) {
-    return this.apps.approveSellerApplication(applicationId).then(v => v.id);
+  updateSellerApplication(
+    @Args('applicationId') applicationId: string,
+    @Args('data') data: SellerApplicationInput,
+  ) {
+    return this.apps.updateSellerApplication(applicationId, data).then(v => v.id);
   }
 }
 

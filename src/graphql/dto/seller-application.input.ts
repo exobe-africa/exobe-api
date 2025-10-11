@@ -3,6 +3,11 @@ import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 
 
 @InputType()
 export class SellerApplicationInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  sellerRole?: string;
+
   @Field()
   @IsNotEmpty({ message: 'Business type is required' })
   @IsString()

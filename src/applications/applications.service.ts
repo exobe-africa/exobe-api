@@ -182,29 +182,60 @@ export class ApplicationsService {
   async approveSellerApplication(applicationId: string) {
     const app = await this.prisma.sellerApplication.findUnique({ where: { id: applicationId } });
     if (!app) throw new NotFoundException('Application not found');
+
     await this.prisma.sellerApplication.update({ where: { id: applicationId }, data: { status: 'APPROVED' } });
-    const owner = await this.prisma.user.findUnique({ where: { email: app.email } });
-    const ownerUserId = owner?.id ?? (await this.prisma.user.create({ data: { email: app.email, password: '', name: `${app.first_name} ${app.last_name}` } })).id;
+
+    let owner = await this.prisma.user.findUnique({ where: { email: app.email } });
+    if (!owner) {
+      owner = await this.prisma.user.create({
+        data: {
+          email: app.email,
+          password: '',
+          name: `${app.first_name} ${app.last_name}`.trim(),
+          first_name: app.first_name,
+          last_name: app.last_name,
+          phone: app.phone || undefined,
+          role: app.seller_role,
+          is_active: true,
+        },
+      });
+    } else {
+      await this.prisma.user.update({
+        where: { id: owner.id },
+        data: {
+          name: owner.name || `${app.first_name} ${app.last_name}`.trim(),
+          first_name: owner.first_name || app.first_name,
+          last_name: owner.last_name || app.last_name,
+          phone: owner.phone || app.phone || undefined,
+          role: owner.role === 'CUSTOMER' ? app.seller_role : owner.role,
+        },
+      });
+      owner = await this.prisma.user.findUnique({ where: { email: app.email } });
+    }
+
     const slugBase = app.business_name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const slug = `${slugBase}-${Math.random().toString(36).slice(2, 6)}`;
     const sellerType = app.seller_role === 'RETAILER' ? 'RETAILER' : 'WHOLESALER';
+
     const vendor = await (this.prisma as any).vendor.create({
       data: {
         name: app.business_name,
         slug,
         description: app.business_summary ?? undefined,
-        owner_user_id: ownerUserId,
-        account_manager_user_id: ownerUserId,
+        owner_user_id: owner!.id,
+        account_manager_user_id: owner!.id,
         status: 'APPROVED',
         is_active: true,
         seller_type: sellerType,
       },
     });
+
     if (sellerType === 'RETAILER') {
       await (this.prisma as any).retailerAccount.create({ data: { vendor_id: vendor.id } });
     } else {
       await (this.prisma as any).wholesalerAccount.create({ data: { vendor_id: vendor.id } });
     }
+
     return vendor;
   }
 

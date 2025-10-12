@@ -287,6 +287,13 @@ export class ApplicationsResolver {
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
+  approveSellerApplication(@Args('applicationId') applicationId: string) {
+    return this.apps.approveSellerApplication(applicationId).then(() => true);
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Mutation(() => Boolean)
   rejectSellerApplication(
     @Args('applicationId') applicationId: string,
     @Args('rejectionData') rejectionData: RejectApplicationInput,

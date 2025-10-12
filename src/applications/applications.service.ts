@@ -284,7 +284,6 @@ export class ApplicationsService {
       },
     });
 
-    // Send rejection email
     this.sendRejectionEmail(app, rejectionData).catch(err => {
       console.error('Failed to send rejection email:', err);
     });
@@ -296,7 +295,6 @@ export class ApplicationsService {
     const app = await this.prisma.sellerApplication.findUnique({ where: { id: applicationId } });
     if (!app) throw new NotFoundException('Application not found');
     
-    // Only allow updating if status is PENDING
     if (app.status !== 'PENDING') {
       throw new BadRequestException('Cannot update application that has already been processed');
     }

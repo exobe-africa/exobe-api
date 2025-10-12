@@ -113,6 +113,9 @@ model SellerApplication {
   created_at            DateTime          @default(now())
   updated_at            DateTime          @updatedAt
 
+  // Relations
+  rejection_reasons     ApplicationRejectionReason[] @relation("SellerApplicationRejections")
+
   @@map("seller_applications")
 }
 
@@ -120,6 +123,22 @@ enum ApplicationStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model ApplicationRejectionReason {
+  id                   String            @id @default(cuid()) @db.VarChar(25)
+  application_id       String            @db.VarChar(25)
+  application_type     String            @db.VarChar(50)
+  rejection_type       String            @db.VarChar(100)
+  description          String            @db.Text
+  rejected_by_user_id  String?           @db.VarChar(25)
+  rejected_at          DateTime          @default(now())
+  created_at           DateTime          @default(now())
+
+  // Relations
+  application          SellerApplication? @relation("SellerApplicationRejections", fields: [application_id], references: [id])
+
+  @@map("application_rejection_reasons")
 }
 
 model ContactMessage {

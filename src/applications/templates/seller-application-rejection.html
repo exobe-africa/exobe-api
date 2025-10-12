@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Rejected - eXobe</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #C8102E 0%, #a00d25 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .rejection-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #C8102E;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            background: #C8102E;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background: #a00d25;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Application Status Update</h1>
+    </div>
+
+    <div class="content">
+        <p>Dear <strong>{{firstName}} {{lastName}}</strong>,</p>
+
+        <p>We regret to inform you that your application for <strong>{{businessName}}</strong> has been reviewed and unfortunately cannot be approved at this time.</p>
+
+        <div class="rejection-details">
+            <h3>Rejection Details:</h3>
+            <p><strong>Reason:</strong> {{rejectionType}}</p>
+            <p><strong>Description:</strong></p>
+            <p>{{rejectionDescription}}</p>
+        </div>
+
+        <div class="highlight">
+            <h4>What This Means:</h4>
+            <p>Your application did not meet our current requirements or criteria for approval. This decision was made after careful consideration of all the information provided.</p>
+        </div>
+
+        <p>If you believe this decision was made in error or if you have additional information that may affect our review, please feel free to contact our support team for further assistance.</p>
+
+        <p>You are welcome to submit a new application in the future if you believe your circumstances or business information has changed significantly.</p>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{websiteUrl}}" class="button">Visit eXobe Platform</a>
+        </div>
+
+        <p>Thank you for your interest in joining the eXobe platform. We appreciate your understanding and wish you success in your business endeavors.</p>
+
+        <p>Best regards,<br>The eXobe Team</p>
+    </div>
+
+    <div class="footer">
+        <p>© {{year}} eXobe Platform. All rights reserved.</p>
+        <p>This is an automated message. Please do not reply to this email.</p>
+    </div>
+</body>
+</html>

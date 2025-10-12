@@ -234,10 +234,30 @@ export class ApplicationsService {
     });
   }
 
-  async rejectSellerApplication(applicationId: string) {
+  async rejectSellerApplication(applicationId: string, rejectionData: { rejectionType: string; description: string }, rejectedByUserId?: string) {
     const app = await this.prisma.sellerApplication.findUnique({ where: { id: applicationId } });
     if (!app) throw new NotFoundException('Application not found');
-    await this.prisma.sellerApplication.update({ where: { id: applicationId }, data: { status: 'REJECTED' } });
+
+    await this.prisma.sellerApplication.update({
+      where: { id: applicationId },
+      data: { status: 'REJECTED' }
+    });
+
+    await this.prisma.applicationRejectionReason.create({
+      data: {
+        application_id: applicationId,
+        application_type: 'seller',
+        rejection_type: rejectionData.rejectionType,
+        description: rejectionData.description,
+        rejected_by_user_id: rejectedByUserId,
+      },
+    });
+
+    // Send rejection email
+    this.sendRejectionEmail(app, rejectionData).catch(err => {
+      console.error('Failed to send rejection email:', err);
+    });
+
     return true;
   }
 
@@ -321,6 +341,32 @@ export class ApplicationsService {
       console.log(`Application confirmation email sent to ${application.email}`);
     } catch (error) {
       console.error('Error sending application confirmation email:', error);
+      throw error;
+    }
+  }
+
+  private async sendRejectionEmail(application: any, rejectionData: { rejectionType: string; description: string }) {
+    try {
+      const frontendUrl = process.env.FRONTEND_URL || 'https://exobe.africa';
+
+      await this.email.sendTemplatedEmail({
+        to: application.email,
+        subject: `Application Rejected - ${application.business_name}`,
+        template: 'applications/seller-application-rejection',
+        variables: {
+          firstName: application.first_name,
+          lastName: application.last_name,
+          businessName: application.business_name,
+          rejectionType: rejectionData.rejectionType,
+          rejectionDescription: rejectionData.description,
+          websiteUrl: frontendUrl,
+          year: new Date().getFullYear().toString(),
+        },
+      });
+
+      console.log(`Application rejection email sent to ${application.email}`);
+    } catch (error) {
+      console.error('Error sending application rejection email:', error);
       throw error;
     }
   }

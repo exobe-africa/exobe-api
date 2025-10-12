@@ -1,6 +1,6 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ApplicationsService } from '../applications/applications.service';
-import { SellerApplicationInput } from './dto/seller-application.input';
+import { SellerApplicationInput, RejectApplicationInput } from './dto/seller-application.input';
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Role } from '@prisma/client';
 import { ServiceProviderApplicationInput } from './dto/service-provider-application.input';
@@ -287,8 +287,13 @@ export class ApplicationsResolver {
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
-  rejectSellerApplication(@Args('applicationId') applicationId: string) {
-    return this.apps.rejectSellerApplication(applicationId);
+  rejectSellerApplication(
+    @Args('applicationId') applicationId: string,
+    @Args('rejectionData') rejectionData: RejectApplicationInput,
+    @Context() ctx: any,
+  ) {
+    const userId = ctx.req?.user?.userId;
+    return this.apps.rejectSellerApplication(applicationId, rejectionData, userId);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)

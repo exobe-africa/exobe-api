@@ -177,4 +177,17 @@ export class SellerApplicationInput {
   agreeToTerms: boolean;
 }
 
+@InputType()
+export class RejectApplicationInput {
+  @Field()
+  @IsNotEmpty({ message: 'Rejection type is required' })
+  @IsString()
+  rejectionType: string;
+
+  @Field()
+  @IsNotEmpty({ message: 'Description is required' })
+  @IsString()
+  @MinLength(10, { message: 'Description must be at least 10 characters' })
+  description: string;
+}
 

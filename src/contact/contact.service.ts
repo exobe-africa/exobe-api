@@ -18,7 +18,7 @@ export class ContactService {
       const subject = `[Contact] ${data.subject}`;
       
       await this.email.sendTemplatedEmail({
-        to: process.env.CONTACT_TO_EMAIL || 'tech@exobe.africa',
+        to: process.env.CONTACT_TO_EMAIL || 'support@exobe.africa',
         subject,
         template: 'contact-form',
         variables: {

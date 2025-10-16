@@ -37,6 +37,8 @@ async function bootstrap() {
     'http://localhost:3000',
     'https://exobe-ecommerce.vercel.app',
     'https://exobe-api.vercel.app',
+    'https://exobe-admin.vercel.app',
+    'https://exobe-vendors.vercel.app',
   ];
 
   const toMatcher = (o: string) => {

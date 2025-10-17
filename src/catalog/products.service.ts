@@ -47,6 +47,33 @@ export class ProductsService {
       category: { connect: { id: data.categoryId } },
     };
     if (data.status) createData.status = data.status as ProductStatus;
+    
+    // Handle pickup location (create or reuse)
+    if (data.pickupAddress && data.pickupCity && data.pickupProvince && data.pickupPostalCode) {
+      let pickupLocationId = data.pickupLocationId;
+      
+      // If no existing location ID provided, create new pickup location
+      if (!pickupLocationId) {
+        const pickupLocation = await this.prisma.productPickupLocation.create({
+          data: {
+            vendor_id: data.vendor_id,
+            name: data.pickupLocationName || `${data.pickupCity} Location`,
+            address: data.pickupAddress,
+            city: data.pickupCity,
+            province: data.pickupProvince,
+            postal_code: data.pickupPostalCode,
+            country: data.pickupCountry || 'South Africa',
+            instructions: data.pickupInstructions,
+            is_default: false,
+            is_active: true,
+          },
+        });
+        pickupLocationId = pickupLocation.id;
+      }
+      
+      createData.pickup_location_id = pickupLocationId;
+    }
+    
     const created = await this.prisma.catalogProduct.create({ data: createData });
 
     // Write normalized detail tables based on product_type
@@ -203,6 +230,48 @@ export class ProductsService {
       delete updateData.categoryId;
     }
     if (data.status) updateData.status = data.status as ProductStatus;
+    
+    // Handle pickup location update
+    if (data.pickupAddress && data.pickupCity && data.pickupProvince && data.pickupPostalCode) {
+      const product = await this.prisma.catalogProduct.findUnique({ where: { id } });
+      let pickupLocationId = data.pickupLocationId;
+      
+      // If no location ID provided, create new pickup location
+      if (!pickupLocationId) {
+        const pickupLocation = await this.prisma.productPickupLocation.create({
+          data: {
+            vendor_id: product.vendor_id,
+            name: data.pickupLocationName || `${data.pickupCity} Location`,
+            address: data.pickupAddress,
+            city: data.pickupCity,
+            province: data.pickupProvince,
+            postal_code: data.pickupPostalCode,
+            country: data.pickupCountry || 'South Africa',
+            instructions: data.pickupInstructions,
+            is_default: false,
+            is_active: true,
+          },
+        });
+        pickupLocationId = pickupLocation.id;
+      } else {
+        // Update existing location
+        await this.prisma.productPickupLocation.update({
+          where: { id: pickupLocationId },
+          data: {
+            name: data.pickupLocationName,
+            address: data.pickupAddress,
+            city: data.pickupCity,
+            province: data.pickupProvince,
+            postal_code: data.pickupPostalCode,
+            country: data.pickupCountry,
+            instructions: data.pickupInstructions,
+          },
+        });
+      }
+      
+      updateData.pickup_location_id = pickupLocationId;
+    }
+    
     const updated = await this.prisma.catalogProduct.update({ where: { id }, data: updateData });
 
     // Upsert normalized tables

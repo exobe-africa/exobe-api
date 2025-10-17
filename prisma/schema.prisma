@@ -239,6 +239,7 @@ model Vendor {
   products                CatalogProduct[]
   discounts               Discount[]
   collections             Collection[]
+  pickup_locations        ProductPickupLocation[]
   notification_settings   VendorNotificationSettings?
   retailer_account        RetailerAccount?
   wholesaler_account      WholesalerAccount?
@@ -721,6 +722,8 @@ model CatalogProduct {
   brand               String?          @db.VarChar(150)
   model               String?          @db.VarChar(150)
   material            String?          @db.VarChar(200)
+  pickup_location_id  String?          @db.VarChar(25)
+  pickup_location     ProductPickupLocation? @relation(fields: [pickup_location_id], references: [id])
   options             ProductOption[]
   variants            ProductVariant[]
   media               ProductMedia[]
@@ -829,6 +832,27 @@ model ProductComplianceDetails {
   updated_at   DateTime        @updatedAt
 
   @@map("product_compliance_details")
+}
+
+model ProductPickupLocation {
+  id           String           @id @default(cuid()) @db.VarChar(25)
+  vendor_id    String           @db.VarChar(25)
+  vendor       Vendor           @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
+  name         String           @db.VarChar(100)
+  address      String           @db.VarChar(255)
+  city         String           @db.VarChar(100)
+  province     String           @db.VarChar(100)
+  postal_code  String           @db.VarChar(20)
+  country      String           @db.VarChar(100)
+  instructions String?          @db.Text
+  is_default   Boolean          @default(false)
+  is_active    Boolean          @default(true)
+  products     CatalogProduct[]
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  @@index([vendor_id])
+  @@map("product_pickup_locations")
 }
 
 model ProductReview {

@@ -99,6 +99,14 @@ input CreateProductInput {
   width: Float
   height: Float
   dimensionUnit: String
+  pickupLocationId: String
+  pickupLocationName: String
+  pickupAddress: String
+  pickupCity: String
+  pickupProvince: String
+  pickupPostalCode: String
+  pickupCountry: String
+  pickupInstructions: String
   isbn: String
   author: String
   publisher: String
@@ -395,6 +403,14 @@ input UpdateProductInput {
   width: Float
   height: Float
   dimensionUnit: String
+  pickupLocationId: String
+  pickupLocationName: String
+  pickupAddress: String
+  pickupCity: String
+  pickupProvince: String
+  pickupPostalCode: String
+  pickupCountry: String
+  pickupInstructions: String
   isbn: String
   author: String
   publisher: String

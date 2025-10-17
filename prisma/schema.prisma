@@ -28,7 +28,7 @@ model User {
   managed_vendors       Vendor[]                      @relation("VendorAccountManager")
   customer              Customer?
   wishlist              Wishlist?
-  reviews               Review[]
+  reviews               ProductReview[]
   notification_settings CustomerNotificationSettings?
   created_at            DateTime                      @default(now())
   updated_at            DateTime                      @updatedAt
@@ -713,14 +713,14 @@ model CatalogProduct {
   variants            ProductVariant[]
   media               ProductMedia[]
   wishlist_items      WishlistItem[]
-  reviews             Review[]
+  reviews             ProductReview[]
   created_at          DateTime         @default(now())
   updated_at          DateTime         @updatedAt
 
   @@map("catalog_products")
 }
 
-model Review {
+model ProductReview {
   id         String         @id @default(cuid()) @db.VarChar(25)
   product_id String         @db.VarChar(25)
   product    CatalogProduct @relation(fields: [product_id], references: [id], onDelete: Cascade)
@@ -732,7 +732,7 @@ model Review {
   updated_at DateTime       @updatedAt
 
   @@unique([product_id, user_id])
-  @@map("reviews")
+  @@map("product_reviews")
 }
 
 enum ProductStatus {

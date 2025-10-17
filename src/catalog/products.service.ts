@@ -69,12 +69,34 @@ export class ProductsService {
 
     // Consumables (FOOD, BEVERAGE, HEALTH, PET, BEAUTY)
     if (['FOOD', 'BEVERAGE', 'HEALTH', 'PET', 'BEAUTY'].includes(createData.product_type)) {
+      // Parse ingredients if it's a JSON string (array format from frontend)
+      let ingredientsData = null;
+      if (data.ingredients) {
+        try {
+          ingredientsData = typeof data.ingredients === 'string' ? JSON.parse(data.ingredients) : data.ingredients;
+        } catch (e) {
+          // If parsing fails, store as plain text
+          ingredientsData = data.ingredients;
+        }
+      }
+      
+      // Parse nutritionalInfo only if it's a valid JSON string, otherwise store as null
+      let nutritionalData = null;
+      if (data.nutritionalInfo) {
+        try {
+          nutritionalData = typeof data.nutritionalInfo === 'string' ? JSON.parse(data.nutritionalInfo) : data.nutritionalInfo;
+        } catch (e) {
+          // If parsing fails, just skip nutritional info
+          nutritionalData = null;
+        }
+      }
+      
       await this.prisma.productConsumableDetails.create({
         data: {
           product_id: created.id,
           expiry_date: data.expiryDate ? new Date(data.expiryDate) : null,
-          ingredients: data.ingredients ?? null,
-          nutritional_info: data.nutritionalInfo ? JSON.parse(data.nutritionalInfo) : null,
+          ingredients: ingredientsData,
+          nutritional_info: nutritionalData,
         },
       });
     }
@@ -205,11 +227,33 @@ export class ProductsService {
     // Consumables
     if (['FOOD', 'BEVERAGE', 'HEALTH', 'PET', 'BEAUTY'].includes(updateData.product_type) || data.expiryDate || data.ingredients || data.nutritionalInfo) {
       const exists = await this.prisma.productConsumableDetails.findUnique({ where: { product_id: id } as any });
+      
+      // Parse ingredients if it's a JSON string (array format from frontend)
+      let ingredientsData = undefined;
+      if (data.ingredients) {
+        try {
+          ingredientsData = typeof data.ingredients === 'string' ? JSON.parse(data.ingredients) : data.ingredients;
+        } catch (e) {
+          // If parsing fails, store as plain text
+          ingredientsData = data.ingredients;
+        }
+      }
+      
+      // Parse nutritionalInfo safely
+      let nutritionalData = undefined;
+      if (data.nutritionalInfo) {
+        try {
+          nutritionalData = typeof data.nutritionalInfo === 'string' ? JSON.parse(data.nutritionalInfo) : data.nutritionalInfo;
+        } catch (e) {
+          nutritionalData = undefined;
+        }
+      }
+      
       const payload: any = {
         product_id: id,
         expiry_date: data.expiryDate ? new Date(data.expiryDate) : undefined,
-        ingredients: data.ingredients ?? undefined,
-        nutritional_info: data.nutritionalInfo ? JSON.parse(data.nutritionalInfo) : undefined,
+        ingredients: ingredientsData,
+        nutritional_info: nutritionalData,
       };
       if (exists) await this.prisma.productConsumableDetails.update({ where: { id: exists.id }, data: payload });
       else await this.prisma.productConsumableDetails.create({ data: payload });

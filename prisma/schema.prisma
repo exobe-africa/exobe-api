@@ -718,14 +718,12 @@ model CatalogProduct {
   width               Float?
   height              Float?
   dimension_unit      String?          @db.VarChar(10)
-  // Core product-level identity fields kept here
   brand               String?          @db.VarChar(150)
   model               String?          @db.VarChar(150)
   material            String?          @db.VarChar(200)
   options             ProductOption[]
   variants            ProductVariant[]
   media               ProductMedia[]
-  // Detail relations (one-to-one per type group)
   book_details        ProductBookDetails?
   consumable_details  ProductConsumableDetails?
   electronics_details ProductElectronicsDetails?
@@ -741,7 +739,6 @@ model CatalogProduct {
   @@map("catalog_products")
 }
 
-// Book-specific normalized details
 model ProductBookDetails {
   id               String          @id @default(cuid()) @db.VarChar(25)
   product_id       String          @unique @db.VarChar(25)
@@ -760,13 +757,12 @@ model ProductBookDetails {
   @@map("product_book_details")
 }
 
-// Consumable (food, beverage, health, pet, beauty) normalized details
 model ProductConsumableDetails {
   id                String          @id @default(cuid()) @db.VarChar(25)
   product_id        String          @unique @db.VarChar(25)
   product           CatalogProduct  @relation(fields: [product_id], references: [id], onDelete: Cascade)
   expiry_date       DateTime?
-  ingredients       String?         @db.Text
+  ingredients       Json?
   nutritional_info  Json?
   created_at        DateTime        @default(now())
   updated_at        DateTime        @updatedAt
@@ -774,7 +770,6 @@ model ProductConsumableDetails {
   @@map("product_consumable_details")
 }
 
-// Electronics normalized details
 model ProductElectronicsDetails {
   id              String          @id @default(cuid()) @db.VarChar(25)
   product_id      String          @unique @db.VarChar(25)
@@ -787,7 +782,6 @@ model ProductElectronicsDetails {
   @@map("product_electronics_details")
 }
 
-// Media (music, art etc.) normalized details
 model ProductMediaDetails {
   id          String          @id @default(cuid()) @db.VarChar(25)
   product_id  String          @unique @db.VarChar(25)
@@ -802,7 +796,6 @@ model ProductMediaDetails {
   @@map("product_media_details")
 }
 
-// Software normalized details
 model ProductSoftwareDetails {
   id           String          @id @default(cuid()) @db.VarChar(25)
   product_id   String          @unique @db.VarChar(25)
@@ -815,7 +808,6 @@ model ProductSoftwareDetails {
   @@map("product_software_details")
 }
 
-// Service normalized details
 model ProductServiceDetails {
   id               String          @id @default(cuid()) @db.VarChar(25)
   product_id       String          @unique @db.VarChar(25)
@@ -827,7 +819,6 @@ model ProductServiceDetails {
   @@map("product_service_details")
 }
 
-// Compliance & safety normalized details
 model ProductComplianceDetails {
   id           String          @id @default(cuid()) @db.VarChar(25)
   product_id   String          @unique @db.VarChar(25)

@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS "product_consumable_details" (
   id               VARCHAR(25) PRIMARY KEY DEFAULT substr(replace(gen_random_uuid()::text,'-',''),1,25),
   product_id       VARCHAR(25) UNIQUE REFERENCES "catalog_products"(id) ON DELETE CASCADE,
   expiry_date      TIMESTAMP(3),
-  ingredients      TEXT,
+  ingredients      JSONB,
   nutritional_info JSONB,
   created_at       TIMESTAMP(3) DEFAULT now(),
   updated_at       TIMESTAMP(3) DEFAULT now()

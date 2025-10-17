@@ -39,11 +39,101 @@ export class ProductsService {
       width: data.width,
       height: data.height,
       dimension_unit: data.dimensionUnit,
+      product_type: data.productType || 'GENERAL',
+      brand: data.brand,
+      model: data.model,
+      material: data.material,
       vendor: { connect: { id: data.vendor_id } },
       category: { connect: { id: data.categoryId } },
     };
     if (data.status) createData.status = data.status as ProductStatus;
     const created = await this.prisma.catalogProduct.create({ data: createData });
+
+    // Write normalized detail tables based on product_type
+    // Books/eBooks
+    if (['BOOK', 'EBOOK'].includes(createData.product_type)) {
+      await this.prisma.productBookDetails.create({
+        data: {
+          product_id: created.id,
+          isbn: data.isbn ?? null,
+          author: data.author ?? null,
+          publisher: data.publisher ?? null,
+          publication_date: data.publicationDate ? new Date(data.publicationDate) : null,
+          pages: data.pages ?? null,
+          language: data.language ?? null,
+          genre: data.genre ?? null,
+          format: data.format ?? null,
+        },
+      });
+    }
+
+    // Consumables (FOOD, BEVERAGE, HEALTH, PET, BEAUTY)
+    if (['FOOD', 'BEVERAGE', 'HEALTH', 'PET', 'BEAUTY'].includes(createData.product_type)) {
+      await this.prisma.productConsumableDetails.create({
+        data: {
+          product_id: created.id,
+          expiry_date: data.expiryDate ? new Date(data.expiryDate) : null,
+          ingredients: data.ingredients ?? null,
+          nutritional_info: data.nutritionalInfo ? JSON.parse(data.nutritionalInfo) : null,
+        },
+      });
+    }
+
+    // Electronics
+    if (createData.product_type === 'ELECTRONICS') {
+      await this.prisma.productElectronicsDetails.create({
+        data: {
+          product_id: created.id,
+          warranty_period: data.warrantyPeriod ?? null,
+          energy_rating: data.energyRating ?? null,
+        },
+      });
+    }
+
+    // Media (MUSIC, ART)
+    if (['MUSIC', 'ART'].includes(createData.product_type)) {
+      await this.prisma.productMediaDetails.create({
+        data: {
+          product_id: created.id,
+          artist: data.artist ?? null,
+          genre: data.genre ?? null,
+          format: data.format ?? null,
+          release_at: data.publicationDate ? new Date(data.publicationDate) : null,
+        },
+      });
+    }
+
+    // Software
+    if (createData.product_type === 'SOFTWARE') {
+      await this.prisma.productSoftwareDetails.create({
+        data: {
+          product_id: created.id,
+          platform: data.platform ?? null,
+          license_type: data.licenseType ?? null,
+        },
+      });
+    }
+
+    // Service
+    if (createData.product_type === 'SERVICE') {
+      await this.prisma.productServiceDetails.create({
+        data: {
+          product_id: created.id,
+          service_duration: data.serviceDuration ?? null,
+        },
+      });
+    }
+
+    // Compliance (age rating, certifications) — applicable to many
+    if (data.ageRating || data.certification) {
+      await this.prisma.productComplianceDetails.create({
+        data: {
+          product_id: created.id,
+          age_rating: data.ageRating ?? null,
+          certification: data.certification ?? null,
+        },
+      });
+    }
     if (Array.isArray(data.mediaUploads) && data.mediaUploads.length > 0) {
       for (const [idx, m] of data.mediaUploads.entries()) {
         if (!m?.base64 || !m?.filename) continue;
@@ -82,12 +172,98 @@ export class ProductsService {
     if (data.width !== undefined) updateData.width = data.width;
     if (data.height !== undefined) updateData.height = data.height;
     if (data.dimensionUnit) updateData.dimension_unit = data.dimensionUnit;
+    if (data.productType) updateData.product_type = data.productType;
+    if (data.brand) updateData.brand = data.brand;
+    if (data.model) updateData.model = data.model;
+    if (data.material) updateData.material = data.material;
     if (data.category_id) {
       updateData.category = { connect: { id: data.category_id } };
       delete updateData.categoryId;
     }
     if (data.status) updateData.status = data.status as ProductStatus;
     const updated = await this.prisma.catalogProduct.update({ where: { id }, data: updateData });
+
+    // Upsert normalized tables
+    // Books/eBooks
+    if (['BOOK', 'EBOOK'].includes(updateData.product_type) || data.isbn || data.author || data.publisher || data.pages || data.language || data.genre || data.format || data.publicationDate) {
+      const exists = await this.prisma.productBookDetails.findUnique({ where: { product_id: id } as any });
+      const payload: any = {
+        product_id: id,
+        isbn: data.isbn ?? undefined,
+        author: data.author ?? undefined,
+        publisher: data.publisher ?? undefined,
+        publication_date: data.publicationDate ? new Date(data.publicationDate) : undefined,
+        pages: data.pages ?? undefined,
+        language: data.language ?? undefined,
+        genre: data.genre ?? undefined,
+        format: data.format ?? undefined,
+      };
+      if (exists) await this.prisma.productBookDetails.update({ where: { id: exists.id }, data: payload });
+      else await this.prisma.productBookDetails.create({ data: payload });
+    }
+
+    // Consumables
+    if (['FOOD', 'BEVERAGE', 'HEALTH', 'PET', 'BEAUTY'].includes(updateData.product_type) || data.expiryDate || data.ingredients || data.nutritionalInfo) {
+      const exists = await this.prisma.productConsumableDetails.findUnique({ where: { product_id: id } as any });
+      const payload: any = {
+        product_id: id,
+        expiry_date: data.expiryDate ? new Date(data.expiryDate) : undefined,
+        ingredients: data.ingredients ?? undefined,
+        nutritional_info: data.nutritionalInfo ? JSON.parse(data.nutritionalInfo) : undefined,
+      };
+      if (exists) await this.prisma.productConsumableDetails.update({ where: { id: exists.id }, data: payload });
+      else await this.prisma.productConsumableDetails.create({ data: payload });
+    }
+
+    // Electronics
+    if (updateData.product_type === 'ELECTRONICS' || data.warrantyPeriod !== undefined || data.energyRating) {
+      const exists = await this.prisma.productElectronicsDetails.findUnique({ where: { product_id: id } as any });
+      const payload: any = {
+        product_id: id,
+        warranty_period: data.warrantyPeriod ?? undefined,
+        energy_rating: data.energyRating ?? undefined,
+      };
+      if (exists) await this.prisma.productElectronicsDetails.update({ where: { id: exists.id }, data: payload });
+      else await this.prisma.productElectronicsDetails.create({ data: payload });
+    }
+
+    // Media
+    if (['MUSIC', 'ART'].includes(updateData.product_type) || data.artist || data.genre || data.format || data.publicationDate) {
+      const exists = await this.prisma.productMediaDetails.findUnique({ where: { product_id: id } as any });
+      const payload: any = {
+        product_id: id,
+        artist: data.artist ?? undefined,
+        genre: data.genre ?? undefined,
+        format: data.format ?? undefined,
+        release_at: data.publicationDate ? new Date(data.publicationDate) : undefined,
+      };
+      if (exists) await this.prisma.productMediaDetails.update({ where: { id: exists.id }, data: payload });
+      else await this.prisma.productMediaDetails.create({ data: payload });
+    }
+
+    // Software
+    if (updateData.product_type === 'SOFTWARE' || data.platform || data.licenseType) {
+      const exists = await this.prisma.productSoftwareDetails.findUnique({ where: { product_id: id } as any });
+      const payload: any = {
+        product_id: id,
+        platform: data.platform ?? undefined,
+        license_type: data.licenseType ?? undefined,
+      };
+      if (exists) await this.prisma.productSoftwareDetails.update({ where: { id: exists.id }, data: payload });
+      else await this.prisma.productSoftwareDetails.create({ data: payload });
+    }
+
+    // Compliance
+    if (data.ageRating || data.certification) {
+      const exists = await this.prisma.productComplianceDetails.findUnique({ where: { product_id: id } as any });
+      const payload: any = {
+        product_id: id,
+        age_rating: data.ageRating ?? undefined,
+        certification: data.certification ?? undefined,
+      };
+      if (exists) await this.prisma.productComplianceDetails.update({ where: { id: exists.id }, data: payload });
+      else await this.prisma.productComplianceDetails.create({ data: payload });
+    }
     if (Array.isArray(data.mediaUploads) && data.mediaUploads.length > 0) {
       for (const [idx, m] of data.mediaUploads.entries()) {
         if (!m?.base64 || !m?.filename) continue;

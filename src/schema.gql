@@ -90,6 +90,7 @@ input CreateProductInput {
   status: String
   title: String!
   vendorId: String!
+  productType: String
   deliveryMinDays: Int
   deliveryMaxDays: Int
   weight: Float
@@ -98,6 +99,31 @@ input CreateProductInput {
   width: Float
   height: Float
   dimensionUnit: String
+  isbn: String
+  author: String
+  publisher: String
+  publicationDate: String
+  pages: Int
+  language: String
+  brand: String
+  model: String
+  material: String
+  colour: String
+  size: String
+  expiryDate: String
+  ingredients: String
+  nutritionalInfo: String
+  careInstructions: String
+  warrantyPeriod: Int
+  energyRating: String
+  ageRating: String
+  artist: String
+  genre: String
+  format: String
+  platform: String
+  licenseType: String
+  serviceDuration: String
+  certification: String
 }
 
 input CreateVariantInput {
@@ -360,6 +386,7 @@ input UpdateProductInput {
   slug: String
   status: String
   title: String
+  productType: String
   deliveryMinDays: Int
   deliveryMaxDays: Int
   weight: Float
@@ -368,6 +395,31 @@ input UpdateProductInput {
   width: Float
   height: Float
   dimensionUnit: String
+  isbn: String
+  author: String
+  publisher: String
+  publicationDate: String
+  pages: Int
+  language: String
+  brand: String
+  model: String
+  material: String
+  colour: String
+  size: String
+  expiryDate: String
+  ingredients: String
+  nutritionalInfo: String
+  careInstructions: String
+  warrantyPeriod: Int
+  energyRating: String
+  ageRating: String
+  artist: String
+  genre: String
+  format: String
+  platform: String
+  licenseType: String
+  serviceDuration: String
+  certification: String
 }
 
 input UpdateVariantInput {

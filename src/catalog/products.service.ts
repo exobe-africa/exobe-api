@@ -27,6 +27,7 @@ export class ProductsService {
       description: data.description,
       features: data.features ?? [],
       availableLocations: data.availableLocations ?? [],
+      tags: data.tags ?? [],
       is_active: data.is_active,
       featured: data.featured,
       seoTitle: data.seoTitle,
@@ -72,6 +73,31 @@ export class ProductsService {
       }
       
       createData.pickup_location_id = pickupLocationId;
+    }
+    
+    // Handle return policy (create or reuse)
+    if (data.returnsAccepted !== undefined || data.returnPeriodDays || data.returnConditions) {
+      let returnPolicyId = data.returnPolicyId;
+      
+      // If no existing policy ID provided, create new return policy
+      if (!returnPolicyId) {
+        const returnPolicy = await this.prisma.productReturnPolicy.create({
+          data: {
+            vendor_id: data.vendor_id,
+            name: data.returnPolicyName || (data.returnsAccepted === false ? 'No Returns' : `${data.returnPeriodDays || 30}-Day Returns`),
+            returns_accepted: data.returnsAccepted !== undefined ? data.returnsAccepted : true,
+            return_period_days: data.returnPeriodDays,
+            return_conditions: data.returnConditions,
+            restocking_fee_pct: data.restockingFeePct,
+            return_shipping_paid_by: data.returnShippingPaidBy,
+            is_default: false,
+            is_active: true,
+          },
+        });
+        returnPolicyId = returnPolicy.id;
+      }
+      
+      createData.return_policy_id = returnPolicyId;
     }
     
     const created = await this.prisma.catalogProduct.create({ data: createData });
@@ -213,6 +239,7 @@ export class ProductsService {
     const updateData: any = { ...data };
     if (data.features) updateData.features = data.features;
     if (data.availableLocations) updateData.availableLocations = data.availableLocations;
+    if (data.tags) updateData.tags = data.tags;
     if (data.deliveryMinDays !== undefined) updateData.delivery_min_days = data.deliveryMinDays;
     if (data.deliveryMaxDays !== undefined) updateData.delivery_max_days = data.deliveryMaxDays;
     if (data.weight !== undefined) updateData.weight = data.weight;
@@ -270,6 +297,45 @@ export class ProductsService {
       }
       
       updateData.pickup_location_id = pickupLocationId;
+    }
+    
+    // Handle return policy update
+    if (data.returnsAccepted !== undefined || data.returnPeriodDays || data.returnConditions) {
+      const product = await this.prisma.catalogProduct.findUnique({ where: { id } });
+      let returnPolicyId = data.returnPolicyId;
+      
+      // If no policy ID provided, create new return policy
+      if (!returnPolicyId) {
+        const returnPolicy = await this.prisma.productReturnPolicy.create({
+          data: {
+            vendor_id: product.vendor_id,
+            name: data.returnPolicyName || (data.returnsAccepted === false ? 'No Returns' : `${data.returnPeriodDays || 30}-Day Returns`),
+            returns_accepted: data.returnsAccepted !== undefined ? data.returnsAccepted : true,
+            return_period_days: data.returnPeriodDays,
+            return_conditions: data.returnConditions,
+            restocking_fee_pct: data.restockingFeePct,
+            return_shipping_paid_by: data.returnShippingPaidBy,
+            is_default: false,
+            is_active: true,
+          },
+        });
+        returnPolicyId = returnPolicy.id;
+      } else {
+        // Update existing policy
+        await this.prisma.productReturnPolicy.update({
+          where: { id: returnPolicyId },
+          data: {
+            name: data.returnPolicyName,
+            returns_accepted: data.returnsAccepted,
+            return_period_days: data.returnPeriodDays,
+            return_conditions: data.returnConditions,
+            restocking_fee_pct: data.restockingFeePct,
+            return_shipping_paid_by: data.returnShippingPaidBy,
+          },
+        });
+      }
+      
+      updateData.return_policy_id = returnPolicyId;
     }
     
     const updated = await this.prisma.catalogProduct.update({ where: { id }, data: updateData });

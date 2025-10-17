@@ -240,6 +240,7 @@ model Vendor {
   discounts               Discount[]
   collections             Collection[]
   pickup_locations        ProductPickupLocation[]
+  return_policies         ProductReturnPolicy[]
   notification_settings   VendorNotificationSettings?
   retailer_account        RetailerAccount?
   wholesaler_account      WholesalerAccount?
@@ -724,6 +725,8 @@ model CatalogProduct {
   material            String?          @db.VarChar(200)
   pickup_location_id  String?          @db.VarChar(25)
   pickup_location     ProductPickupLocation? @relation(fields: [pickup_location_id], references: [id])
+  return_policy_id    String?          @db.VarChar(25)
+  return_policy       ProductReturnPolicy? @relation(fields: [return_policy_id], references: [id])
   options             ProductOption[]
   variants            ProductVariant[]
   media               ProductMedia[]
@@ -853,6 +856,26 @@ model ProductPickupLocation {
 
   @@index([vendor_id])
   @@map("product_pickup_locations")
+}
+
+model ProductReturnPolicy {
+  id                     String           @id @default(cuid()) @db.VarChar(25)
+  vendor_id              String           @db.VarChar(25)
+  vendor                 Vendor           @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
+  name                   String           @db.VarChar(100)
+  returns_accepted       Boolean          @default(true)
+  return_period_days     Int?
+  return_conditions      String?          @db.Text
+  restocking_fee_pct     Decimal?         @db.Decimal(5, 2)
+  return_shipping_paid_by String?         @db.VarChar(20)
+  is_default             Boolean          @default(false)
+  is_active              Boolean          @default(true)
+  products               CatalogProduct[]
+  created_at             DateTime         @default(now())
+  updated_at             DateTime         @updatedAt
+
+  @@index([vendor_id])
+  @@map("product_return_policies")
 }
 
 model ProductReview {

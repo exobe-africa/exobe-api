@@ -107,6 +107,14 @@ input CreateProductInput {
   pickupPostalCode: String
   pickupCountry: String
   pickupInstructions: String
+  returnPolicyId: String
+  returnPolicyName: String
+  returnsAccepted: Boolean
+  returnPeriodDays: Int
+  returnConditions: String
+  restockingFeePct: Float
+  returnShippingPaidBy: String
+  tags: [String!]
   isbn: String
   author: String
   publisher: String
@@ -411,6 +419,14 @@ input UpdateProductInput {
   pickupPostalCode: String
   pickupCountry: String
   pickupInstructions: String
+  returnPolicyId: String
+  returnPolicyName: String
+  returnsAccepted: Boolean
+  returnPeriodDays: Int
+  returnConditions: String
+  restockingFeePct: Float
+  returnShippingPaidBy: String
+  tags: [String!]
   isbn: String
   author: String
   publisher: String

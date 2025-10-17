@@ -1,11 +1,16 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
+import { SupabaseStorageService } from '../storage/supabase-storage.service';
 import { ProductStatus } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService, private storage: StorageService) {}
+  constructor(
+    private prisma: PrismaService,
+    private storage: StorageService,
+    private supabaseStorage: SupabaseStorageService,
+  ) {}
 
   async createProduct(data: any, currentUserId: string, requireOwnership = true) {
     if (requireOwnership) {
@@ -26,6 +31,14 @@ export class ProductsService {
       featured: data.featured,
       seoTitle: data.seoTitle,
       seoDescription: data.seoDescription,
+      delivery_min_days: data.deliveryMinDays,
+      delivery_max_days: data.deliveryMaxDays,
+      weight: data.weight,
+      weight_unit: data.weightUnit,
+      length: data.length,
+      width: data.width,
+      height: data.height,
+      dimension_unit: data.dimensionUnit,
       vendor: { connect: { id: data.vendor_id } },
       category: { connect: { id: data.categoryId } },
     };
@@ -61,6 +74,14 @@ export class ProductsService {
     const updateData: any = { ...data };
     if (data.features) updateData.features = data.features;
     if (data.availableLocations) updateData.availableLocations = data.availableLocations;
+    if (data.deliveryMinDays !== undefined) updateData.delivery_min_days = data.deliveryMinDays;
+    if (data.deliveryMaxDays !== undefined) updateData.delivery_max_days = data.deliveryMaxDays;
+    if (data.weight !== undefined) updateData.weight = data.weight;
+    if (data.weightUnit) updateData.weight_unit = data.weightUnit;
+    if (data.length !== undefined) updateData.length = data.length;
+    if (data.width !== undefined) updateData.width = data.width;
+    if (data.height !== undefined) updateData.height = data.height;
+    if (data.dimensionUnit) updateData.dimension_unit = data.dimensionUnit;
     if (data.category_id) {
       updateData.category = { connect: { id: data.category_id } };
       delete updateData.categoryId;

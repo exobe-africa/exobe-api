@@ -90,6 +90,14 @@ input CreateProductInput {
   status: String
   title: String!
   vendorId: String!
+  deliveryMinDays: Int
+  deliveryMaxDays: Int
+  weight: Float
+  weightUnit: String
+  length: Float
+  width: Float
+  height: Float
+  dimensionUnit: String
 }
 
 input CreateVariantInput {
@@ -352,6 +360,14 @@ input UpdateProductInput {
   slug: String
   status: String
   title: String
+  deliveryMinDays: Int
+  deliveryMaxDays: Int
+  weight: Float
+  weightUnit: String
+  length: Float
+  width: Float
+  height: Float
+  dimensionUnit: String
 }
 
 input UpdateVariantInput {

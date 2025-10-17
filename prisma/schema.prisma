@@ -709,6 +709,14 @@ model CatalogProduct {
   features            String[]
   available_locations String[]
   tags                String[]
+  delivery_min_days   Int?
+  delivery_max_days   Int?
+  weight              Float?
+  weight_unit         String?          @db.VarChar(10)
+  length              Float?
+  width               Float?
+  height              Float?
+  dimension_unit      String?          @db.VarChar(10)
   options             ProductOption[]
   variants            ProductVariant[]
   media               ProductMedia[]

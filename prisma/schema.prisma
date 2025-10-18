@@ -865,7 +865,7 @@ model ProductReturnPolicy {
   name                   String           @db.VarChar(100)
   returns_accepted       Boolean          @default(true)
   return_period_days     Int?
-  return_conditions      String?          @db.Text
+  return_conditions      String[]         @default([])
   restocking_fee_pct     Decimal?         @db.Decimal(5, 2)
   return_shipping_paid_by String?         @db.VarChar(20)
   is_default             Boolean          @default(false)

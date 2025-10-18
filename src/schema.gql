@@ -111,7 +111,7 @@ input CreateProductInput {
   returnPolicyName: String
   returnsAccepted: Boolean
   returnPeriodDays: Int
-  returnConditions: String
+  returnConditions: [String!]
   restockingFeePct: Float
   returnShippingPaidBy: String
   tags: [String!]
@@ -423,7 +423,7 @@ input UpdateProductInput {
   returnPolicyName: String
   returnsAccepted: Boolean
   returnPeriodDays: Int
-  returnConditions: String
+  returnConditions: [String!]
   restockingFeePct: Float
   returnShippingPaidBy: String
   tags: [String!]

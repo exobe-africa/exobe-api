@@ -123,7 +123,7 @@ export class ProductsService {
     // Consumables (FOOD, BEVERAGE, HEALTH, PET, BEAUTY)
     if (['FOOD', 'BEVERAGE', 'HEALTH', 'PET', 'BEAUTY'].includes(createData.product_type)) {
       // Parse ingredients if it's a JSON string (array format from frontend)
-      let ingredientsData = null;
+      let ingredientsData: any = undefined;
       if (data.ingredients) {
         try {
           ingredientsData = typeof data.ingredients === 'string' ? JSON.parse(data.ingredients) : data.ingredients;
@@ -133,25 +133,25 @@ export class ProductsService {
         }
       }
       
-      // Parse nutritionalInfo only if it's a valid JSON string, otherwise store as null
-      let nutritionalData = null;
+      // Parse nutritionalInfo only if it's a valid JSON string, otherwise omit field
+      let nutritionalData: any = undefined;
       if (data.nutritionalInfo) {
         try {
           nutritionalData = typeof data.nutritionalInfo === 'string' ? JSON.parse(data.nutritionalInfo) : data.nutritionalInfo;
         } catch (e) {
           // If parsing fails, just skip nutritional info
-          nutritionalData = null;
+          nutritionalData = undefined;
         }
       }
       
-      await this.prisma.productConsumableDetails.create({
-        data: {
-          product_id: created.id,
-          expiry_date: data.expiryDate ? new Date(data.expiryDate) : null,
-          ingredients: ingredientsData,
-          nutritional_info: nutritionalData,
-        },
-      });
+      const consumableCreateData: any = {
+        product_id: created.id,
+        expiry_date: data.expiryDate ? new Date(data.expiryDate) : null,
+      };
+      if (ingredientsData !== undefined) consumableCreateData.ingredients = ingredientsData;
+      if (nutritionalData !== undefined) consumableCreateData.nutritional_info = nutritionalData;
+      
+      await this.prisma.productConsumableDetails.create({ data: consumableCreateData });
     }
 
     // Electronics
@@ -261,6 +261,7 @@ export class ProductsService {
     // Handle pickup location update
     if (data.pickupAddress && data.pickupCity && data.pickupProvince && data.pickupPostalCode) {
       const product = await this.prisma.catalogProduct.findUnique({ where: { id } });
+      if (!product) throw new NotFoundException('Product not found');
       let pickupLocationId = data.pickupLocationId;
       
       // If no location ID provided, create new pickup location
@@ -302,6 +303,7 @@ export class ProductsService {
     // Handle return policy update
     if (data.returnsAccepted !== undefined || data.returnPeriodDays || data.returnConditions) {
       const product = await this.prisma.catalogProduct.findUnique({ where: { id } });
+      if (!product) throw new NotFoundException('Product not found');
       let returnPolicyId = data.returnPolicyId;
       
       // If no policy ID provided, create new return policy

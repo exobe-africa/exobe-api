@@ -13,8 +13,16 @@ export class ProductsService {
   ) {}
 
   async createProduct(data: any, currentUserId: string, requireOwnership = true) {
+    // Normalize vendor id from input or infer from current user
+    let inputVendorId: string | undefined = data.vendorId || data.vendor_id || undefined;
+    if (!inputVendorId) {
+      const ownedVendor = await this.prisma.vendor.findFirst({ where: { owner_user_id: currentUserId } });
+      if (!ownedVendor) throw new NotFoundException('Vendor not found for current user');
+      inputVendorId = ownedVendor.id;
+    }
+
     if (requireOwnership) {
-      const vendor = await this.prisma.vendor.findUnique({ where: { id: data.vendor_id } });
+      const vendor = await this.prisma.vendor.findUnique({ where: { id: inputVendorId } });
       if (!vendor) throw new NotFoundException('Vendor not found');
       const currentUser = await this.prisma.user.findUnique({ where: { id: currentUserId } });
       if (vendor.owner_user_id !== currentUserId && currentUser?.role !== 'ADMIN') {
@@ -26,12 +34,12 @@ export class ProductsService {
       slug: data.slug,
       description: data.description,
       features: data.features ?? [],
-      availableLocations: data.availableLocations ?? [],
+      available_locations: data.availableLocations ?? [],
       tags: data.tags ?? [],
       is_active: data.is_active,
       featured: data.featured,
-      seoTitle: data.seoTitle,
-      seoDescription: data.seoDescription,
+      seo_title: data.seoTitle,
+      seo_description: data.seoDescription,
       delivery_min_days: data.deliveryMinDays,
       delivery_max_days: data.deliveryMaxDays,
       weight: data.weight,
@@ -44,7 +52,7 @@ export class ProductsService {
       brand: data.brand,
       model: data.model,
       material: data.material,
-      vendor: { connect: { id: data.vendor_id } },
+      vendor: { connect: { id: inputVendorId } },
       category: { connect: { id: data.categoryId } },
     };
     if (data.status) createData.status = data.status as ProductStatus;
@@ -57,7 +65,7 @@ export class ProductsService {
       if (!pickupLocationId) {
         const pickupLocation = await this.prisma.productPickupLocation.create({
           data: {
-            vendor_id: data.vendor_id,
+            vendor_id: inputVendorId,
             name: data.pickupLocationName || `${data.pickupCity} Location`,
             address: data.pickupAddress,
             city: data.pickupCity,
@@ -72,7 +80,7 @@ export class ProductsService {
         pickupLocationId = pickupLocation.id;
       }
       
-      createData.pickup_location_id = pickupLocationId;
+      createData.pickup_location = { connect: { id: pickupLocationId } };
     }
     
     // Handle return policy (create or reuse)
@@ -83,7 +91,7 @@ export class ProductsService {
       if (!returnPolicyId) {
         const returnPolicy = await this.prisma.productReturnPolicy.create({
           data: {
-            vendor_id: data.vendor_id,
+            vendor_id: inputVendorId,
             name: data.returnPolicyName || (data.returnsAccepted === false ? 'No Returns' : `${data.returnPeriodDays || 30}-Day Returns`),
             returns_accepted: data.returnsAccepted !== undefined ? data.returnsAccepted : true,
             return_period_days: data.returnPeriodDays,
@@ -97,7 +105,7 @@ export class ProductsService {
         returnPolicyId = returnPolicy.id;
       }
       
-      createData.return_policy_id = returnPolicyId;
+      createData.return_policy = { connect: { id: returnPolicyId } };
     }
     
     // Handle warranty (create or reuse)
@@ -112,7 +120,7 @@ export class ProductsService {
         
         const warranty = await this.prisma.productWarranty.create({
           data: {
-            vendor_id: data.vendor_id,
+            vendor_id: inputVendorId,
             name: data.warrantyName || warrantyName,
             has_warranty: data.hasWarranty || false,
             warranty_period: data.warrantyPeriod,
@@ -125,7 +133,7 @@ export class ProductsService {
         warrantyId = warranty.id;
       }
       
-      createData.warranty_id = warrantyId;
+      createData.warranty = { connect: { id: warrantyId } };
     }
     
     const created = await this.prisma.catalogProduct.create({ data: createData });
@@ -519,9 +527,32 @@ export class ProductsService {
       const user = await this.prisma.user.findUnique({ where: { id: currentUserId } });
       if (!vendor || (vendor.owner_user_id !== currentUserId && user?.role !== 'ADMIN')) throw new ForbiddenException('Not vendor owner');
     }
-    await this.prisma.productVariant.deleteMany({ where: { product_id: id } });
-    await this.prisma.productMedia.deleteMany({ where: { product_id: id } });
-    await this.prisma.catalogProduct.delete({ where: { id } });
+    // Guard: prevent deletion if product has any sales
+    const salesCount = await this.prisma.orderItem.count({ where: { product_id: id } });
+    if (salesCount > 0) {
+      throw new ForbiddenException('Cannot delete a product that has sales');
+    }
+
+    // Cascade delete associated data in a transaction
+    await this.prisma.$transaction([
+      this.prisma.productOptionValue.deleteMany({ where: { option: { product_id: id } } }),
+      this.prisma.productOption.deleteMany({ where: { product_id: id } }),
+      this.prisma.productVariant.deleteMany({ where: { product_id: id } }),
+      this.prisma.productMedia.deleteMany({ where: { product_id: id } }),
+      this.prisma.productBookDetails.deleteMany({ where: { product_id: id } }),
+      this.prisma.productConsumableDetails.deleteMany({ where: { product_id: id } }),
+      this.prisma.productElectronicsDetails.deleteMany({ where: { product_id: id } }),
+      this.prisma.productMediaDetails.deleteMany({ where: { product_id: id } }),
+      this.prisma.productSoftwareDetails.deleteMany({ where: { product_id: id } }),
+      this.prisma.productServiceDetails.deleteMany({ where: { product_id: id } }),
+      this.prisma.productComplianceDetails.deleteMany({ where: { product_id: id } }),
+      this.prisma.collectionProduct.deleteMany({ where: { product_id: id } }),
+      this.prisma.discountProduct.deleteMany({ where: { product_id: id } }),
+      this.prisma.wishlistItem.deleteMany({ where: { product_id: id } }),
+      this.prisma.productReview.deleteMany({ where: { product_id: id } }),
+      this.prisma.inventoryTransaction.deleteMany({ where: { product: { id } } as any }),
+      this.prisma.catalogProduct.delete({ where: { id } }),
+    ]);
     return true;
   }
 
@@ -534,6 +565,19 @@ export class ProductsService {
         vendor: true,
         category: true,
         options: { include: { values: true } },
+        // for salesCount on resolver
+        _count: { select: { order_items: true } },
+        order_items: false,
+        pickup_location: true,
+        return_policy: true,
+        warranty: true,
+        book_details: true,
+        consumable_details: true,
+        electronics_details: true,
+        media_details: true,
+        software_details: true,
+        service_details: true,
+        compliance_details: true,
       }),
     });
   }

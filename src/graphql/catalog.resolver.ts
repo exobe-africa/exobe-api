@@ -43,6 +43,121 @@ export class CatalogResolver {
     private documents: DocumentsService,
   ) {}
 
+  private toProductType(record: any): ProductType {
+    if (!record) return record;
+    return {
+      id: record.id,
+      vendorId: record.vendorId ?? record.vendor_id,
+      categoryId: record.categoryId ?? record.category_id,
+      title: record.title,
+      slug: record.slug,
+      description: record.description ?? undefined,
+      status: record.status,
+      isActive: Boolean(record.isActive ?? record.is_active),
+      featured: Boolean(record.featured),
+      features: record.features ?? undefined,
+      availableLocations: record.availableLocations ?? record.available_locations ?? undefined,
+      variants: Array.isArray(record.variants) ? record.variants.map((v: any) => ({
+        id: v.id,
+        sku: v.sku,
+        title: v.title,
+        priceCents: v.price_cents ?? v.priceCents,
+        compareAtPriceCents: v.compare_at_price_cents ?? v.compareAtPriceCents,
+        barcode: v.barcode,
+        weightGrams: v.weight_grams ?? v.weightGrams,
+        stockQuantity: v.stock_quantity ?? v.stockQuantity,
+        attributes: typeof v.attributes === 'object' ? v.attributes : {},
+        availableLocations: v.availableLocations ?? [],
+        media: undefined,
+      })) : undefined,
+      options: Array.isArray(record.options) ? record.options.map((o: any) => ({
+        id: o.id,
+        name: o.name,
+        position: o.position,
+        values: Array.isArray(o.values) ? o.values.map((val: any) => ({ id: val.id, value: val.value, position: val.position })) : [],
+      })) : undefined,
+      productType: record.product_type ?? record.productType,
+      deliveryMinDays: record.delivery_min_days ?? record.deliveryMinDays,
+      deliveryMaxDays: record.delivery_max_days ?? record.deliveryMaxDays,
+      weight: record.weight ?? undefined,
+      weightUnit: record.weight_unit ?? record.weightUnit,
+      length: record.length ?? undefined,
+      width: record.width ?? undefined,
+      height: record.height ?? undefined,
+      dimensionUnit: record.dimension_unit ?? record.dimensionUnit,
+      tags: record.tags ?? undefined,
+      pickupLocation: record.pickup_location ? {
+        id: record.pickup_location.id,
+        name: record.pickup_location.name,
+        address: record.pickup_location.address,
+        city: record.pickup_location.city,
+        province: record.pickup_location.province,
+        postalCode: record.pickup_location.postal_code,
+        country: record.pickup_location.country,
+        instructions: record.pickup_location.instructions,
+      } : undefined,
+      returnPolicy: record.return_policy ? {
+        id: record.return_policy.id,
+        name: record.return_policy.name,
+        returnsAccepted: record.return_policy.returns_accepted,
+        returnPeriodDays: record.return_policy.return_period_days,
+        returnConditions: record.return_policy.return_conditions,
+        restockingFeePct: record.return_policy.restocking_fee_pct,
+        returnShippingPaidBy: record.return_policy.return_shipping_paid_by,
+      } : undefined,
+      warranty: record.warranty ? {
+        id: record.warranty.id,
+        hasWarranty: record.warranty.has_warranty,
+        warrantyPeriod: record.warranty.warranty_period,
+        warrantyUnit: record.warranty.warranty_unit,
+        warrantyDetails: record.warranty.warranty_details,
+      } : undefined,
+      bookDetails: record.book_details ? {
+        id: record.book_details.id,
+        isbn: record.book_details.isbn,
+        author: record.book_details.author,
+        publisher: record.book_details.publisher,
+        publicationDate: record.book_details.publication_date,
+        pages: record.book_details.pages,
+        language: record.book_details.language,
+        genre: record.book_details.genre,
+        format: record.book_details.format,
+      } : undefined,
+      consumableDetails: record.consumable_details ? {
+        id: record.consumable_details.id,
+        expiryDate: record.consumable_details.expiry_date,
+        ingredients: record.consumable_details.ingredients,
+        allergens: record.consumable_details.allergens,
+        nutritionalInfo: record.consumable_details.nutritional_info,
+      } : undefined,
+      electronicsDetails: record.electronics_details ? {
+        id: record.electronics_details.id,
+        energyRating: record.electronics_details.energy_rating,
+      } : undefined,
+      mediaDetails: record.media_details ? {
+        id: record.media_details.id,
+        artist: record.media_details.artist,
+        genre: record.media_details.genre,
+        format: record.media_details.format,
+        releaseAt: record.media_details.release_at,
+      } : undefined,
+      softwareDetails: record.software_details ? {
+        id: record.software_details.id,
+        platform: record.software_details.platform,
+        licenseType: record.software_details.license_type,
+      } : undefined,
+      serviceDetails: record.service_details ? {
+        id: record.service_details.id,
+        serviceDuration: record.service_details.service_duration,
+      } : undefined,
+      complianceDetails: record.compliance_details ? {
+        id: record.compliance_details.id,
+        ageRating: record.compliance_details.age_rating,
+        certification: record.compliance_details.certification,
+      } : undefined,
+      salesCount: Array.isArray(record.order_items) ? record.order_items.length : (record._count?.order_items ?? 0),
+    } as unknown as ProductType;
+  }
   private toUserAddressType(record: any): UserAddressType {
     if (!record) return record;
     return {
@@ -86,19 +201,21 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductType)
-  createProduct(@Args('input') input: CreateProductInput, @Context() ctx: any) {
-    return this.products.createProduct(input, ctx.req.user.userId, true);
+  async createProduct(@Args('input') input: CreateProductInput, @Context() ctx: any) {
+    const created = await this.products.createProduct(input, ctx.req.user.userId, true);
+    return this.toProductType(created);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
   @Mutation(() => ProductType)
-  updateProduct(
+  async updateProduct(
     @Args('id') id: string,
     @Args('input') input: UpdateProductInput,
     @Context() ctx: any,
   ) {
-    return this.products.updateProduct(id, input, ctx.req.user.userId, true);
+    const updated = await this.products.updateProduct(id, input, ctx.req.user.userId, true);
+    return this.toProductType(updated);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
@@ -109,8 +226,9 @@ export class CatalogResolver {
   }
 
   @Query(() => ProductType, { nullable: true })
-  productById(@Args('id') id: string) {
-    return this.products.getProductById(id);
+  async productById(@Args('id') id: string) {
+    const product = await this.products.getProductById(id);
+    return this.toProductType(product);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)

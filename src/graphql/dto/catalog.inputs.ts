@@ -32,22 +32,20 @@ export class CreateCategoryInput {
 @InputType()
 export class CreateProductInput {
   @Field()
+  @IsString()
   vendorId: string;
   @Field()
+  @IsString()
   categoryId: string;
   @Field()
+  @IsString()
   title: string;
   @Field()
+  @IsString()
   slug: string;
   @Field({ nullable: true })
   @IsOptional()
   description?: string;
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  features?: string[];
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  availableLocations?: string[];
   @Field({ nullable: true })
   @IsOptional()
   status?: string;
@@ -55,6 +53,90 @@ export class CreateProductInput {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+  // Classification
+  @Field({ nullable: true })
+  @IsOptional()
+  productType?: string;
+  // Delivery timeframe
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  deliveryMinDays?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  deliveryMaxDays?: number;
+  // Physical attributes
+  @Field({ nullable: true })
+  @IsOptional()
+  weight?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  weightUnit?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  length?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  width?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  height?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  dimensionUnit?: string;
+  // Pickup location
+  @Field({ nullable: true }) @IsOptional() pickupLocationId?: string;
+  @Field({ nullable: true }) @IsOptional() pickupLocationName?: string;
+  @Field({ nullable: true }) @IsOptional() pickupAddress?: string;
+  @Field({ nullable: true }) @IsOptional() pickupCity?: string;
+  @Field({ nullable: true }) @IsOptional() pickupProvince?: string;
+  @Field({ nullable: true }) @IsOptional() pickupPostalCode?: string;
+  @Field({ nullable: true }) @IsOptional() pickupCountry?: string;
+  @Field({ nullable: true }) @IsOptional() pickupInstructions?: string;
+  // Return policy
+  @Field({ nullable: true }) @IsOptional() returnPolicyId?: string;
+  @Field({ nullable: true }) @IsOptional() returnPolicyName?: string;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() returnsAccepted?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsInt() returnPeriodDays?: number;
+  @Field(() => [String], { nullable: true }) @IsOptional() returnConditions?: string[];
+  @Field({ nullable: true }) @IsOptional() restockingFeePct?: number;
+  @Field({ nullable: true }) @IsOptional() returnShippingPaidBy?: string;
+  // Meta
+  @Field(() => [String], { nullable: true }) @IsOptional() tags?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() features?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() availableLocations?: string[];
+  // Book / Media fields
+  @Field({ nullable: true }) @IsOptional() isbn?: string;
+  @Field({ nullable: true }) @IsOptional() author?: string;
+  @Field({ nullable: true }) @IsOptional() publisher?: string;
+  @Field({ nullable: true }) @IsOptional() publicationDate?: string;
+  @Field({ nullable: true }) @IsOptional() @IsInt() pages?: number;
+  @Field({ nullable: true }) @IsOptional() language?: string;
+  @Field({ nullable: true }) @IsOptional() genre?: string;
+  @Field({ nullable: true }) @IsOptional() format?: string;
+  // General
+  @Field({ nullable: true }) @IsOptional() brand?: string;
+  @Field({ nullable: true }) @IsOptional() model?: string;
+  @Field({ nullable: true }) @IsOptional() material?: string;
+  @Field({ nullable: true }) @IsOptional() colour?: string;
+  @Field({ nullable: true }) @IsOptional() size?: string;
+  // Consumables
+  @Field({ nullable: true }) @IsOptional() expiryDate?: string;
+  @Field({ nullable: true }) @IsOptional() ingredients?: string;
+  @Field({ nullable: true }) @IsOptional() allergens?: string;
+  @Field({ nullable: true }) @IsOptional() nutritionalInfo?: string;
+  @Field({ nullable: true }) @IsOptional() careInstructions?: string;
+  // Electronics
+  @Field({ nullable: true }) @IsOptional() energyRating?: string;
+  // Software
+  @Field({ nullable: true }) @IsOptional() platform?: string;
+  @Field({ nullable: true }) @IsOptional() licenseType?: string;
+  // Service
+  @Field({ nullable: true }) @IsOptional() serviceDuration?: string;
+  // Compliance
+  @Field({ nullable: true }) @IsOptional() certification?: string;
+  // Media uploads
   @Field(() => [MediaUploadInput], { nullable: true })
   @IsOptional()
   mediaUploads?: MediaUploadInput[];
@@ -95,12 +177,6 @@ export class UpdateProductInput {
   @Field({ nullable: true })
   @IsOptional()
   description?: string;
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  features?: string[];
-  @Field(() => [String], { nullable: true })
-  @IsOptional()
-  availableLocations?: string[];
   @Field({ nullable: true })
   @IsOptional()
   status?: string;
@@ -108,6 +184,70 @@ export class UpdateProductInput {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+  // Classification
+  @Field({ nullable: true }) @IsOptional() productType?: string;
+  // Delivery timeframe
+  @Field({ nullable: true }) @IsOptional() @IsInt() deliveryMinDays?: number;
+  @Field({ nullable: true }) @IsOptional() @IsInt() deliveryMaxDays?: number;
+  // Physical attributes
+  @Field({ nullable: true }) @IsOptional() weight?: number;
+  @Field({ nullable: true }) @IsOptional() weightUnit?: string;
+  @Field({ nullable: true }) @IsOptional() length?: number;
+  @Field({ nullable: true }) @IsOptional() width?: number;
+  @Field({ nullable: true }) @IsOptional() height?: number;
+  @Field({ nullable: true }) @IsOptional() dimensionUnit?: string;
+  // Pickup location
+  @Field({ nullable: true }) @IsOptional() pickupLocationId?: string;
+  @Field({ nullable: true }) @IsOptional() pickupLocationName?: string;
+  @Field({ nullable: true }) @IsOptional() pickupAddress?: string;
+  @Field({ nullable: true }) @IsOptional() pickupCity?: string;
+  @Field({ nullable: true }) @IsOptional() pickupProvince?: string;
+  @Field({ nullable: true }) @IsOptional() pickupPostalCode?: string;
+  @Field({ nullable: true }) @IsOptional() pickupCountry?: string;
+  @Field({ nullable: true }) @IsOptional() pickupInstructions?: string;
+  // Return policy
+  @Field({ nullable: true }) @IsOptional() returnPolicyId?: string;
+  @Field({ nullable: true }) @IsOptional() returnPolicyName?: string;
+  @Field({ nullable: true }) @IsOptional() @IsBoolean() returnsAccepted?: boolean;
+  @Field({ nullable: true }) @IsOptional() @IsInt() returnPeriodDays?: number;
+  @Field(() => [String], { nullable: true }) @IsOptional() returnConditions?: string[];
+  @Field({ nullable: true }) @IsOptional() restockingFeePct?: number;
+  @Field({ nullable: true }) @IsOptional() returnShippingPaidBy?: string;
+  // Meta
+  @Field(() => [String], { nullable: true }) @IsOptional() tags?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() features?: string[];
+  @Field(() => [String], { nullable: true }) @IsOptional() availableLocations?: string[];
+  // Book / Media fields
+  @Field({ nullable: true }) @IsOptional() isbn?: string;
+  @Field({ nullable: true }) @IsOptional() author?: string;
+  @Field({ nullable: true }) @IsOptional() publisher?: string;
+  @Field({ nullable: true }) @IsOptional() publicationDate?: string;
+  @Field({ nullable: true }) @IsOptional() @IsInt() pages?: number;
+  @Field({ nullable: true }) @IsOptional() language?: string;
+  @Field({ nullable: true }) @IsOptional() genre?: string;
+  @Field({ nullable: true }) @IsOptional() format?: string;
+  // General
+  @Field({ nullable: true }) @IsOptional() brand?: string;
+  @Field({ nullable: true }) @IsOptional() model?: string;
+  @Field({ nullable: true }) @IsOptional() material?: string;
+  @Field({ nullable: true }) @IsOptional() colour?: string;
+  @Field({ nullable: true }) @IsOptional() size?: string;
+  // Consumables
+  @Field({ nullable: true }) @IsOptional() expiryDate?: string;
+  @Field({ nullable: true }) @IsOptional() ingredients?: string;
+  @Field({ nullable: true }) @IsOptional() allergens?: string;
+  @Field({ nullable: true }) @IsOptional() nutritionalInfo?: string;
+  @Field({ nullable: true }) @IsOptional() careInstructions?: string;
+  // Electronics
+  @Field({ nullable: true }) @IsOptional() energyRating?: string;
+  // Software
+  @Field({ nullable: true }) @IsOptional() platform?: string;
+  @Field({ nullable: true }) @IsOptional() licenseType?: string;
+  // Service
+  @Field({ nullable: true }) @IsOptional() serviceDuration?: string;
+  // Compliance
+  @Field({ nullable: true }) @IsOptional() certification?: string;
+  // Media uploads
   @Field(() => [MediaUploadInput], { nullable: true })
   @IsOptional()
   mediaUploads?: MediaUploadInput[];

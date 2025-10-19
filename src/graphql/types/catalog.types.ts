@@ -71,6 +71,106 @@ export class ProductVariantType {
   media?: ProductMediaType[];
 }
 
+// --- Detail/related GraphQL types used by ProductType ---
+@ObjectType()
+export class ProductPickupLocationGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) name?: string;
+  @Field({ nullable: true }) address?: string;
+  @Field({ nullable: true }) city?: string;
+  @Field({ nullable: true }) province?: string;
+  @Field({ nullable: true }) postalCode?: string;
+  @Field({ nullable: true }) country?: string;
+  @Field({ nullable: true }) instructions?: string;
+}
+
+@ObjectType()
+export class ProductReturnPolicyGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) name?: string;
+  @Field({ nullable: true }) returnsAccepted?: boolean;
+  @Field({ nullable: true }) returnPeriodDays?: number;
+  @Field(() => [String], { nullable: true }) returnConditions?: string[];
+  @Field({ nullable: true }) restockingFeePct?: number;
+  @Field({ nullable: true }) returnShippingPaidBy?: string;
+}
+
+@ObjectType()
+export class ProductWarrantyGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) hasWarranty?: boolean;
+  @Field({ nullable: true }) warrantyPeriod?: number;
+  @Field({ nullable: true }) warrantyUnit?: string;
+  @Field({ nullable: true }) warrantyDetails?: string;
+}
+
+@ObjectType()
+export class ProductBookDetailsGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) isbn?: string;
+  @Field({ nullable: true }) author?: string;
+  @Field({ nullable: true }) publisher?: string;
+  @Field({ nullable: true }) publicationDate?: Date;
+  @Field({ nullable: true }) pages?: number;
+  @Field({ nullable: true }) language?: string;
+  @Field({ nullable: true }) genre?: string;
+  @Field({ nullable: true }) format?: string;
+}
+
+@ObjectType()
+export class ProductConsumableDetailsGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) expiryDate?: Date;
+  @Field(() => GraphQLJSONObject, { nullable: true }) ingredients?: any;
+  @Field(() => GraphQLJSONObject, { nullable: true }) allergens?: any;
+  @Field(() => GraphQLJSONObject, { nullable: true }) nutritionalInfo?: any;
+}
+
+@ObjectType()
+export class ProductElectronicsDetailsGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) energyRating?: string;
+}
+
+@ObjectType()
+export class ProductMediaDetailsGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) artist?: string;
+  @Field({ nullable: true }) genre?: string;
+  @Field({ nullable: true }) format?: string;
+  @Field({ nullable: true }) releaseAt?: Date;
+}
+
+@ObjectType()
+export class ProductSoftwareDetailsGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) platform?: string;
+  @Field({ nullable: true }) licenseType?: string;
+}
+
+@ObjectType()
+export class ProductServiceDetailsGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) serviceDuration?: string;
+}
+
+@ObjectType()
+export class ProductComplianceDetailsGQL {
+  @Field(() => ID)
+  id: string;
+  @Field({ nullable: true }) ageRating?: string;
+  @Field({ nullable: true }) certification?: string;
+}
+
 @ObjectType()
 export class ProductType {
   @Field(() => ID)
@@ -95,6 +195,55 @@ export class ProductType {
   features?: string[];
   @Field(() => [String], { nullable: true })
   availableLocations?: string[];
+  // Additional fields needed by edit page
+  @Field({ nullable: true })
+  productType?: string;
+  @Field({ nullable: true })
+  deliveryMinDays?: number;
+  @Field({ nullable: true })
+  deliveryMaxDays?: number;
+  @Field({ nullable: true })
+  weight?: number;
+  @Field({ nullable: true })
+  weightUnit?: string;
+  @Field({ nullable: true })
+  length?: number;
+  @Field({ nullable: true })
+  width?: number;
+  @Field({ nullable: true })
+  height?: number;
+  @Field({ nullable: true })
+  dimensionUnit?: string;
+  @Field(() => [String], { nullable: true })
+  tags?: string[];
+  @Field(() => [ProductVariantType], { nullable: true })
+  variants?: ProductVariantType[];
+  @Field(() => [ProductOptionType], { nullable: true })
+  options?: ProductOptionType[];
+  @Field({ nullable: true })
+  salesCount?: number;
+  // Related configs
+  @Field(() => ProductPickupLocationGQL, { nullable: true })
+  pickupLocation?: ProductPickupLocationGQL;
+  @Field(() => ProductReturnPolicyGQL, { nullable: true })
+  returnPolicy?: ProductReturnPolicyGQL;
+  @Field(() => ProductWarrantyGQL, { nullable: true })
+  warranty?: ProductWarrantyGQL;
+  // Detail tables
+  @Field(() => ProductBookDetailsGQL, { nullable: true })
+  bookDetails?: ProductBookDetailsGQL;
+  @Field(() => ProductConsumableDetailsGQL, { nullable: true })
+  consumableDetails?: ProductConsumableDetailsGQL;
+  @Field(() => ProductElectronicsDetailsGQL, { nullable: true })
+  electronicsDetails?: ProductElectronicsDetailsGQL;
+  @Field(() => ProductMediaDetailsGQL, { nullable: true })
+  mediaDetails?: ProductMediaDetailsGQL;
+  @Field(() => ProductSoftwareDetailsGQL, { nullable: true })
+  softwareDetails?: ProductSoftwareDetailsGQL;
+  @Field(() => ProductServiceDetailsGQL, { nullable: true })
+  serviceDetails?: ProductServiceDetailsGQL;
+  @Field(() => ProductComplianceDetailsGQL, { nullable: true })
+  complianceDetails?: ProductComplianceDetailsGQL;
 }
 
 @ObjectType()

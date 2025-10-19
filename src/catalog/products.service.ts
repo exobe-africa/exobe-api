@@ -100,6 +100,34 @@ export class ProductsService {
       createData.return_policy_id = returnPolicyId;
     }
     
+    // Handle warranty (create or reuse)
+    if (data.hasWarranty || data.warrantyPeriod) {
+      let warrantyId = data.warrantyId;
+      
+      // If no existing warranty ID provided, create new warranty
+      if (!warrantyId) {
+        const warrantyName = data.hasWarranty && data.warrantyPeriod 
+          ? `${data.warrantyPeriod} ${data.warrantyUnit || 'month'}${data.warrantyPeriod > 1 ? 's' : ''} warranty`
+          : 'No Warranty';
+        
+        const warranty = await this.prisma.productWarranty.create({
+          data: {
+            vendor_id: data.vendor_id,
+            name: data.warrantyName || warrantyName,
+            has_warranty: data.hasWarranty || false,
+            warranty_period: data.warrantyPeriod,
+            warranty_unit: data.warrantyUnit || 'months',
+            warranty_details: data.warrantyDetails,
+            is_default: false,
+            is_active: true,
+          },
+        });
+        warrantyId = warranty.id;
+      }
+      
+      createData.warranty_id = warrantyId;
+    }
+    
     const created = await this.prisma.catalogProduct.create({ data: createData });
 
     // Write normalized detail tables based on product_type
@@ -132,6 +160,15 @@ export class ProductsService {
           ingredientsData = data.ingredients;
         }
       }
+      // Parse allergens if provided
+      let allergensData: any = undefined;
+      if (data.allergens) {
+        try {
+          allergensData = typeof data.allergens === 'string' ? JSON.parse(data.allergens) : data.allergens;
+        } catch (e) {
+          allergensData = data.allergens;
+        }
+      }
       
       // Parse nutritionalInfo only if it's a valid JSON string, otherwise omit field
       let nutritionalData: any = undefined;
@@ -149,6 +186,7 @@ export class ProductsService {
         expiry_date: data.expiryDate ? new Date(data.expiryDate) : null,
       };
       if (ingredientsData !== undefined) consumableCreateData.ingredients = ingredientsData;
+      if (allergensData !== undefined) consumableCreateData.allergens = allergensData;
       if (nutritionalData !== undefined) consumableCreateData.nutritional_info = nutritionalData;
       
       await this.prisma.productConsumableDetails.create({ data: consumableCreateData });
@@ -159,7 +197,6 @@ export class ProductsService {
       await this.prisma.productElectronicsDetails.create({
         data: {
           product_id: created.id,
-          warranty_period: data.warrantyPeriod ?? null,
           energy_rating: data.energyRating ?? null,
         },
       });
@@ -362,7 +399,7 @@ export class ProductsService {
     }
 
     // Consumables
-    if (['FOOD', 'BEVERAGE', 'HEALTH', 'PET', 'BEAUTY'].includes(updateData.product_type) || data.expiryDate || data.ingredients || data.nutritionalInfo) {
+    if (['FOOD', 'BEVERAGE', 'HEALTH', 'PET', 'BEAUTY'].includes(updateData.product_type) || data.expiryDate || data.ingredients || data.nutritionalInfo || data.allergens) {
       const exists = await this.prisma.productConsumableDetails.findUnique({ where: { product_id: id } as any });
       
       // Parse ingredients if it's a JSON string (array format from frontend)
@@ -373,6 +410,15 @@ export class ProductsService {
         } catch (e) {
           // If parsing fails, store as plain text
           ingredientsData = data.ingredients;
+        }
+      }
+      // Parse allergens
+      let allergensData = undefined;
+      if (data.allergens) {
+        try {
+          allergensData = typeof data.allergens === 'string' ? JSON.parse(data.allergens) : data.allergens;
+        } catch (e) {
+          allergensData = data.allergens;
         }
       }
       
@@ -390,6 +436,7 @@ export class ProductsService {
         product_id: id,
         expiry_date: data.expiryDate ? new Date(data.expiryDate) : undefined,
         ingredients: ingredientsData,
+        allergens: allergensData,
         nutritional_info: nutritionalData,
       };
       if (exists) await this.prisma.productConsumableDetails.update({ where: { id: exists.id }, data: payload });

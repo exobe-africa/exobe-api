@@ -58,6 +58,27 @@ export class CreateProductInput {
   @Field(() => [MediaUploadInput], { nullable: true })
   @IsOptional()
   mediaUploads?: MediaUploadInput[];
+  // Warranty fields
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyId?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyName?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  hasWarranty?: boolean;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  warrantyPeriod?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyUnit?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyDetails?: string;
 }
 
 @InputType()
@@ -90,6 +111,27 @@ export class UpdateProductInput {
   @Field(() => [MediaUploadInput], { nullable: true })
   @IsOptional()
   mediaUploads?: MediaUploadInput[];
+  // Warranty fields
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyId?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyName?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  hasWarranty?: boolean;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  warrantyPeriod?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyUnit?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  warrantyDetails?: string;
 }
 
 @InputType()

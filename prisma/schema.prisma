@@ -241,6 +241,7 @@ model Vendor {
   collections             Collection[]
   pickup_locations        ProductPickupLocation[]
   return_policies         ProductReturnPolicy[]
+  warranties              ProductWarranty[]
   notification_settings   VendorNotificationSettings?
   retailer_account        RetailerAccount?
   wholesaler_account      WholesalerAccount?
@@ -727,6 +728,8 @@ model CatalogProduct {
   pickup_location     ProductPickupLocation? @relation(fields: [pickup_location_id], references: [id])
   return_policy_id    String?          @db.VarChar(25)
   return_policy       ProductReturnPolicy? @relation(fields: [return_policy_id], references: [id])
+  warranty_id         String?          @db.VarChar(25)
+  warranty            ProductWarranty? @relation(fields: [warranty_id], references: [id])
   options             ProductOption[]
   variants            ProductVariant[]
   media               ProductMedia[]
@@ -769,6 +772,7 @@ model ProductConsumableDetails {
   product           CatalogProduct  @relation(fields: [product_id], references: [id], onDelete: Cascade)
   expiry_date       DateTime?
   ingredients       Json?
+  allergens         Json?
   nutritional_info  Json?
   created_at        DateTime        @default(now())
   updated_at        DateTime        @updatedAt
@@ -780,7 +784,6 @@ model ProductElectronicsDetails {
   id              String          @id @default(cuid()) @db.VarChar(25)
   product_id      String          @unique @db.VarChar(25)
   product         CatalogProduct  @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  warranty_period Int?
   energy_rating   String?         @db.VarChar(10)
   created_at      DateTime        @default(now())
   updated_at      DateTime        @updatedAt
@@ -876,6 +879,25 @@ model ProductReturnPolicy {
 
   @@index([vendor_id])
   @@map("product_return_policies")
+}
+
+model ProductWarranty {
+  id               String           @id @default(cuid()) @db.VarChar(25)
+  vendor_id        String           @db.VarChar(25)
+  vendor           Vendor           @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
+  name             String?          @db.VarChar(100)
+  has_warranty     Boolean          @default(false)
+  warranty_period  Int?
+  warranty_unit    String?          @db.VarChar(10)
+  warranty_details String?          @db.Text
+  is_default       Boolean          @default(false)
+  is_active        Boolean          @default(true)
+  products         CatalogProduct[]
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  @@index([vendor_id])
+  @@map("product_warranties")
 }
 
 model ProductReview {

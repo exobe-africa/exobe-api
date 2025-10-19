@@ -68,7 +68,7 @@ export class CatalogResolver {
         stockQuantity: v.stock_quantity ?? v.stockQuantity,
         attributes: typeof v.attributes === 'object' ? v.attributes : {},
         availableLocations: v.availableLocations ?? [],
-        media: undefined,
+        media: Array.isArray(record.media) ? record.media.map((m:any)=>({ id: m.id, url: m.url, type: m.type, position: m.position })) : undefined,
       })) : undefined,
       options: Array.isArray(record.options) ? record.options.map((o: any) => ({
         id: o.id,

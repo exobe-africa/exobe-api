@@ -281,9 +281,9 @@ export class ProductsService {
       const user = await this.prisma.user.findUnique({ where: { id: currentUserId } });
       if (!vendor || (vendor.owner_user_id !== currentUserId && user?.role !== 'ADMIN')) throw new ForbiddenException('Not vendor owner');
     }
-    const updateData: any = { ...data };
+    const updateData: any = {};
     if (data.features) updateData.features = data.features;
-    if (data.availableLocations) updateData.availableLocations = data.availableLocations;
+    if (data.availableLocations) updateData.available_locations = data.availableLocations;
     if (data.tags) updateData.tags = data.tags;
     if (data.deliveryMinDays !== undefined) updateData.delivery_min_days = data.deliveryMinDays;
     if (data.deliveryMaxDays !== undefined) updateData.delivery_max_days = data.deliveryMaxDays;
@@ -297,9 +297,10 @@ export class ProductsService {
     if (data.brand) updateData.brand = data.brand;
     if (data.model) updateData.model = data.model;
     if (data.material) updateData.material = data.material;
-    if (data.category_id) {
+    if (data.categoryId) {
+      updateData.category = { connect: { id: data.categoryId } };
+    } else if (data.category_id) {
       updateData.category = { connect: { id: data.category_id } };
-      delete updateData.categoryId;
     }
     if (data.status) updateData.status = data.status as ProductStatus;
     
@@ -342,7 +343,7 @@ export class ProductsService {
         });
       }
       
-      updateData.pickup_location_id = pickupLocationId;
+      updateData.pickup_location = { connect: { id: pickupLocationId } };
     }
     
     // Handle return policy update
@@ -382,7 +383,7 @@ export class ProductsService {
         });
       }
       
-      updateData.return_policy_id = returnPolicyId;
+      updateData.return_policy = { connect: { id: returnPolicyId } };
     }
     
     const updated = await this.prisma.catalogProduct.update({ where: { id }, data: updateData });
@@ -503,8 +504,8 @@ export class ProductsService {
     if (Array.isArray(data.mediaUploads) && data.mediaUploads.length > 0) {
       for (const [idx, m] of data.mediaUploads.entries()) {
         if (!m?.base64 || !m?.filename) continue;
-        const buf = Buffer.from(m.base64.split(',').pop() || m.base64, 'base64');
-        const path = `products/${id}/${Date.now()}-${m.filename}`;
+        const buf = Buffer.from((m.base64 as string).split(',').pop() || m.base64, 'base64');
+        const path = `products/${id}/${m.filename}`;
         const uploaded = await this.storage.uploadFileFromBuffer(path, buf, m.contentType || undefined);
         await this.prisma.productMedia.create({
           data: {
@@ -557,29 +558,33 @@ export class ProductsService {
   }
 
   getProductById(id: string) {
-    return this.prisma.catalogProduct.findUnique({
-      where: { id },
-      include: ({} as any).constructor({
-        variants: true,
-        media: true,
-        vendor: true,
-        category: true,
-        options: { include: { values: true } },
-        // for salesCount on resolver
-        _count: { select: { order_items: true } },
-        order_items: false,
-        pickup_location: true,
-        return_policy: true,
-        warranty: true,
-        book_details: true,
-        consumable_details: true,
-        electronics_details: true,
-        media_details: true,
-        software_details: true,
-        service_details: true,
-        compliance_details: true,
-      }),
-    });
+    return this.prisma.catalogProduct
+      .findUnique({
+        where: { id },
+        include: ({} as any).constructor({
+          variants: true,
+          media: true,
+          vendor: true,
+          category: true,
+          options: { include: { values: true } },
+          pickup_location: true,
+          return_policy: true,
+          warranty: true,
+          book_details: true,
+          consumable_details: true,
+          electronics_details: true,
+          media_details: true,
+          software_details: true,
+          service_details: true,
+          compliance_details: true,
+        }),
+      })
+      .then(async (record) => {
+        if (!record) return record as any;
+        // Compute sales_count from order items relation (not exposed on include)
+        const sales_count = await this.prisma.orderItem.count({ where: { product_id: id } });
+        return { ...(record as any), sales_count } as any;
+      });
   }
 
   listProductsByVendor(vendor_id: string) {
@@ -606,6 +611,7 @@ export class ProductsService {
       take: limit + 1,
       cursor: cursor ? { id: cursor } : undefined,
       skip: cursor ? 1 : 0,
+      include: ({} as any).constructor({ media: true, category: true })
     });
     let nextCursor: string | null = null;
     if (results.length > limit) {

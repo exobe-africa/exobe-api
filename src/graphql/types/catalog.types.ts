@@ -216,6 +216,8 @@ export class ProductType {
   dimensionUnit?: string;
   @Field(() => [String], { nullable: true })
   tags?: string[];
+  @Field(() => [ProductMediaType], { nullable: true })
+  media?: ProductMediaType[];
   @Field(() => [ProductVariantType], { nullable: true })
   variants?: ProductVariantType[];
   @Field(() => [ProductOptionType], { nullable: true })

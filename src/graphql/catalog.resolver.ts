@@ -88,6 +88,7 @@ export class CatalogResolver {
       tags: record.tags ?? undefined,
       priceInCents: record.price_in_cents ?? record.priceInCents,
       compareAtPriceInCents: record.compare_at_price_in_cents ?? record.compareAtPriceInCents,
+      stockQuantity: record.stock_quantity ?? record.stockQuantity ?? undefined,
       media: Array.isArray(record.media) ? record.media.map((m: any) => ({
         id: m.id,
         url: m.url,

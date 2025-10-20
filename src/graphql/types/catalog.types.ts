@@ -221,6 +221,9 @@ export class ProductType {
   priceInCents?: number;
   @Field({ nullable: true })
   compareAtPriceInCents?: number;
+  // Product-level inventory (when no variants)
+  @Field({ nullable: true })
+  stockQuantity?: number;
   @Field(() => [ProductMediaType], { nullable: true })
   media?: ProductMediaType[];
   @Field(() => [ProductVariantType], { nullable: true })

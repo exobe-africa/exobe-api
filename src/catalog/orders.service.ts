@@ -82,28 +82,63 @@ export class OrdersService {
     discount_code?: string;
   }) {
     const customer = await this.ensureCustomerForUserOrGuest(params);
-    const variants = await this.prisma.productVariant.findMany({ where: { id: { in: params.items.map(i => i.variant_id) } } });
-    if (variants.length !== params.items.length) throw new NotFoundException('One or more variants not found');
+    
+    const variantIds = params.items.map(i => i.variant_id);
+    const variants = await this.prisma.productVariant.findMany({ where: { id: { in: variantIds } } });
+    
+    const foundVariantIds = variants.map(v => v.id);
+    const missingIds = variantIds.filter(id => !foundVariantIds.includes(id));
+    
+    const productsWithoutVariants = missingIds.length > 0
+      ? await this.prisma.catalogProduct.findMany({ where: { id: { in: missingIds } } })
+      : [];
+
+    if (variants.length + productsWithoutVariants.length !== params.items.length) {
+      throw new NotFoundException('One or more products/variants not found');
+    }
 
     const items = params.items.map(i => {
-      const v = variants.find(x => x.id === i.variant_id)!;
+      const v = variants.find(x => x.id === i.variant_id);
+      if (v) {
+        return {
+          is_product_level: false,
+          product_variant_id: v.id,
+          product_id: v.product_id,
+          vendor_id: undefined as any,
+          sku: (v.sku ?? v.id) as any,
+          title: v.title,
+          attributes: v.attributes as any,
+          price_cents: v.price_cents,
+          quantity: i.quantity,
+          total_cents: v.price_cents * i.quantity,
+        } as any;
+      }
+      
+      const p = productsWithoutVariants.find(x => x.id === i.variant_id);
+      if (!p) throw new NotFoundException(`Product/variant ${i.variant_id} not found`);
+      
       return {
-        product_variant_id: v.id,
-        product_id: v.product_id,
-        vendor_id: undefined as any,
-        sku: v.sku,
-        title: v.title,
-        attributes: v.attributes as any,
-        price_cents: v.price_cents,
+        is_product_level: true,
+        // Use product id as surrogate for product_variant_id to satisfy NOT NULL
+        product_variant_id: p.id,
+        product_id: p.id,
+        vendor_id: p.vendor_id,
+        sku: (p.sku ?? p.id) as any,
+        title: p.title,
+        attributes: {} as any,
+        price_cents: p.price_in_cents || 0,
         quantity: i.quantity,
-        total_cents: v.price_cents * i.quantity,
-      };
+        total_cents: (p.price_in_cents || 0) * i.quantity,
+      } as any;
     });
 
-    const products = await this.prisma.catalogProduct.findMany({ where: { id: { in: items.map(i => i.product_id) } } });
+    const allProductIds = [...new Set(items.map(i => i.product_id))];
+    const products = await this.prisma.catalogProduct.findMany({ where: { id: { in: allProductIds } } });
     for (const it of items) {
-      const p = products.find(pp => pp.id === it.product_id)!;
-      it.vendor_id = p.vendor_id;
+      if (!it.vendor_id) {
+        const p = products.find(pp => pp.id === it.product_id)!;
+        it.vendor_id = p.vendor_id;
+      }
     }
 
     const subtotal = items.reduce((s, i) => s + i.total_cents, 0);
@@ -175,20 +210,29 @@ export class OrdersService {
         }
       }
       await (tx as any).orderEvent.create({ data: { order_id: order.id, status: 'PENDING', payment_status: 'INITIATED', description: 'Order created' } });
-      for (const it of items) {
-        await (tx as any).orderItem.create({ data: { ...it, order_id: order.id } });
-        await tx.productVariant.update({
-          where: { id: it.product_variant_id },
-          data: { stock_quantity: { decrement: it.quantity } as any },
-        });
-        await (tx as any).inventoryTransaction.create({ data: { variant_id: it.product_variant_id, change: -it.quantity, reason: 'SALE' } });
+      for (const it of items as any[]) {
+        const { is_product_level, ...dbItem } = it;
+        await (tx as any).orderItem.create({ data: { ...dbItem, order: { connect: { id: order.id } } } });
+        
+        if (!is_product_level) {
+          await tx.productVariant.update({
+            where: { id: dbItem.product_variant_id },
+            data: { stock_quantity: { decrement: dbItem.quantity } as any },
+          });
+          await (tx as any).inventoryTransaction.create({ data: { variant_id: dbItem.product_variant_id, change: -dbItem.quantity, reason: 'SALE' } });
+        } else {
+          await tx.catalogProduct.update({
+            where: { id: dbItem.product_id },
+            data: { stock_quantity: { decrement: dbItem.quantity } as any },
+          });
+        }
       }
-      return order;
+      return { id: order.id } as any;
     });
-    // Notify vendors and customer (fire & forget)
-    try { await this.vendorNotifs.sendNewOrderEmailsForVendors(result as any); } catch {}
-    try { await this.customerNotifs.sendOrderConfirmationEmail(result as any); } catch {}
-    return result;
+    const fullOrder = await (this.prisma as any).order.findUnique({ where: { id: (result as any).id }, include: { items: true, events: true } });
+    try { await this.vendorNotifs.sendNewOrderEmailsForVendors(fullOrder as any); } catch {}
+    try { await this.customerNotifs.sendOrderConfirmationEmail(fullOrder as any); } catch {}
+    return fullOrder;
   }
 
   async getVatRates(country?: string) {
@@ -219,15 +263,12 @@ export class OrdersService {
           description: 'Order updated',
         },
       });
-      // Notify vendors of status change
       try { await this.vendorNotifs.sendOrderStatusChangeEmail(updated, 'Order updated'); } catch {}
       
-      // Notify customer of shipping update when status changes to SHIPPED
       if (input.status === 'SHIPPED') {
         try { await this.customerNotifs.sendShippingUpdateEmail(updated); } catch {}
       }
       
-      // Notify customer of delivery when status changes to FULFILLED
       if (input.status === 'FULFILLED') {
         try { await this.customerNotifs.sendDeliveryNotificationEmail(updated); } catch {}
       }

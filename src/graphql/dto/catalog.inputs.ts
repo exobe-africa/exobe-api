@@ -1,5 +1,6 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Min, IsObject, ValidateNested, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
 import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType()
@@ -497,6 +498,7 @@ export class UpdateUserAddressInput {
 @InputType()
 export class CreateOrderItemInput {
   @Field()
+  @IsString()
   variant_id: string;
   @Field()
   @IsInt()
@@ -509,23 +511,33 @@ export class CreateOrderInput {
   @IsOptional()
   userId?: string;
   @Field()
+  @IsEmail()
   email: string;
   @Field()
+  @IsString()
   first_name: string;
   @Field()
+  @IsString()
   last_name: string;
   @Field({ nullable: true })
   @IsOptional()
+  @IsString()
   phone?: string;
   @Field({ nullable: true })
   @IsOptional()
+  @IsString()
   mobile?: string;
   @Field(() => GraphQLJSONObject)
+  @IsObject()
   shippingAddress: Record<string, any>;
   @Field(() => GraphQLJSONObject, { nullable: true })
   @IsOptional()
+  @IsObject()
   billingAddress?: Record<string, any>;
   @Field(() => [CreateOrderItemInput])
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemInput)
   items: CreateOrderItemInput[];
   @Field({ nullable: true })
   @IsOptional()

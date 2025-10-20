@@ -12,7 +12,22 @@ export class WishlistsService {
   }
 
   async getWishlist(userId: string) {
-    return (this.prisma as any).wishlist.findFirst({ where: { user_id: userId }, include: { items: { include: { product: true } } } });
+    return (this.prisma as any).wishlist.findFirst({
+      where: { user_id: userId },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                media: true,
+                category: true,
+                variants: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   async addToWishlist(userId: string, input: { product_id: string; product_variant_id?: string }) {

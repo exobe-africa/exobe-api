@@ -465,6 +465,8 @@ export class WishlistItemType {
   product_variant_id?: string;
   @Field()
   created_at: string;
+  @Field(() => ProductType, { nullable: true })
+  product?: ProductType;
 }
 
 @ObjectType()

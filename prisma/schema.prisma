@@ -704,6 +704,14 @@ model CatalogProduct {
   title               String           @db.VarChar(200)
   slug                String           @unique @db.VarChar(191)
   description         String?          @db.Text
+  price_in_cents      Int?
+  compare_at_price_in_cents Int?
+  sku                   String?          @db.VarChar(64)
+  barcode             String?          @db.VarChar(64)
+  weight_grams        Int?
+  track_inventory     Boolean          @default(true)
+  allow_backorder     Boolean          @default(false)
+  stock_quantity      Int              @default(0)
   status              ProductStatus    @default(DRAFT)
   is_active           Boolean          @default(false)
   featured            Boolean          @default(false)

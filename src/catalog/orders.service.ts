@@ -294,7 +294,18 @@ export class OrdersService {
   async trackOrder(orderNumber: string, email: string) {
     const order = await (this.prisma as any).order.findFirst({
       where: { order_number: orderNumber, email },
-      include: { items: true },
+      include: { 
+        items: {
+          include: {
+            product: {
+              include: {
+                media: true
+              }
+            }
+          }
+        },
+        events: true
+      },
     });
     if (!order) throw new NotFoundException('Order not found');
     return order;

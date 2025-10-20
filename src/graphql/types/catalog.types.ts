@@ -340,6 +340,8 @@ export class OrderItemType {
   quantity: number;
   @Field()
   total_cents: number;
+  @Field(() => ProductType, { nullable: true })
+  product?: ProductType;
 }
 
 @ObjectType()

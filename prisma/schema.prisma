@@ -378,6 +378,7 @@ model OrderItem {
   order_id           String @db.VarChar(25)
   order              Order  @relation(fields: [order_id], references: [id], onDelete: Cascade)
   product_id         String @db.VarChar(25)
+  product            CatalogProduct @relation(fields: [product_id], references: [id])
   product_variant_id String @db.VarChar(25)
   vendor_id          String @db.VarChar(25)
   sku                String @db.VarChar(64)
@@ -750,6 +751,7 @@ model CatalogProduct {
   compliance_details  ProductComplianceDetails?
   wishlist_items      WishlistItem[]
   reviews             ProductReview[]
+  order_items         OrderItem[]
   created_at          DateTime         @default(now())
   updated_at          DateTime         @updatedAt
 

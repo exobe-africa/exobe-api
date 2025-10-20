@@ -12,7 +12,6 @@ export class ApplicationsService {
   ) {}
 
   async applySeller(input: SellerApplicationInput, sellerRole: Role) {
-    // Validate required fields before processing
     if (!input.firstName || !input.lastName || !input.email || !input.phone) {
       throw new BadRequestException('Required contact information is missing');
     }
@@ -33,7 +32,6 @@ export class ApplicationsService {
       throw new BadRequestException('You must agree to the terms and conditions');
     }
 
-    // Map camelCase input to snake_case database fields
     const data = {
       seller_role: sellerRole,
       business_type: input.businessType,

@@ -616,7 +616,11 @@ export class ProductsService {
       take: limit + 1,
       cursor: cursor ? { id: cursor } : undefined,
       skip: cursor ? 1 : 0,
-      include: ({} as any).constructor({ media: true, category: true })
+      include: {
+        media: true,
+        category: true,
+        variants: true
+      }
     });
     let nextCursor: string | null = null;
     if (results.length > limit) {

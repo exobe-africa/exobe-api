@@ -230,6 +230,8 @@ export class ProductType {
   @Field({ nullable: true })
   salesCount?: number;
   // Related configs
+  @Field(() => CategoryType, { nullable: true })
+  category?: CategoryType;
   @Field(() => ProductPickupLocationGQL, { nullable: true })
   pickupLocation?: ProductPickupLocationGQL;
   @Field(() => ProductReturnPolicyGQL, { nullable: true })

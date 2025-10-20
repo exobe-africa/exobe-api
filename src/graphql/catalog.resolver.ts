@@ -88,6 +88,12 @@ export class CatalogResolver {
       tags: record.tags ?? undefined,
       priceInCents: record.price_in_cents ?? record.priceInCents,
       compareAtPriceInCents: record.compare_at_price_in_cents ?? record.compareAtPriceInCents,
+      media: Array.isArray(record.media) ? record.media.map((m: any) => ({
+        id: m.id,
+        url: m.url,
+        type: m.type,
+        position: m.position,
+      })) : undefined,
       pickupLocation: record.pickup_location ? {
         id: record.pickup_location.id,
         name: record.pickup_location.name,
@@ -158,6 +164,15 @@ export class CatalogResolver {
         certification: record.compliance_details.certification,
       } : undefined,
       salesCount: Array.isArray(record.order_items) ? record.order_items.length : (record._count?.order_items ?? 0),
+      category: record.category ? {
+        id: record.category.id,
+        name: record.category.name,
+        slug: record.category.slug,
+        description: record.category.description,
+        parentId: record.category.parent_id,
+        path: record.category.path,
+        isActive: Boolean(record.category.is_active),
+      } : undefined,
     } as unknown as ProductType;
   }
   private toUserAddressType(record: any): UserAddressType {
@@ -345,7 +360,11 @@ export class CatalogResolver {
   ) {
     return this.products
       .listProductsPaged({ query, categoryId, vendorId, status, isActive, cursor, limit })
-      .then((r) => JSON.stringify(r));
+      .then((r) => {
+        // Transform each product using toProductType helper
+        const transformedItems = r.items.map((item: any) => this.toProductType(item));
+        return JSON.stringify({ ...r, items: transformedItems });
+      });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)

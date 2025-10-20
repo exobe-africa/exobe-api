@@ -23,22 +23,39 @@ export class WishlistsService {
     const product = await this.prisma.catalogProduct.findUnique({ where: { id: input.product_id } });
     if (!product) throw new NotFoundException('Product not found');
 
+    // If a variant is specified, validate then upsert by unique composite key
     if (input.product_variant_id) {
       const variant = await this.prisma.productVariant.findUnique({ where: { id: input.product_variant_id } });
       if (!variant) throw new NotFoundException('Variant not found');
+      return (this.prisma as any).wishlistItem.upsert({
+        where: {
+          wishlist_id_product_id_product_variant_id: {
+            wishlist_id: wl.id,
+            product_id: input.product_id,
+            product_variant_id: input.product_variant_id,
+          },
+        },
+        create: { wishlist_id: wl.id, product_id: input.product_id, product_variant_id: input.product_variant_id },
+        update: {},
+      });
     }
-    return (this.prisma as any).wishlistItem.upsert({
-      where: { wishlist_id_product_id_product_variant_id: { wishlist_id: wl.id, product_id: input.product_id, product_variant_id: input.product_variant_id ?? null } },
-      create: { wishlist_id: wl.id, product_id: input.product_id, product_variant_id: input.product_variant_id ?? null },
-      update: {},
+
+    // No variant: upsert cannot be used with nullable field inside a composite key.
+    // Do find-first then create if needed.
+    const existing = await (this.prisma as any).wishlistItem.findFirst({
+      where: { wishlist_id: wl.id, product_id: input.product_id, product_variant_id: null },
+    });
+    if (existing) return existing;
+    return (this.prisma as any).wishlistItem.create({
+      data: { wishlist_id: wl.id, product_id: input.product_id, product_variant_id: null },
     });
   }
 
   async removeFromWishlist(userId: string, input: { product_id: string; product_variant_id?: string }) {
     const wl = await (this.prisma as any).wishlist.findFirst({ where: { user_id: userId } });
     if (!wl) return true;
-    const item = await (this.prisma as any).wishlistItem.findUnique({
-      where: { wishlist_id_product_id_product_variant_id: { wishlist_id: wl.id, product_id: input.product_id, product_variant_id: input.product_variant_id ?? null } },
+    const item = await (this.prisma as any).wishlistItem.findFirst({
+      where: { wishlist_id: wl.id, product_id: input.product_id, product_variant_id: input.product_variant_id ?? null },
     });
     if (!item) return true;
     await (this.prisma as any).wishlistItem.delete({ where: { id: item.id } });

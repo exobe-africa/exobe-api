@@ -473,6 +473,8 @@ export class WishlistType {
   id: string;
   @Field(() => [WishlistItemType])
   items: WishlistItemType[];
+  @Field()
+  count: number;
 }
 
 @ObjectType()

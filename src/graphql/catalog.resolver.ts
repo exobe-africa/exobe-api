@@ -538,7 +538,7 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => WishlistType, { nullable: true })
   myWishlist(@Context() ctx: any) {
-    return this.wishlists.getWishlist(ctx.req.user.userId);
+    return this.wishlists.getWishlist(ctx.req.user.userId).then((wl) => wl ? { ...wl, count: wl.items?.length ?? 0 } : null);
   }
 
   @UseGuards(GqlAuthGuard)

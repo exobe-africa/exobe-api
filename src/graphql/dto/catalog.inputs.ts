@@ -69,6 +69,16 @@ export class CreateProductInput {
   // Physical attributes
   @Field({ nullable: true })
   @IsOptional()
+  @IsInt()
+  @Min(0)
+  priceInCents?: number;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  compareAtPriceInCents?: number;
+  @Field({ nullable: true })
+  @IsOptional()
   weight?: number;
   @Field({ nullable: true })
   @IsOptional()
@@ -190,6 +200,8 @@ export class UpdateProductInput {
   @Field({ nullable: true }) @IsOptional() @IsInt() deliveryMinDays?: number;
   @Field({ nullable: true }) @IsOptional() @IsInt() deliveryMaxDays?: number;
   // Physical attributes
+  @Field({ nullable: true }) @IsOptional() @IsInt() @Min(0) priceInCents?: number;
+  @Field({ nullable: true }) @IsOptional() @IsInt() @Min(0) compareAtPriceInCents?: number;
   @Field({ nullable: true }) @IsOptional() weight?: number;
   @Field({ nullable: true }) @IsOptional() weightUnit?: string;
   @Field({ nullable: true }) @IsOptional() length?: number;

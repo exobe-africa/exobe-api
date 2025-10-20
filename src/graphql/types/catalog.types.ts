@@ -216,6 +216,11 @@ export class ProductType {
   dimensionUnit?: string;
   @Field(() => [String], { nullable: true })
   tags?: string[];
+  // Pricing (when no variants)
+  @Field({ nullable: true })
+  priceInCents?: number;
+  @Field({ nullable: true })
+  compareAtPriceInCents?: number;
   @Field(() => [ProductMediaType], { nullable: true })
   media?: ProductMediaType[];
   @Field(() => [ProductVariantType], { nullable: true })

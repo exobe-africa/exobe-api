@@ -86,6 +86,8 @@ export class CatalogResolver {
       height: record.height ?? undefined,
       dimensionUnit: record.dimension_unit ?? record.dimensionUnit,
       tags: record.tags ?? undefined,
+      priceInCents: record.price_in_cents ?? record.priceInCents,
+      compareAtPriceInCents: record.compare_at_price_in_cents ?? record.compareAtPriceInCents,
       pickupLocation: record.pickup_location ? {
         id: record.pickup_location.id,
         name: record.pickup_location.name,

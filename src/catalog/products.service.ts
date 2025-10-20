@@ -52,6 +52,9 @@ export class ProductsService {
       brand: data.brand,
       model: data.model,
       material: data.material,
+      // Pricing (no variants)
+      price_in_cents: data.priceInCents ?? undefined,
+      compare_at_price_in_cents: data.compareAtPriceInCents ?? undefined,
       vendor: { connect: { id: inputVendorId } },
       category: { connect: { id: data.categoryId } },
     };
@@ -293,6 +296,8 @@ export class ProductsService {
     if (data.width !== undefined) updateData.width = data.width;
     if (data.height !== undefined) updateData.height = data.height;
     if (data.dimensionUnit) updateData.dimension_unit = data.dimensionUnit;
+    if (data.priceInCents !== undefined) updateData.price_in_cents = data.priceInCents;
+    if (data.compareAtPriceInCents !== undefined) updateData.compare_at_price_in_cents = data.compareAtPriceInCents;
     if (data.productType) updateData.product_type = data.productType;
     if (data.brand) updateData.brand = data.brand;
     if (data.model) updateData.model = data.model;

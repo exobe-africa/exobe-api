@@ -313,9 +313,15 @@ export class OrdersService {
 
   async myOrders(userId: string) {
     const customer = await (this.prisma as any).customer.findFirst({ where: { user_id: userId } });
-    if (!customer) return [];
+    const user = await (this.prisma as any).user.findUnique({ where: { id: userId } });
+
+    const where: any = { OR: [] };
+    if (customer?.id) where.OR.push({ customer_id: customer.id });
+    if (user?.email) where.OR.push({ email: { equals: user.email, mode: 'insensitive' } });
+    if (where.OR.length === 0) return [];
+
     return (this.prisma as any).order.findMany({
-      where: { customer_id: customer.id },
+      where,
       include: { items: true },
       orderBy: { created_at: 'desc' },
     });

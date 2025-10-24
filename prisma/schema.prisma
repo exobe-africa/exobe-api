@@ -327,6 +327,8 @@ model CustomerAddress {
 
 enum OrderStatus {
   PENDING
+  PROCESSING
+  SHIPPED
   PAID
   FULFILLED
   CANCELLED

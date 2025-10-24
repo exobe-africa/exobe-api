@@ -212,7 +212,14 @@ export class OrdersService {
       await (tx as any).orderEvent.create({ data: { order_id: order.id, status: 'PENDING', payment_status: 'INITIATED', description: 'Order created' } });
       for (const it of items as any[]) {
         const { is_product_level, ...dbItem } = it;
-        await (tx as any).orderItem.create({ data: { ...dbItem, order: { connect: { id: order.id } } } });
+        const { product_id, ...rest } = dbItem as any;
+        await (tx as any).orderItem.create({
+          data: {
+            ...rest,
+            product: { connect: { id: product_id } },
+            order: { connect: { id: order.id } },
+          },
+        });
         
         if (!is_product_level) {
           await tx.productVariant.update({

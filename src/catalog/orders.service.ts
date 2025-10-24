@@ -245,7 +245,7 @@ export class OrdersService {
     });
   }
 
-  async updateOrder(orderId: string, input: { status?: string; payment_status?: string; shippingAddress?: any; billingAddress?: any; description?: string; }) {
+  async updateOrder(orderId: string, input: { status?: string; payment_status?: string; shippingAddress?: any; billingAddress?: any; description?: string; }, actedByUserId?: string) {
     const order = await (this.prisma as any).order.findUnique({ where: { id: orderId }, include: { items: true } });
     if (!order) throw new NotFoundException('Order not found');
     const data: any = {};
@@ -287,10 +287,19 @@ export class OrdersService {
       }
       
       if (input.status === 'CANCELLED') {
-        // Notify customer of cancellation with reason
         try {
           const fullOrder = await (this.prisma as any).order.findUnique({ where: { id: orderId } });
           if (fullOrder) {
+            try {
+              await (this.prisma as any).orderCancellation.create({
+                data: {
+                  order_id: orderId,
+                  reason: input.description || 'Order cancelled',
+                  created_by_user_id: actedByUserId,
+                },
+              });
+            } catch {}
+
             await (this.customerNotifs as any).email.sendTemplatedEmail({
               to: fullOrder.email,
               subject: `Your Order Has Been Cancelled - #${fullOrder.order_number}`,

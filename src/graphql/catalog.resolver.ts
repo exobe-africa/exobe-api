@@ -467,8 +467,9 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => OrderType)
-  updateOrder(@Args('orderId') orderId: string, @Args('input') input: UpdateOrderInput) {
-    return this.orders.updateOrder(orderId, input as any);
+  updateOrder(@Args('orderId') orderId: string, @Args('input') input: UpdateOrderInput, @Context() ctx: any) {
+    const userId = ctx?.req?.user?.userId as string | undefined;
+    return this.orders.updateOrder(orderId, input as any, userId);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)

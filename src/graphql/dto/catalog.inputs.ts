@@ -550,15 +550,24 @@ export class CreateOrderInput {
 @InputType()
 export class UpdateOrderInput {
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   status?: string;
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   payment_status?: string;
   @Field(() => GraphQLJSONObject, { nullable: true })
+  @IsOptional()
+  @IsObject()
   shippingAddress?: Record<string, any>;
   @Field(() => GraphQLJSONObject, { nullable: true })
+  @IsOptional()
+  @IsObject()
   billingAddress?: Record<string, any>;
-  // Optional event description (e.g., cancellation reason)
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   description?: string;
 }
 

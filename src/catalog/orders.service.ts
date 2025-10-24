@@ -245,7 +245,7 @@ export class OrdersService {
     });
   }
 
-  async updateOrder(orderId: string, input: { status?: string; payment_status?: string; shippingAddress?: any; billingAddress?: any; }) {
+  async updateOrder(orderId: string, input: { status?: string; payment_status?: string; shippingAddress?: any; billingAddress?: any; description?: string; }) {
     const order = await (this.prisma as any).order.findUnique({ where: { id: orderId }, include: { items: true } });
     if (!order) throw new NotFoundException('Order not found');
     const data: any = {};
@@ -260,10 +260,23 @@ export class OrdersService {
           order_id: orderId,
           status: input.status,
           payment_status: input.payment_status,
-          description: 'Order updated',
+          description: input.description || 'Order updated',
         },
       });
-      try { await this.vendorNotifs.sendOrderStatusChangeEmail(updated, 'Order updated'); } catch {}
+      
+      // Send vendor notifications with appropriate messages
+      let vendorMessage = input.description || 'Order updated';
+      if (input.status === 'PROCESSING') {
+        vendorMessage = 'Order is being processed. Please prepare your products for collection by the delivery driver.';
+      } else if (input.status === 'SHIPPED') {
+        vendorMessage = 'Order has been shipped to the customer.';
+      } else if (input.status === 'FULFILLED') {
+        vendorMessage = 'Order has been successfully delivered to the customer.';
+      } else if (input.status === 'CANCELLED') {
+        vendorMessage = input.description || 'Order has been cancelled.';
+      }
+      
+      try { await this.vendorNotifs.sendOrderStatusChangeEmail(updated, vendorMessage); } catch {}
       
       if (input.status === 'SHIPPED') {
         try { await this.customerNotifs.sendShippingUpdateEmail(updated); } catch {}
@@ -271,6 +284,25 @@ export class OrdersService {
       
       if (input.status === 'FULFILLED') {
         try { await this.customerNotifs.sendDeliveryNotificationEmail(updated); } catch {}
+      }
+      
+      if (input.status === 'CANCELLED') {
+        // Notify customer of cancellation with reason
+        try {
+          const fullOrder = await (this.prisma as any).order.findUnique({ where: { id: orderId } });
+          if (fullOrder) {
+            await (this.customerNotifs as any).email.sendTemplatedEmail({
+              to: fullOrder.email,
+              subject: `Your Order Has Been Cancelled - #${fullOrder.order_number}`,
+              template: 'customer/order-cancelled',
+              variables: {
+                orderNumber: fullOrder.order_number,
+                reason: input.description || 'Your order has been cancelled.',
+                year: new Date().getFullYear(),
+              },
+            });
+          }
+        } catch {}
       }
     }
     return updated;

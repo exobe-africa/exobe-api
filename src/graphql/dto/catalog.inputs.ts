@@ -557,6 +557,9 @@ export class UpdateOrderInput {
   shippingAddress?: Record<string, any>;
   @Field(() => GraphQLJSONObject, { nullable: true })
   billingAddress?: Record<string, any>;
+  // Optional event description (e.g., cancellation reason)
+  @Field({ nullable: true })
+  description?: string;
 }
 
 // Discounts

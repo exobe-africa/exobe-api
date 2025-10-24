@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Cancelled</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            color: #333333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo-img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .warning-badge {
+            background-color: #dc3545;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        .subtitle {
+            color: #666666;
+            font-size: 16px;
+            margin: 0 0 30px 0;
+            line-height: 1.6;
+        }
+        .order-box {
+            background-color: #fff5f5;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .order-number {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 10px 0;
+        }
+        .reason-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .reason-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 12px 0;
+        }
+        .reason-text {
+            font-size: 15px;
+            color: #495057;
+            line-height: 1.7;
+            margin: 0;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .info-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #004085;
+            margin: 0 0 10px 0;
+        }
+        .info-text {
+            font-size: 14px;
+            color: #004085;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .highlight-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .highlight-text {
+            font-size: 14px;
+            color: #856404;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #0066cc;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #0052a3;
+        }
+        .footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #cccccc;
+            margin: 10px 0;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ff6b35;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 30px 0;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="https://exobe.africa/logo-white.png" alt="eXobe" class="logo-img">
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="warning-badge">⚠ Order Cancelled</div>
+            
+            <h1>Your Order Has Been Cancelled</h1>
+            <p class="subtitle">We're writing to inform you that your order has been cancelled. We sincerely apologize for any inconvenience this may have caused.</p>
+
+            <!-- Order Summary -->
+            <div class="order-box">
+                <p class="order-number">Order #{{orderNumber}}</p>
+            </div>
+
+            <!-- Cancellation Reason -->
+            <div class="reason-box">
+                <p class="reason-title">Reason for Cancellation</p>
+                <p class="reason-text">{{reason}}</p>
+            </div>
+
+            <!-- Refund Information -->
+            <div class="info-box">
+                <p class="info-title">What happens next?</p>
+                <p class="info-text">
+                    • Your payment has been marked for refund<br>
+                    • The refund will be processed to your original payment method within 5-10 business days<br>
+                    • You will receive a confirmation email once the refund has been processed<br>
+                    • No further action is required from you at this time
+                </p>
+            </div>
+
+            <!-- Additional Support -->
+            <div class="highlight-box">
+                <p class="highlight-text">
+                    <strong>Need assistance?</strong><br>
+                    If you have any questions or concerns about this cancellation, or if you'd like to place a new order, our customer support team is here to help. We're committed to providing you with the best possible shopping experience.
+                </p>
+            </div>
+
+            <!-- CTA Button -->
+            <div style="text-align: center;">
+                <a href="https://exobe.africa" class="cta-button">Continue Shopping</a>
+            </div>
+
+            <div class="divider"></div>
+
+            <p style="font-size: 14px; color: #666666; text-align: center;">
+                We value your business and hope to serve you again in the future.<br>
+                If you have any questions, please contact our support team at <a href="mailto:support@exobe.africa" style="color: #0066cc;">support@exobe.africa</a>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                <strong>eXobe</strong> - Your Premium African Marketplace
+            </p>
+            <div class="social-links">
+                <a href="https://facebook.com/exobe" class="social-link">Facebook</a>
+                <a href="https://twitter.com/exobe" class="social-link">Twitter</a>
+                <a href="https://instagram.com/exobe" class="social-link">Instagram</a>
+                <a href="https://linkedin.com/company/exobe" class="social-link">LinkedIn</a>
+            </div>
+            <p class="footer-text">
+                © {{year}} eXobe. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

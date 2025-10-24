@@ -193,14 +193,14 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => VendorType)
   createVendor(@Args('input') input: CreateVendorInput, @Context() ctx: any) {
     return this.vendors.createVendor({ ...input, ownerUser_id: ctx.req.user.userId });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => CategoryType)
   createCategory(@Args('input') input: CreateCategoryInput) {
     return this.categoriesService.createCategory(input);
@@ -217,7 +217,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductType)
   async createProduct(@Args('input') input: CreateProductInput, @Context() ctx: any) {
     const created = await this.products.createProduct(input, ctx.req.user.userId, true);
@@ -225,7 +225,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductType)
   async updateProduct(
     @Args('id') id: string,
@@ -237,7 +237,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   deleteProduct(@Args('id') id: string, @Context() ctx: any) {
     return this.products.deleteProduct(id, ctx.req.user.userId, true);
@@ -250,7 +250,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductVariantType)
   createVariant(@Args('input') input: CreateVariantInput, @Context() ctx: any) {
     const attributes = attributesArrayToRecord(input.attributes);
@@ -258,7 +258,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => [ProductVariantType])
   bulkCreateVariants(@Args('input') input: BulkCreateVariantsInput, @Context() ctx: any) {
     const mapped = input.variants.map(v => ({ ...v, attributes: attributesArrayToRecord(v.attributes) }));
@@ -266,14 +266,14 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductOptionType)
   createProductOption(@Args('input') input: CreateProductOptionInput, @Context() ctx: any) {
     return this.options.createOption(input.productId, input.name, input.position ?? 0, ctx.req.user.userId);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductOptionType)
   addOptionValue(@Args('input') input: AddOptionValueInput, @Context() ctx: any) {
     return this.options.addOptionValue(input.optionId, input.value, input.position ?? 0, ctx.req.user.userId);
@@ -285,7 +285,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductVariantType)
   updateVariant(
     @Args('id') id: string,
@@ -298,14 +298,14 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   deleteVariant(@Args('id') id: string, @Context() ctx: any) {
     return this.variants.deleteVariant(id, ctx.req.user.userId);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => String)
   adjustInventory(@Args('input') input: InventoryAdjustInput, @Context() ctx: any) {
     return this.inventory
@@ -314,7 +314,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductMediaType)
   addVariantMedia(@Args('input') input: AddVariantMediaInput, @Context() ctx: any) {
     return this.variants.addVariantMedia(
@@ -325,14 +325,14 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   removeVariantMedia(@Args('mediaId') mediaId: string, @Context() ctx: any) {
     return this.variants.removeVariantMedia(mediaId, ctx.req.user.userId);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ProductMediaType)
   addProductMedia(@Args('input') input: AddProductMediaInput, @Context() ctx: any) {
     return this.products.addProductMedia(
@@ -343,7 +343,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('RETAILER', 'WHOLESALER', 'ADMIN')
+  @Roles('RETAILER', 'WHOLESALER', 'ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   removeProductMedia(@Args('mediaId') mediaId: string, @Context() ctx: any) {
     return this.products.removeProductMedia(mediaId, ctx.req.user.userId);
@@ -362,35 +362,34 @@ export class CatalogResolver {
     return this.products
       .listProductsPaged({ query, categoryId, vendorId, status, isActive, cursor, limit })
       .then((r) => {
-        // Transform each product using toProductType helper
         const transformedItems = r.items.map((item: any) => this.toProductType(item));
         return JSON.stringify({ ...r, items: transformedItems });
       });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   approveVendor(@Args('vendorId') vendor_id: string) {
     return this.vendors.approveVendor(vendor_id).then(() => true);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   suspendVendor(@Args('vendorId') vendor_id: string) {
     return this.vendors.suspendVendor(vendor_id).then(() => true);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   approveProduct(@Args('productId') product_id: string) {
     return this.products.approveProduct(product_id).then(() => true);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   archiveProduct(@Args('productId') product_id: string) {
     return this.products.archiveProduct(product_id).then(() => true);
@@ -412,8 +411,7 @@ export class CatalogResolver {
       postalCode: input.postalCode,
       defaultAddress: input.defaultAddress,
     };
-    // eslint-disable-next-line no-console
-    console.log('[resolver.createUserAddress]', { currentUserId, input: sanitized });
+
     try {
       const created = await this.users.createAddress(sanitized as any, currentUserId);
       return this.toUserAddressType(created);
@@ -439,8 +437,7 @@ export class CatalogResolver {
       country: input.country,
       postalCode: input.postalCode,
     };
-    // eslint-disable-next-line no-console
-    console.log('[resolver.updateUserAddress]', { currentUserId, id, input: sanitized });
+    
     try {
       const updated = await this.users.updateAddress(id, sanitized as any, currentUserId);
       return this.toUserAddressType(updated);
@@ -468,14 +465,14 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => OrderType)
   updateOrder(@Args('orderId') orderId: string, @Args('input') input: UpdateOrderInput) {
     return this.orders.updateOrder(orderId, input as any);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   deleteOrder(@Args('orderId') orderId: string) {
     return this.orders.deleteOrder(orderId);
@@ -497,7 +494,6 @@ export class CatalogResolver {
     return this.orders.myOrders(ctx.req.user.userId);
   }
 
-  // Admin: list all orders with optional filters
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPER_ADMIN')
   @Query(() => [OrderType], { name: 'orders' })
@@ -518,7 +514,6 @@ export class CatalogResolver {
     return this.orders.getOrderById(orderId, ctx.req.user.userId, isAdmin);
   }
 
-  // Returns
   @UseGuards(GqlAuthGuard)
   @Mutation(() => ReturnRequestType)
   requestReturn(@Args('input') input: RequestReturnInput, @Context() ctx: any) {
@@ -539,15 +534,13 @@ export class CatalogResolver {
     return this.returns.returnById(id, ctx.req.user.userId, isAdmin);
   }
 
-  // Admin: update return status (records timeline event)
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => ReturnRequestType)
   updateReturnStatus(@Args('id') id: string, @Args('status') status: string, @Args('description', { nullable: true }) description?: string) {
     return this.returns.updateReturnStatus(id, status, description);
   }
 
-  // Wishlist
   @UseGuards(GqlAuthGuard)
   @Query(() => WishlistType, { nullable: true })
   myWishlist(@Context() ctx: any) {
@@ -566,7 +559,6 @@ export class CatalogResolver {
     return this.wishlists.removeFromWishlist(ctx.req.user.userId, input);
   }
 
-  // Notification settings
   @UseGuards(GqlAuthGuard)
   @Query(() => CustomerNotificationSettingsType)
   myNotificationSettings(@Context() ctx: any) {
@@ -576,7 +568,6 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => CustomerNotificationSettingsType)
   updateMyNotificationSettings(@Args('input') input: UpdateNotificationSettingsInput, @Context() ctx: any) {
-    // Ensure all required fields are present with defaults
     const sanitizedInput = {
       order_confirmations: input.order_confirmations ?? true,
       shipping_updates: input.shipping_updates ?? true,
@@ -591,7 +582,6 @@ export class CatalogResolver {
     return this.users.updateNotificationSettings(ctx.req.user.userId, sanitizedInput);
   }
 
-  // Settings Tab: profile & password
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   updateMyProfile(@Args('input') input: UpdateProfileInput, @Context() ctx: any) {
@@ -615,12 +605,9 @@ export class CatalogResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   deleteMyAccount(@Context() ctx: any) {
-    // Instead of deleting the user, we'll anonymize the data
-    // This preserves order history, returns, etc. but removes personal information
     return this.users.anonymizeUser(ctx.req.user.userId);
   }
 
-  // Reviews
   @UseGuards(GqlAuthGuard)
   @Mutation(() => ReviewType)
   createReview(@Args('input') input: CreateReviewInput, @Context() ctx: any) {
@@ -650,37 +637,36 @@ export class CatalogResolver {
     return this.reviews.myReviews(ctx.req.user.userId);
   }
 
-  // Gift Cards (Admin)
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => GiftCardType)
   createGiftCard(@Args('input') input: CreateGiftCardInput) {
     return this.giftcards.createGiftCard(input as any);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => GiftCardType)
   updateGiftCard(@Args('id') id: string, @Args('input') input: UpdateGiftCardInput) {
     return this.giftcards.updateGiftCard(id, input as any);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   deleteGiftCard(@Args('id') id: string) {
     return this.giftcards.deleteGiftCard(id);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Mutation(() => GiftCardType)
   assignGiftCardToCustomer(@Args('id') id: string, @Args('customerId', { nullable: true }) customerId?: string) {
     return this.giftcards.assignGiftCardToCustomer(id, customerId ?? null);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Query(() => [GiftCardType])
   giftCards(@Args('status', { nullable: true }) status?: string, @Args('customerId', { nullable: true }) customerId?: string) {
     return this.giftcards.listGiftCards({ status: status as any, customer_id: customerId });
@@ -688,14 +674,14 @@ export class CatalogResolver {
 
   // Discounts
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => DiscountTypeGQL)
   createDiscount(@Args('input') input: CreateDiscountInput, @Context() ctx: any) {
     return this.discounts.createDiscount(input, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => DiscountTypeGQL)
   updateDiscount(@Args('id') id: string, @Args('input') input: UpdateDiscountInput, @Context() ctx: any) {
     return this.discounts.updateDiscount(id, input, { userId: ctx.req.user.userId, role: ctx.req.user.role });
@@ -709,7 +695,7 @@ export class CatalogResolver {
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Query(() => [DiscountTypeGQL])
   discountsList(
     @Args('vendorId', { nullable: true }) vendorId: string,
@@ -719,58 +705,55 @@ export class CatalogResolver {
     return this.discounts.listDiscounts({ vendor_id: vendorId, type }, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 
-  // Collections
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => CollectionType)
   createCollection(@Args('input') input: CreateCollectionInput, @Context() ctx: any) {
     return this.collections.createCollection(input, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => CollectionType)
   updateCollection(@Args('id') id: string, @Args('input') input: UpdateCollectionInput, @Context() ctx: any) {
     return this.collections.updateCollection(id, input, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   deleteCollection(@Args('id') id: string, @Context() ctx: any) {
     return this.collections.deleteCollection(id, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   addProductsToCollection(@Args('input') input: ModifyCollectionProductsInput, @Context() ctx: any) {
     return this.collections.addProducts(input.collection_id, input.product_ids, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => Boolean)
   removeProductFromCollection(@Args('collectionId') collectionId: string, @Args('productId') productId: string, @Context() ctx: any) {
     return this.collections.removeProduct(collectionId, productId, { userId: ctx.req.user.userId, role: ctx.req.user.role });
   }
 
-  // Vendor notification settings
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Query(() => VendorNotificationSettingsType)
   vendorNotificationSettings(@Args('vendorId') vendorId: string) {
     return this.vendorNotifs.getSettings(vendorId);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'RETAILER', 'WHOLESALER')
+  @Roles('ADMIN', 'RETAILER', 'WHOLESALER', 'SUPER_ADMIN')
   @Mutation(() => VendorNotificationSettingsType)
   updateVendorNotificationSettings(@Args('vendorId') vendorId: string, @Args('input') input: UpdateVendorNotificationSettingsInput) {
     return this.vendorNotifs.updateSettings(vendorId, input);
   }
 
-  // Invoice and Receipt Generation
   @UseGuards(GqlAuthGuard)
   @Query(() => String)
   async getInvoiceUrl(@Args('orderId') orderId: string, @Context() ctx: any) {

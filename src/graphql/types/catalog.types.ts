@@ -233,6 +233,8 @@ export class ProductType {
   @Field({ nullable: true })
   salesCount?: number;
   // Related configs
+  @Field(() => VendorType, { nullable: true })
+  vendor?: VendorType;
   @Field(() => CategoryType, { nullable: true })
   category?: CategoryType;
   @Field(() => ProductPickupLocationGQL, { nullable: true })
@@ -340,8 +342,42 @@ export class OrderItemType {
   quantity: number;
   @Field()
   total_cents: number;
+  @Field()
+  vendor_id: string;
+  @Field()
+  product_id: string;
   @Field(() => ProductType, { nullable: true })
   product?: ProductType;
+  @Field(() => ProductVariantType, { nullable: true })
+  product_variant?: ProductVariantType;
+}
+
+@ObjectType()
+export class CustomerType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  email: string;
+  @Field({ nullable: true })
+  first_name?: string;
+  @Field({ nullable: true })
+  last_name?: string;
+  @Field({ nullable: true })
+  phone?: string;
+  @Field({ nullable: true })
+  mobile?: string;
+}
+
+@ObjectType()
+export class OrderDiscountType {
+  @Field(() => ID)
+  id: string;
+  @Field()
+  amount_cents: number;
+  @Field({ nullable: true })
+  code?: string;
+  @Field({ nullable: true })
+  description?: string;
 }
 
 @ObjectType()
@@ -382,6 +418,10 @@ export class OrderType {
   events?: OrderEventType[];
   @Field({ nullable: true })
   discount_total_cents?: number;
+  @Field(() => CustomerType, { nullable: true })
+  customer?: CustomerType;
+  @Field(() => [OrderDiscountType], { nullable: true })
+  discounts?: OrderDiscountType[];
 }
 
 @ObjectType()

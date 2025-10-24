@@ -7,7 +7,7 @@ import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
-import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, CustomerNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType } from './types/catalog.types';
+import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, CustomerNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType, CustomerType, OrderDiscountType } from './types/catalog.types';
 import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CheckEmailExistsInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
@@ -497,11 +497,24 @@ export class CatalogResolver {
     return this.orders.myOrders(ctx.req.user.userId);
   }
 
+  // Admin: list all orders with optional filters
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => [OrderType], { name: 'orders' })
+  adminOrders(
+    @Args('status', { nullable: true }) status?: string,
+    @Args('query', { nullable: true }) query?: string,
+    @Args('take', { nullable: true }) take?: number,
+    @Args('skip', { nullable: true }) skip?: number,
+  ) {
+    return (this.orders as any).listOrders({ status, query, take, skip });
+  }
+
   @UseGuards(GqlAuthGuard)
   @Query(() => OrderType)
   orderById(@Args('orderId') orderId: string, @Context() ctx: any) {
     const role = ctx.req.user.role;
-    const isAdmin = role === 'ADMIN';
+    const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
     return this.orders.getOrderById(orderId, ctx.req.user.userId, isAdmin);
   }
 

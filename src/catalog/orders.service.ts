@@ -328,7 +328,27 @@ export class OrdersService {
   }
 
   async getOrderById(orderId: string, userId: string, isAdmin: boolean) {
-    const order = await (this.prisma as any).order.findUnique({ where: { id: orderId }, include: { items: true, customer: true } });
+    const order = await (this.prisma as any).order.findUnique({ 
+      where: { id: orderId }, 
+      include: { 
+        items: {
+          include: {
+            product: {
+              include: {
+                vendor: true,
+                media: true,
+                category: true
+              }
+            },
+            // Note: OrderItem does not have a Prisma relation named `product_variant`.
+            // If variant-level media is required, fetch separately.
+          }
+        },
+        customer: true,
+        events: { orderBy: { created_at: 'desc' } },
+        discounts: true
+      } 
+    });
     if (!order) throw new NotFoundException('Order not found');
     if (isAdmin) return order;
     const customer = await (this.prisma as any).customer.findFirst({ where: { user_id: userId } });
@@ -336,5 +356,35 @@ export class OrdersService {
     throw new NotFoundException('Order not found');
   }
 }
+
+// Admin list orders
+// NOTE: Exposed via GraphQL for ADMIN role only
+export interface ListOrdersParams {
+  status?: string;
+  query?: string;
+  take?: number;
+  skip?: number;
+}
+
+export interface OrdersService { listOrders(params: ListOrdersParams): Promise<any[]> }
+
+OrdersService.prototype.listOrders = async function (this: OrdersService, params: ListOrdersParams) {
+  const { status, query, take = 50, skip = 0 } = params || {};
+  const where: any = {};
+  if (status) where.status = status;
+  if (query) {
+    where.OR = [
+      { order_number: { contains: query, mode: 'insensitive' } },
+      { email: { contains: query, mode: 'insensitive' } },
+    ];
+  }
+  return (this as any).prisma.order.findMany({
+    where,
+    include: { items: true },
+    orderBy: { created_at: 'desc' },
+    take,
+    skip,
+  });
+};
 
 

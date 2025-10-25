@@ -24,6 +24,18 @@ export class VendorsService {
     });
   }
 
+  getVendorByUserIdWithDetails(userId: string, options?: any) {
+    return this.prisma.vendor.findFirst({
+      where: {
+        OR: [
+          { owner_user_id: userId },
+          { account_manager_user_id: userId },
+        ],
+      },
+      ...options,
+    });
+  }
+
   getVendorBySlug(slug: string) {
     return this.prisma.vendor.findUnique({ where: { slug } });
   }

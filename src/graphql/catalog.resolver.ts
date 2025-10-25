@@ -920,6 +920,44 @@ export class CatalogResolver {
 
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => VendorType, { name: 'vendorByUserId' })
+  async vendorByUserId(@Args('userId') userId: string) {
+    const vendor = await this.vendors.getVendorByUserIdWithDetails(userId, {
+      include: {
+        _count: { select: { products: true } },
+      },
+    });
+
+    if (!vendor) {
+      throw new Error('Vendor not found');
+    }
+
+    const v: any = vendor as any;
+    return {
+      id: v.id,
+      name: v.name,
+      slug: v.slug,
+      description: v.description,
+      email: null,
+      phone: null,
+      address: null,
+      city: null,
+      province: null,
+      postal_code: null,
+      postalCode: null,
+      country: null,
+      business_registration_number: null,
+      tax_number: null,
+      status: v.status,
+      sellerType: v.seller_type,
+      created_at: v.created_at,
+      isActive: Boolean(v.is_active),
+      _count: v._count,
+    };
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Query(() => VendorStatsType)
   async vendorStats() {
     const total = await (this.vendors as any).prisma.vendor.count();

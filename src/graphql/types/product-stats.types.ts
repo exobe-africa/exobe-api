@@ -9,9 +9,19 @@ export class ProductStatsType {
   active: number;
 
   @Field(() => Float)
-  lowStock: number;
+  draft: number;
 
   @Field(() => Float)
   outOfStock: number;
+
+  // Categories derived from products (not the categories table)
+  @Field(() => Float, { nullable: true })
+  categoriesTotal?: number;
+  @Field(() => Float, { nullable: true })
+  categoriesActive?: number;
+  @Field(() => Float, { nullable: true })
+  categoriesInactive?: number;
+  @Field(() => Float, { nullable: true })
+  categoriesDraft?: number;
 }
 

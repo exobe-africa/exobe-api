@@ -655,21 +655,44 @@ export class ProductsService {
 
   async getProductStats() {
     const total = await this.prisma.catalogProduct.count();
+    // Consider a product active if either status is ACTIVE OR is_active is true
     const active = await this.prisma.catalogProduct.count({
-      where: { status: 'ACTIVE', is_active: true }
+      where: { OR: [ { status: 'ACTIVE' }, { is_active: true } ] }
     });
-    const lowStock = await this.prisma.catalogProduct.count({
-      where: { 
-        stock_quantity: { lte: 10, gt: 0 },
-        status: 'ACTIVE',
-        is_active: true
-      }
+    const draft = await this.prisma.catalogProduct.count({
+      where: { status: 'DRAFT' }
     });
     const outOfStock = await this.prisma.catalogProduct.count({
       where: { stock_quantity: 0 }
     });
     
-    return { total, active, lowStock, outOfStock };
+    // Count categories seen in products by status buckets (active/inactive/draft)
+    const categoryIdsActive = await this.prisma.catalogProduct.findMany({
+      where: { OR: [ { status: 'ACTIVE' }, { is_active: true } ] },
+      select: { category_id: true },
+      distinct: ['category_id'] as any,
+    });
+    const categoryIdsInactive = await this.prisma.catalogProduct.findMany({
+      where: { AND: [ { status: { not: 'ACTIVE' } }, { is_active: false } ] },
+      select: { category_id: true },
+      distinct: ['category_id'] as any,
+    });
+    const categoryIdsDraft = await this.prisma.catalogProduct.findMany({
+      where: { status: 'DRAFT' },
+      select: { category_id: true },
+      distinct: ['category_id'] as any,
+    });
+
+    const categoriesActive = categoryIdsActive.length;
+    const categoriesInactive = categoryIdsInactive.length;
+    const categoriesDraft = categoryIdsDraft.length;
+    const categoriesTotal = new Set([
+      ...categoryIdsActive.map((c:any)=>c.category_id),
+      ...categoryIdsInactive.map((c:any)=>c.category_id),
+      ...categoryIdsDraft.map((c:any)=>c.category_id),
+    ]).size;
+
+    return { total, active, draft, outOfStock, categoriesTotal, categoriesActive, categoriesInactive, categoriesDraft } as any;
   }
 }
 

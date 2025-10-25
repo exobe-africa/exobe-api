@@ -49,25 +49,14 @@ export class AdminDashboardService {
       ? ((vendorsLastMonth - vendorsPreviousMonth) / vendorsPreviousMonth) * 100 
       : vendorsLastMonth > 0 ? 100 : 0;
 
-    const totalProducts = await (this.prisma as any).catalogProduct.count({
-      where: { status: 'ACTIVE', is_active: true }
-    });
+    // Total products and trend – treat a product as active if status = ACTIVE OR is_active = true
+    const activeProductWhere: any = { OR: [ { status: 'ACTIVE' }, { is_active: true } ] };
+    const totalProducts = await (this.prisma as any).catalogProduct.count({ where: activeProductWhere });
     const productsLastMonth = await (this.prisma as any).catalogProduct.count({
-      where: { 
-        status: 'ACTIVE',
-        is_active: true,
-        created_at: { gte: thirtyDaysAgo } 
-      },
+      where: { ...activeProductWhere, created_at: { gte: thirtyDaysAgo } },
     });
     const productsPreviousMonth = await (this.prisma as any).catalogProduct.count({
-      where: { 
-        status: 'ACTIVE',
-        is_active: true,
-        created_at: { 
-          gte: sixtyDaysAgo,
-          lt: thirtyDaysAgo 
-        } 
-      },
+      where: { ...activeProductWhere, created_at: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
     });
     const productsTrend = productsPreviousMonth > 0 
       ? ((productsLastMonth - productsPreviousMonth) / productsPreviousMonth) * 100 

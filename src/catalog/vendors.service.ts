@@ -17,6 +17,13 @@ export class VendorsService {
     return this.prisma.vendor.findUnique({ where: { id } });
   }
 
+  getVendorByIdWithDetails(id: string, options?: any) {
+    return this.prisma.vendor.findUnique({ 
+      where: { id },
+      ...options,
+    });
+  }
+
   getVendorBySlug(slug: string) {
     return this.prisma.vendor.findUnique({ where: { slug } });
   }

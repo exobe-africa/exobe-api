@@ -858,6 +858,7 @@ export class CatalogResolver {
       city: v.city,
       province: v.province,
       postal_code: v.postal_code,
+      postalCode: v.postal_code,
       country: v.country,
       business_registration_number: v.business_registration_number,
       tax_number: v.tax_number,
@@ -867,6 +868,54 @@ export class CatalogResolver {
       isActive: Boolean(v.is_active),
       _count: v._count,
     }));
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => VendorType, { name: 'vendorById' })
+  async vendorById(@Args('id') id: string) {
+    const vendor = await this.vendors.getVendorByIdWithDetails(id, {
+      include: {
+        _count: {
+          select: { products: true },
+        },
+        products: {
+          include: {
+            category: true,
+            media: true,
+          },
+        },
+      },
+    });
+
+    if (!vendor) {
+      throw new Error('Vendor not found');
+    }
+
+    const v: any = vendor as any;
+
+    return {
+      id: v.id,
+      name: v.name,
+      slug: v.slug,
+      description: v.description,
+      email: null,
+      phone: null,
+      address: null,
+      city: null,
+      province: null,
+      postal_code: null,
+      postalCode: null,
+      country: null,
+      business_registration_number: null,
+      tax_number: null,
+      status: v.status,
+      sellerType: v.seller_type,
+      created_at: v.created_at,
+      isActive: Boolean(v.is_active),
+      _count: v._count,
+      products: Array.isArray(v.products) ? v.products.map((p: any) => this.toProductType(p)) : [],
+    };
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)

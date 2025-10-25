@@ -31,6 +31,8 @@ export class VendorType {
   @Field({ nullable: true })
   postal_code?: string;
   @Field({ nullable: true })
+  postalCode?: string;
+  @Field({ nullable: true })
   country?: string;
   @Field({ nullable: true })
   business_registration_number?: string;
@@ -46,6 +48,8 @@ export class VendorType {
   isActive: boolean;
   @Field(() => VendorCountType, { nullable: true })
   _count?: VendorCountType;
+  @Field(() => [ProductType], { nullable: true })
+  products?: ProductType[];
 }
 
 @ObjectType()

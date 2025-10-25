@@ -20,6 +20,13 @@ export class VendorsService {
   getVendorBySlug(slug: string) {
     return this.prisma.vendor.findUnique({ where: { slug } });
   }
+
+  listVendors(options?: any) {
+    return this.prisma.vendor.findMany({
+      orderBy: { created_at: 'desc' },
+      ...options,
+    });
+  }
   
   approveVendor(vendor_id: string) {
     return this.prisma.vendor.update({ where: { id: vendor_id }, data: { status: 'APPROVED', is_active: true } });

@@ -1,6 +1,13 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { GraphQLJSONObject } from 'graphql-type-json';
 
+// Define VendorCountType BEFORE VendorType to avoid runtime reference errors
+@ObjectType()
+export class VendorCountType {
+  @Field({ nullable: true })
+  products?: number;
+}
+
 @ObjectType()
 export class VendorType {
   @Field(() => ID)
@@ -11,8 +18,34 @@ export class VendorType {
   slug: string;
   @Field({ nullable: true })
   description?: string;
+  @Field({ nullable: true })
+  email?: string;
+  @Field({ nullable: true })
+  phone?: string;
+  @Field({ nullable: true })
+  address?: string;
+  @Field({ nullable: true })
+  city?: string;
+  @Field({ nullable: true })
+  province?: string;
+  @Field({ nullable: true })
+  postal_code?: string;
+  @Field({ nullable: true })
+  country?: string;
+  @Field({ nullable: true })
+  business_registration_number?: string;
+  @Field({ nullable: true })
+  tax_number?: string;
+  @Field({ nullable: true })
+  status?: string;
+  @Field({ nullable: true })
+  sellerType?: string;
+  @Field({ nullable: true })
+  created_at?: string;
   @Field()
   isActive: boolean;
+  @Field(() => VendorCountType, { nullable: true })
+  _count?: VendorCountType;
 }
 
 @ObjectType()

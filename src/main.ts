@@ -35,6 +35,8 @@ async function bootstrap() {
 
   const rawOrigins = process.env.CORS_ORIGIN?.split(',').map((s) => s.trim()).filter(Boolean) || [
     'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
     'https://exobe-ecommerce.vercel.app',
     'https://exobe-api.vercel.app',
     'https://exobe-admin.vercel.app',

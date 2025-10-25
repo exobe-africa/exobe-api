@@ -11,6 +11,7 @@ import { AdminDashboardService } from '../catalog/admin-dashboard.service';
 import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, CustomerNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType, CustomerType, OrderDiscountType } from './types/catalog.types';
 import { DashboardStatsType, RecentOrderType } from './types/admin-dashboard.types';
 import { ProductStatsType } from './types/product-stats.types';
+import { VendorStatsType } from './types/vendor-stats.types';
 import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CheckEmailExistsInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
@@ -834,7 +835,60 @@ export class CatalogResolver {
     });
     return result.items.map((item: any) => this.toProductType(item));
   }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => [VendorType])
+  async vendorsList() {
+    const vendorsList = await this.vendors.listVendors({
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
+    });
+    return vendorsList.map((v: any) => ({
+      id: v.id,
+      name: v.name,
+      slug: v.slug,
+      description: v.description,
+      email: v.email,
+      phone: v.phone,
+      address: v.address,
+      city: v.city,
+      province: v.province,
+      postal_code: v.postal_code,
+      country: v.country,
+      business_registration_number: v.business_registration_number,
+      tax_number: v.tax_number,
+      status: v.status,
+      sellerType: v.seller_type,
+      created_at: v.created_at,
+      isActive: Boolean(v.is_active),
+      _count: v._count,
+    }));
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => VendorStatsType)
+  async vendorStats() {
+    const total = await (this.vendors as any).prisma.vendor.count();
+    const active = await (this.vendors as any).prisma.vendor.count({
+      where: { status: 'APPROVED' },
+    });
+    const pending = await (this.vendors as any).prisma.vendor.count({
+      where: { status: 'PENDING' },
+    });
+    const suspended = await (this.vendors as any).prisma.vendor.count({
+      where: { status: 'SUSPENDED' },
+    });
+    const totalProducts = await (this.vendors as any).prisma.catalogProduct.count();
+
+    return { total, active, pending, suspended, totalProducts };
+  }
 }
+
 
 
 

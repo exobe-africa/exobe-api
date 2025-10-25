@@ -61,7 +61,6 @@ export class AdminDashboardService {
       ? ((productsLastMonth - productsPreviousMonth) / productsPreviousMonth) * 100 
       : productsLastMonth > 0 ? 100 : 0;
 
-    // Total orders and trend
     const totalOrders = await (this.prisma as any).order.count();
     const ordersLastMonth = await (this.prisma as any).order.count({
       where: { created_at: { gte: thirtyDaysAgo } },

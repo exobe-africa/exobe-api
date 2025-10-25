@@ -10,6 +10,7 @@ import { OrdersService } from '../catalog/orders.service';
 import { AdminDashboardService } from '../catalog/admin-dashboard.service';
 import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, CustomerNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType, CustomerType, OrderDiscountType } from './types/catalog.types';
 import { DashboardStatsType, RecentOrderType } from './types/admin-dashboard.types';
+import { ProductStatsType } from './types/product-stats.types';
 import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CheckEmailExistsInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
@@ -168,6 +169,15 @@ export class CatalogResolver {
         certification: record.compliance_details.certification,
       } : undefined,
       salesCount: Array.isArray(record.order_items) ? record.order_items.length : (record._count?.order_items ?? 0),
+      vendor: record.vendor ? {
+        id: record.vendor.id,
+        name: record.vendor.name,
+        slug: record.vendor.slug,
+        description: record.vendor.description,
+        status: record.vendor.status,
+        isActive: Boolean(record.vendor.is_active),
+        sellerType: record.vendor.seller_type,
+      } : undefined,
       category: record.category ? {
         id: record.category.id,
         name: record.category.name,
@@ -795,7 +805,38 @@ export class CatalogResolver {
   async recentOrders(@Args('limit', { nullable: true }) limit?: number) {
     return this.dashboard.getRecentOrders(limit || 5);
   }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN', 'RETAILER', 'WHOLESALER')
+  @Query(() => ProductStatsType)
+  async productStats() {
+    return this.products.getProductStats();
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN', 'RETAILER', 'WHOLESALER')
+  @Query(() => [ProductType])
+  async productsList(
+    @Args('vendorId', { nullable: true }) vendorId?: string,
+    @Args('categoryId', { nullable: true }) categoryId?: string,
+    @Args('status', { nullable: true }) status?: string,
+    @Args('query', { nullable: true }) query?: string,
+    @Args('take', { nullable: true }) take?: number,
+    @Args('skip', { nullable: true }) skip?: number,
+  ) {
+    const result = await this.products.listProductsPaged({
+      vendor_id: vendorId,
+      category_id: categoryId,
+      status,
+      query,
+      limit: take || 100,
+      cursor: undefined,
+    });
+    return result.items.map((item: any) => this.toProductType(item));
+  }
 }
+
+
 
 
 

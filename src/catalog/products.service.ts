@@ -618,6 +618,7 @@ export class ProductsService {
       skip: cursor ? 1 : 0,
       include: {
         media: true,
+        vendor: true,
         category: true,
         variants: true
       }
@@ -651,6 +652,26 @@ export class ProductsService {
   removeProductMedia(mediaId: string, currentUserId: string) {
     return this.prisma.productMedia.delete({ where: { id: mediaId } }).then(() => true);
   }
+
+  async getProductStats() {
+    const total = await this.prisma.catalogProduct.count();
+    const active = await this.prisma.catalogProduct.count({
+      where: { status: 'ACTIVE', is_active: true }
+    });
+    const lowStock = await this.prisma.catalogProduct.count({
+      where: { 
+        stock_quantity: { lte: 10, gt: 0 },
+        status: 'ACTIVE',
+        is_active: true
+      }
+    });
+    const outOfStock = await this.prisma.catalogProduct.count({
+      where: { stock_quantity: 0 }
+    });
+    
+    return { total, active, lowStock, outOfStock };
+  }
 }
+
 
 

@@ -49,7 +49,6 @@ export class AdminDashboardService {
       ? ((vendorsLastMonth - vendorsPreviousMonth) / vendorsPreviousMonth) * 100 
       : vendorsLastMonth > 0 ? 100 : 0;
 
-    // Total products and trend – treat a product as active if status = ACTIVE OR is_active = true
     const activeProductWhere: any = { OR: [ { status: 'ACTIVE' }, { is_active: true } ] };
     const totalProducts = await (this.prisma as any).catalogProduct.count({ where: activeProductWhere });
     const productsLastMonth = await (this.prisma as any).catalogProduct.count({

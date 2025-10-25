@@ -121,6 +121,9 @@ class SellerApplicationType {
 
   @Field()
   created_at: Date;
+
+  @Field()
+  updated_at: Date;
 }
 
 @ObjectType()
@@ -271,6 +274,13 @@ export class ApplicationsResolver {
     @Args('skip', { type: () => Int, nullable: true }) skip?: number,
   ) {
     return this.apps.getSellerApplications({ status, take, skip });
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => SellerApplicationType, { nullable: true })
+  applicationByEmail(@Args('email') email: string) {
+    return this.apps.getSellerApplicationByEmail(email);
   }
 
   @UseGuards(GqlAuthGuard, RolesGuard)

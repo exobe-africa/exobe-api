@@ -79,4 +79,11 @@ export class UsersResolver {
   ) {
     return this.users.searchUsers({ query, role, isActive, take, skip });
   }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => UserType, { nullable: true })
+  async userById(@Args('id') id: string) {
+    return this.users.findById(id);
+  }
 }

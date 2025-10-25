@@ -250,6 +250,13 @@ export class ApplicationsService {
     });
   }
 
+  getSellerApplicationByEmail(email: string) {
+    return this.prisma.sellerApplication.findFirst({
+      where: { email },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
   getServiceProviderApplications(params: { status?: string; take?: number; skip?: number } = {}) {
     const { status, take = 50, skip = 0 } = params;
     const where: any = {};

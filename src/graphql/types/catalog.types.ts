@@ -50,6 +50,8 @@ export class VendorType {
   _count?: VendorCountType;
   @Field(() => [ProductType], { nullable: true })
   products?: ProductType[];
+  @Field({ nullable: true })
+  owner_user_id?: string;
 }
 
 @ObjectType()

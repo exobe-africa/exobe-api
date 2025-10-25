@@ -915,6 +915,7 @@ export class CatalogResolver {
       isActive: Boolean(v.is_active),
       _count: v._count,
       products: Array.isArray(v.products) ? v.products.map((p: any) => this.toProductType(p)) : [],
+      owner_user_id: v.owner_user_id,
     };
   }
 

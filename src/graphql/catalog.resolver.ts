@@ -7,7 +7,9 @@ import { InventoryService } from '../catalog/inventory.service';
 import { OptionsService } from '../catalog/options.service';
 import { UsersService } from '../users/users.service';
 import { OrdersService } from '../catalog/orders.service';
+import { AdminDashboardService } from '../catalog/admin-dashboard.service';
 import { VendorType, CategoryType, ProductType, ProductVariantType, ProductMediaType, CategoryTreeType, ProductOptionType, UserAddressType, OrderType, VatRateType, ReturnRequestType, WishlistType, ReviewType, CustomerNotificationSettingsType, GiftCardType, DiscountTypeGQL, CollectionType, VendorNotificationSettingsType, CustomerType, OrderDiscountType } from './types/catalog.types';
+import { DashboardStatsType, RecentOrderType } from './types/admin-dashboard.types';
 import { CreateVendorInput, CreateCategoryInput, CreateProductInput, UpdateProductInput, CreateVariantInput, UpdateVariantInput, attributesArrayToRecord, InventoryAdjustInput, AddVariantMediaInput, AddProductMediaInput, BulkCreateVariantsInput, CreateProductOptionInput, AddOptionValueInput, CreateUserAddressInput, UpdateUserAddressInput, CreateOrderInput, UpdateOrderInput, RequestReturnInput, WishlistItemInput, CreateReviewInput, UpdateReviewInput, UpdateNotificationSettingsInput, UpdateProfileInput, UpdatePasswordInput, CheckEmailExistsInput, CreateGiftCardInput, UpdateGiftCardInput, CreateDiscountInput, UpdateDiscountInput, CreateCollectionInput, UpdateCollectionInput, ModifyCollectionProductsInput, UpdateVendorNotificationSettingsInput } from './dto/catalog.inputs';
 import { ReturnsService } from '../catalog/returns.service';
 import { WishlistsService } from '../catalog/wishlists.service';
@@ -41,6 +43,7 @@ export class CatalogResolver {
     private collections: CollectionsService,
     private vendorNotifs: VendorNotificationsService,
     private documents: DocumentsService,
+    private dashboard: AdminDashboardService,
   ) {}
 
   private toProductType(record: any): ProductType {
@@ -778,6 +781,21 @@ export class CatalogResolver {
   async generateReceipt(@Args('orderId') orderId: string, @Context() ctx: any) {
     return this.documents.generateReceipt(orderId);
   }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => DashboardStatsType)
+  async dashboardStats() {
+    return this.dashboard.getDashboardStats();
+  }
+
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Query(() => [RecentOrderType])
+  async recentOrders(@Args('limit', { nullable: true }) limit?: number) {
+    return this.dashboard.getRecentOrders(limit || 5);
+  }
 }
+
 
 
